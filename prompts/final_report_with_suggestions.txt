@@ -60,7 +60,7 @@ The enhanced bug report must be structured as **valid JSON** following this sche
 ---
 
 ### **Notes**
-- If certain fields cannot be enhanced due to insufficient context, retain the original content.
+- If certain fields can not be enhanced due to insufficient context, retain the original content.
 - Keep all responses **concise, factual, and evidence-based**.
 - The final output must **strictly** follow the JSON format above.
 
