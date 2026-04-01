@@ -17,7 +17,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from langchain_core.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain_core.output_parsers import StrOutputParser
 
 import src.state as state
 from src.agents.common import (
@@ -122,9 +122,9 @@ def split_extracted_trajectory_phases(extracted_trajectory: str) -> Dict[str, st
 
     template = load_prompt("trajectory_phase_split.txt", state.config.prompts_dir)
     prompt = PromptTemplate.from_template(template)
-    chain = LLMChain(llm=state.llm, prompt=prompt)
+    chain = prompt | state.llm | StrOutputParser()
     try:
-        raw = chain.run({"trajectory": extracted_trajectory})
+        raw = chain.invoke({"trajectory": extracted_trajectory})
         txt = raw.replace("```json\n", "").replace("\n```", "").strip()
         out = json.loads(txt)
         return {
@@ -152,7 +152,7 @@ def _select_phase_for_enhancement(
 
     compare_template = load_prompt("phase_comparison.txt", state.config.prompts_dir)
     compare_prompt = PromptTemplate.from_template(compare_template)
-    compare_chain = LLMChain(llm=state.llm, prompt=compare_prompt)
+    compare_chain = compare_prompt | state.llm | StrOutputParser()
 
     all_phases_redundant = True
     for next_phase in phase_order:
@@ -162,7 +162,7 @@ def _select_phase_for_enhancement(
             chat_history.append(f"[phase] {next_phase}: empty trajectory")
             continue
 
-        cmp_raw = compare_chain.run({"problem": problem, "traj": traj})
+        cmp_raw = compare_chain.invoke({"problem": problem, "traj": traj})
         cmp_json = cmp_raw.replace("```json\n", "").replace("\n```", "").strip()
         cmp = json.loads(cmp_json)
         logger.info(f"Phase comparison ({next_phase}): similar={cmp.get('similar')}")

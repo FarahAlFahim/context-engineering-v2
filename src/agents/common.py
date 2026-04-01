@@ -5,7 +5,7 @@ import logging
 from typing import Any, Dict, List, Optional, Tuple
 
 from langchain_core.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain_core.output_parsers import StrOutputParser
 
 import src.state as state
 from src.utils.io import load_json_safe, save_json_atomic, mkdirp, run_cmd
@@ -151,8 +151,8 @@ def generate_final_bug_report(method_cache: dict, bug_report: str,
         return "\n".join(responses)
 
     prompt = PromptTemplate.from_template(template)
-    chain = LLMChain(llm=state.llm, prompt=prompt)
-    return chain.run({
+    chain = prompt | state.llm | StrOutputParser()
+    return chain.invoke({
         "bug_report": bug_report,
         "chat_history": chat_history,
         "analyzed_methods": analyzed_methods,
@@ -309,7 +309,7 @@ def run_agent_with_tools(instruction: str, user_text: str, tools: list,
             agent_events = [{"output": f"LangGraph agent runtime error: {str(e)}"}]
             chat_history.append(agent_events[0]["output"])
     else:
-        from langchain.agents import initialize_agent, AgentType
+        from langchain_classic.agents import initialize_agent, AgentType
         chat_history.append("[agent] Using LangChain legacy ReAct agent (fallback)")
         agent = initialize_agent(
             tools, agent_llm,

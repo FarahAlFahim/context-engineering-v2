@@ -6,7 +6,7 @@ import re
 from typing import Dict
 
 from langchain_core.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain_core.output_parsers import StrOutputParser
 
 import src.state as state
 from src.utils.llm import load_prompt
@@ -72,8 +72,8 @@ def tool_classify_report(problem: str) -> str:
     try:
         template = load_prompt("classification.txt", state.config.prompts_dir)
         prompt = PromptTemplate.from_template(template)
-        chain = LLMChain(llm=state.llm, prompt=prompt)
-        raw = chain.run({"problem": problem})
+        chain = prompt | state.llm | StrOutputParser()
+        raw = chain.invoke({"problem": problem})
 
         # Try to parse JSON from response
         cleaned = raw.strip()

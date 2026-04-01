@@ -38,7 +38,9 @@ A modular pipeline for enhancing bug reports with source code context. Given ori
 │   ├── evaluation/                 # Evaluation tools
 │   │   ├── method_matcher.py       #   Method prediction accuracy
 │   │   └── enhancement_checker.py  #   Enhancement flag checker
-│   └── merge.py                    # Merge original + enhanced reports
+│   ├── merge.py                    # Merge original + enhanced reports
+│   ├── patch_generation.py         # mini-swe-agent patch generation wrapper
+│   └── eval_patches.py             # SWE-bench Docker patch evaluation wrapper
 │
 ├── prompts/                        # Prompt templates (editable)
 ├── data/                           # Input data (not tracked in git)
@@ -134,7 +136,66 @@ python run.py merge \
     --merge-output data/output/merged/django__django.json
 ```
 
-### 6. Evaluate
+### 6. Generate Patches
+
+Run mini-swe-agent on merged/enhanced reports to generate code patches. Requires a local mini-swe-agent installation with Docker.
+
+```bash
+python run.py generate_patches \
+    --minisweagent-root /path/to/mini-swe-agent \
+    --patch-dataset data/output/merged/django__django.json \
+    --patch-variant multiagent_enhanced \
+    --patch-run-name django__django_multiagent \
+    --instance-ids django__django-12345
+```
+
+**Key options:**
+
+| Option | Description |
+|---|---|
+| `--patch-dataset PATH` | Input JSON (merged/enhanced reports) |
+| `--patch-variant NAME` | Variant name (default: `multiagent_enhanced`) |
+| `--patch-run-name NAME` | Run name for results dir (auto-derived if empty) |
+| `--patch-results-root DIR` | Results root (default: `<minisweagent-root>/results`) |
+| `--patch-model MODEL` | Model for mini-swe-agent (default: `openai/<model>`) |
+| `--patch-call-limit N` | Max API calls per instance (default: `50`) |
+| `--patch-cost-limit $` | Max cost per instance (default: `0.50`) |
+| `--patch-workers N` | Parallel workers (default: `1`) |
+| `--patch-max-minutes N` | Timeout per instance in minutes (default: `20`) |
+| `--patch-redo-existing` | Re-run instances with existing results |
+| `--patch-reference-json PATH` | Reference JSON for SWE-bench fields |
+
+**Output:** `<results-root>/<run-name>/<variant>/repair/<instance_id>/`
+
+### 7. Evaluate Patches (SWE-bench)
+
+Run Docker-based SWE-bench evaluation on generated patches. Evaluates multiple variants per instance, reusing Docker images for efficiency.
+
+```bash
+python run.py eval_patches \
+    --minisweagent-root /path/to/mini-swe-agent \
+    --eval-targets results/astropy__astropy_multiagent \
+    --eval-variants original multiagent_enhanced \
+    --instance-ids astropy__astropy-12907
+```
+
+**Key options:**
+
+| Option | Description |
+|---|---|
+| `--eval-targets DIR ...` | Result directories to evaluate |
+| `--eval-variants NAME ...` | Variant subfolders (default: `multiagent_enhanced`) |
+| `--eval-output-root DIR` | Output dir for eval results (default: `<target>_tests`) |
+| `--eval-style {harness,pytest}` | Evaluation mode (default: `harness`) |
+| `--eval-dataset NAME` | SWE-bench dataset (default: `princeton-nlp/SWE-bench_Lite`) |
+| `--eval-timeout SECS` | Docker timeout per eval (default: `1800`) |
+| `--eval-no-pull` | Don't pull missing Docker images |
+| `--eval-keep-images` | Keep Docker images after evaluation |
+| `--eval-limit N` | Limit number of instances to evaluate |
+
+**Output:** `<output-root>/<variant>/eval_summary.json` and `combined_eval_summary.json`
+
+### 8. Evaluate Method Matching
 
 Evaluate method prediction accuracy against ground truth.
 
@@ -174,6 +235,12 @@ data/by_repo/*.json (original SWE-Bench instances)
                                             │
                                             ▼
                                     [merge] ──► data/output/merged/<repo>.json
+                                            │
+                                            ▼
+                                [generate_patches] ──► results/<run>/<variant>/repair/
+                                            │
+                                            ▼
+                                  [eval_patches] ──► <output-root>/<variant>/eval_summary.json
 ```
 
 ## Prompts

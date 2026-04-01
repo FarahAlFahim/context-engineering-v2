@@ -11,6 +11,8 @@ Phases:
     dynamic_enhance       Iterative enhancement with mini-sweagent feedback
     merge                 Merge original + enhanced reports
     evaluate              Run method-match evaluation
+    generate_patches      Run mini-swe-agent to generate patches from reports
+    eval_patches          Evaluate generated patches against SWE-bench tests
 
 Examples:
     # Build code graphs
@@ -56,6 +58,21 @@ Examples:
         --eval-bug-reports data/output/multiagent_enhanced/astropy__astropy.json \\
         --eval-ground-truth data/ground_truth/astropy__astropy.json \\
         --eval-output data/output/evaluation/astropy__astropy.json
+
+    # Generate patches from merged reports
+    python run.py generate_patches \\
+        --minisweagent-root /path/to/mini-swe-agent \\
+        --patch-dataset data/output/merged/django__django.json \\
+        --patch-variant multiagent_enhanced \\
+        --patch-run-name django__django_multiagent \\
+        --instance-ids django__django-12345
+
+    # Evaluate patches against SWE-bench tests
+    python run.py eval_patches \\
+        --minisweagent-root /path/to/mini-swe-agent \\
+        --eval-targets results/astropy__astropy_multiagent \\
+        --eval-variants original multiagent_enhanced \\
+        --instance-ids astropy__astropy-12907
 
     # Filter to specific instances
     python run.py enhance \\
@@ -108,6 +125,14 @@ def main():
             logger.error("evaluate requires --eval-bug-reports, --eval-ground-truth, --eval-output")
             sys.exit(1)
         run_evaluation(cfg.eval_bug_reports, cfg.eval_ground_truth, cfg.eval_output)
+
+    elif cfg.phase == "generate_patches":
+        from src.patch_generation import run_patch_generation
+        run_patch_generation(cfg)
+
+    elif cfg.phase == "eval_patches":
+        from src.eval_patches import run_eval_patches
+        run_eval_patches(cfg)
 
     else:
         logger.error(f"Unknown phase: {cfg.phase}")

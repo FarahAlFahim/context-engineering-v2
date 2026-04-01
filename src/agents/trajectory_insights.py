@@ -11,7 +11,7 @@ import os
 from typing import Any, Dict, List
 
 from langchain_core.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain_core.output_parsers import StrOutputParser
 
 import src.state as state
 from src.agents.common import (
@@ -147,8 +147,8 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
         if problem and trajectory_summary:
             compare_template = load_prompt("redundancy_comparison.txt", state.config.prompts_dir)
             compare_prompt = PromptTemplate.from_template(compare_template)
-            compare_chain = LLMChain(llm=state.llm, prompt=compare_prompt)
-            cmp_raw = compare_chain.run({"problem": problem, "traj": trajectory_summary})
+            compare_chain = compare_prompt | state.llm | StrOutputParser()
+            cmp_raw = compare_chain.invoke({"problem": problem, "traj": trajectory_summary})
             cmp_json_str = cmp_raw.replace("```json\n", "").replace("\n```", "").strip()
             cmp = json.loads(cmp_json_str)
             further_enhancement_reason = str(cmp.get("reason", "") or "")
