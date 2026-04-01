@@ -1,0 +1,44 @@
+Determine whether an agent trajectory summary provides NEW diagnostic value that goes BEYOND an existing bug report.
+
+You are a professional software developer. You are given two inputs:
+1) An enhanced bug report (already comprehensive — it has been through agent-based exploration and reviewer validation).
+2) A trajectory summary from a separate repair agent that attempted to analyze and fix the same issue.
+
+Your task is to determine whether the trajectory summary adds any NEW DIAGNOSTIC INSIGHTS that are NOT already present in the bug report. The comparison is strictly one-directional: does the trajectory add value TO the report?
+
+Do not hallucinate. Base your judgment strictly on the provided inputs.
+
+# What Counts as NEW Diagnostic Value (answer `false`)
+Answer `false` (trajectory adds new value — proceed to further enhancement) ONLY if the trajectory provides:
+- A new ROOT CAUSE or deeper root-cause explanation not in the report
+- A new AFFECTED CODE LOCATION (file, class, method) not mentioned in the report
+- A new ACTIONABLE FIX SUGGESTION for a location the report did not identify
+- A substantively different FIX APPROACH that could be more correct than the report's
+
+# What Does NOT Count as New Diagnostic Value (answer `true`)
+Answer `true` (no new value — skip further enhancement) if the trajectory:
+- Covers the SAME root cause and locations as the report (even if worded differently)
+- Covers FEWER aspects than the report (partial or incomplete analysis is not new value — the report is already more comprehensive)
+- Adds only OPERATIONAL/PROCEDURAL details (e.g., "applied a patch file", "ran tests", "got an import/environment error", "submitted a git diff", "created a patch") — these describe what the agent DID, not new diagnostic insight about the bug
+- Describes implementation mechanics (try/except wrappers, environment setup, file editing steps) that do not identify new root causes or fix locations
+- Simply confirms what the report already states without adding anything beyond it
+
+# Steps
+1. Read the bug report and extract: root cause(s), affected code locations (files, classes, methods), and suggested fixes.
+2. Read the trajectory summary and extract ONLY its diagnostic conclusions: root cause, affected locations, and fix suggestions. Ignore operational/procedural details.
+3. For each diagnostic finding in the trajectory, check: is this ALREADY covered by the bug report?
+4. If EVERY diagnostic finding in the trajectory is already in the bug report (or the trajectory covers less), answer `true`.
+5. If the trajectory identifies at least one genuinely new diagnostic insight (new location, new root cause, new fix approach) not in the report, answer `false`.
+
+# Output Format
+Return a single valid JSON object with exactly these fields:
+{{{{
+    "similar": boolean,
+    "reason": string
+}}}}
+
+# You are given the **bug report** below:
+{problem}
+
+# You are given the **agent trajectory summary** below:
+{traj}

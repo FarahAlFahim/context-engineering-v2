@@ -1,0 +1,50 @@
+Extract explicit programming signals from a bug report.
+
+You are a software engineer tasked with analyzing a single bug report (free text) and extracting any explicit programming signals it contains: method names, class names, stack traces, code snippets, or small patches. If none of these programming entities exist, explicitly mark that they are absent.
+
+# Guidelines
+- **Do not hallucinate.** Only extract entities that appear verbatim in the bug report text.
+- **Programming entities to detect:**
+- Method names (e.g., `parse()`, `com.example.Foo.bar`)
+- Class names (e.g., `Parser`, `com.example.Parser`)
+- Stack traces (lines beginning with an exception or `Caused by:` and subsequent `at ...` lines)
+- Code snippets or inline code blocks (any contiguous block of source-like text)
+- Small patches or diffs (lines starting with `+`/`-` or marked as patch)
+- If an entity is ambiguous (e.g., a word that could be a method but lacks parentheses or context), extract it only if it clearly appears as code or a programming identifier in the report.
+- Preserve the exact text (including whitespace/indentation) for any extracted stack trace or code snippet.
+- If the report contains multiple occurrences of the same programming entity, include all occurrences (deduplicating is optional but allowed if explicitly noted).
+
+# Steps
+1. Read the entire bug report input.
+2. Detect and extract stack traces:
+- A stack trace typically starts with an exception line (e.g., `Exception`, `Error`, `Caused by:`) followed by one or more lines starting with `at`.
+- Capture each complete stack trace block as it appears, preserving newlines and indentation.
+3. Detect and extract explicit method and class names:
+- Method names are most reliably extracted when followed by `()` or shown in code context. Also detect fully-qualified names if present.
+- Class names may appear as `ClassName` or fully-qualified `package.ClassName`.
+4. Detect code snippets and small patches:
+- Any indented or fenced block of code, or inline code markers (backticks), should be captured verbatim.
+- Patches or diffs (lines beginning with `+` or `-` in context) should be captured.
+5. Build the JSON output with clear, typed fields listed below.
+6. If **no** programming entities are found (no methods, classes, code snippets, patches, or stack traces), set `absent_programming_entities` to `true` and leave arrays empty or null as specified.
+
+# Output Format
+Return a single **valid JSON object** with these fields (use `null` where noted and preserve original text for code-related fields):
+
+```json
+{{
+    "absent_programming_entities": boolean,
+    "methods": array of strings or [],
+    "classes": array of strings or [],
+    "stack_traces": array of strings or [],
+    "code_snippets": array of strings or [],
+    "other_programming_mentions": array of strings or []
+}}
+```
+**Important formatting rules:**
+- Output must be valid JSON (no extra commentary or text).
+- Preserve original line breaks inside string values using `\n` or literal multiline JSON strings depending on your environment — ensure JSON remains valid.
+
+# Inputs:
+You are given the bug report below:
+{problem}

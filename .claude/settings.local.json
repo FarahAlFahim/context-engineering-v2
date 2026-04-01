@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -m json.tool)",
+      "Bash(python3 -c \"import json; f=open\\(''/Users/fahim/Desktop/context-engineering-v2/data/by_repo/astropy__astropy.json''\\); d=json.load\\(f\\); print\\(json.dumps\\(d[0] if isinstance\\(d,list\\) else list\\(d.values\\(\\)\\)[0], indent=2\\)[:1000]\\)\")",
+      "Bash(python3 -c \":*)",
+      "Bash(wc -l /Users/fahim/Desktop/context-engineering-v2/scripts/*.py)",
+      "Bash(python -c \":*)",
+      "Bash(pip install:*)",
+      "Bash(python run.py --help)"
+    ]
+  }
+}

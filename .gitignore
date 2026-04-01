@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+*.egg
+dist/
+build/
+*.whl
+
+# Virtual environments
+venv/
+env/
+.venv/
+mini_sweagent-env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+logs/
+
+# Caches
+embeddings_cache/
+.worktrees_cache/
+
+# API keys / secrets
+.env
+.env.*
+*.key
+*.pem
+credentials.json
+
+# Large data outputs (regenerable)
+data
+swe_results/
+
+# Temporary files
+*.tmp
+*.corrupt
+*.bak
+test_output.json
+test1.json
+test.json
+
+# Jupyter
+.ipynb_checkpoints/

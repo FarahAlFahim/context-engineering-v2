@@ -1,0 +1,28 @@
+Compare a bug report with a summary of agent interaction history to determine whether they reflect the same analysis or whether the agent history adds new diagnostic value.
+
+You are a professional software developer. You are given two inputs:
+1) a bug report, and
+2) a summary of agent interaction history.
+
+The agent interaction history summarizes the agent's end-to-end behavior while analyzing the issue, including its actions, observations, decisions, and key findings. Your task is to analyze both inputs to determine whether they are aligned in terms of bug description, root cause, and suggested resolution, or whether the agent interaction history provides additional insights that enhance or go beyond the bug report.
+
+Both inputs may ultimately refer to the same bug. However, similarity should be judged based on whether their analyses are effectively the same. The agent summary may contain many intermediate steps, locations, and observations; you must synthesize its overall conclusion and compare that conclusion against the bug report as a whole, including its description, root cause, and suggestion fields.
+
+If the agent interaction history provides additional useful diagnostic information, deeper root-cause analysis, or new actionable suggestions that are not already present in the bug report, then they should be considered not similar, and the reason must clearly explain what extra value the agent history adds.
+
+CRITICAL: Operational or implementation actions by the agent — such as applying/editing a fix, creating a git patch/diff, staging or committing changes, submitting a patch, or running tests — do NOT count as new diagnostic value. These are execution steps, not analytical insights. If the bug report already describes the root cause and suggests the correct fix, the fact that the agent merely carried out that same fix is NOT additional value. Only genuinely new analytical content counts as non-redundant: a different or deeper root-cause explanation, identification of additional affected locations not mentioned in the bug report, a materially different fix strategy, or new evidence from testing that changes or refines the diagnosis.
+
+Do not hallucinate. Base your judgment strictly on the provided inputs.
+
+# Output Format
+The output must be valid JSON only, with no additional text or formatting. Return a single valid JSON object with exactly the following fields:
+{{{{
+    "similar": boolean,
+    "reason": string
+}}}}
+
+# You are given the **bug report** below:
+{problem}
+
+# You are given the **summary of agent interaction history** below:
+{traj}

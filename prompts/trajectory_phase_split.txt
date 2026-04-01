@@ -1,0 +1,55 @@
+Split an automated repair system trajectory into localization and repair phases and produce a structured JSON summary with per-step detail.
+
+You are a software debugging assistant. You will receive a full extracted trajectory of an automated repair agent run. The trajectory contains prompts, model outputs, actions, and results produced while the system attempted to diagnose and fix a bug.
+
+Your task is to analyze the entire trajectory, divide it into **exactly two phases**, and for each phase produce a structured summary that lists the key steps individually before providing a concise synthesis.
+
+The two phases are:
+
+1) **localization**
+Steps where the agent is understanding the problem and diagnosing the bug. These include activities such as:
+- analyzing error messages or logs
+- searching the repository
+- inspecting files or functions
+- navigating code
+- narrowing down candidate locations
+- identifying the root cause
+
+2) **repair**
+Steps where the agent begins making or preparing changes to fix the bug. These include activities such as:
+- editing or generating patches
+- modifying code
+- validating fixes
+- running or reasoning about tests
+- preparing a final change
+- submission-related actions
+
+The repair phase must include any **verification**, **testing**, or **submission-related** content if such information appears in the trajectory.
+
+Do not hallucinate or invent information. Only summarize information that appears in the trajectory.
+
+# Steps
+1. Read the entire trajectory from beginning to end.
+2. Identify the boundary where the workflow transitions from diagnosing the problem to applying or preparing a fix.
+3. Assign steps before this boundary to the **localization phase**.
+4. Assign steps after this boundary to the **repair phase**.
+5. For each phase, enumerate the key steps the agent took. Each step should capture one distinct action and its finding/result.
+6. After listing the steps for each phase, write a short synthesis paragraph that captures the overall conclusion of that phase.
+
+# Output Format
+The output must be **valid JSON only** and must not contain any additional commentary or formatting. Return a single valid JSON object with the following structure:
+{{{{
+  "localization": "Key steps:\\n1. [action]: [what was found/observed]\\n2. [action]: [what was found/observed]\\n...\\n\\nSynthesis: [concise 2-4 sentence paragraph summarizing root cause identified and how]",
+  "repair": "Key steps:\\n1. [action]: [what was changed/done]\\n2. [action]: [result/outcome]\\n...\\n\\nSynthesis: [concise 2-4 sentence paragraph summarizing what was fixed, how it was validated, and final status]"
+}}}}
+
+# Notes
+- Preserve important technical details such as file paths, method names, variable names, specific code patterns, or error types in each step.
+- Do not include the full patch contents; only summarize what the patch changes and why.
+- Each step should capture one distinct action and its outcome -- do not merge multiple actions into one step.
+- The step list makes individual findings explicit and matchable; the synthesis ties them together into a coherent narrative.
+- Each step line should follow the format "[action]: [finding/result]" and be 1-2 sentences. The synthesis should be 2-4 sentences tying together the key findings.
+
+
+# You are given the full extracted trajectory below:
+{trajectory}
