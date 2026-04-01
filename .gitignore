@@ -39,7 +39,10 @@ embeddings_cache/
 credentials.json
 
 # Large data outputs (regenerable)
-data
+data/by_repo
+data/code_graph
+data/patches
+data/test_patches
 swe_results/
 
 # Temporary files
