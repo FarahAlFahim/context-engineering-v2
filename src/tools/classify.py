@@ -57,6 +57,57 @@ def _regex_extract_programming_entities(text: str) -> dict:
     }
 
 
+def _update_classification_stats(instance_id: str, result: dict, method: str):
+    """Update classification_stats with structured info matching original script format."""
+    stats = state.classification_stats.setdefault(instance_id, {})
+    stats["method"] = method
+    stats["has_method_or_class"] = bool(result.get("methods") or result.get("classes"))
+    stats["has_stack_trace"] = bool(result.get("stack_traces"))
+    stats["has_patch_text"] = bool(
+        (state.current_reg_entry or {}).get("patch")
+    ) if state.current_reg_entry else False
+    stats["absent_programming_entities"] = bool(result.get("absent_programming_entities"))
+
+
+def _build_navigation_prompt(result: dict, problem: str) -> str:
+    """Build a human-readable navigation prompt from classification results,
+    matching the original script's output format."""
+    absent = result.get("absent_programming_entities", False)
+
+    if absent:
+        # No entities found — provide semantic ranking fallback
+        fallback_items = result.get("semantic_fallback", [])
+        return (
+            "You can consider the following items to start your navigation.\n"
+            "Analyze their names and read the initial bug report again to think about where to start.\n"
+            "Then ask for anyone of them. I will provide the full implementation accordingly.\n\n"
+            f"Here are the probable buggy classes:\n{fallback_items}\n\n"
+            f"This is the full original bug report for your reference:\n{problem}"
+        )
+
+    # Entities found — build structured prompt
+    parts = [
+        "You can consider the following items to start your navigation. "
+        "They were mentioned in the bug report. Analyze their names and read the initial bug report again to think about where to start. "
+        "Then ask for a method or class. I will provide the method body or class body accordingly."
+    ]
+
+    if result.get("methods"):
+        parts.append(f"\nThese method(s) were mentioned:\n{result['methods']}")
+    if result.get("classes"):
+        parts.append(f"\nThese class(es) were mentioned:\n{result['classes']}")
+    if result.get("stack_traces"):
+        parts.append(f"\nStack trace(s):\n{result['stack_traces']}")
+    if result.get("code_snippets"):
+        parts.append(f"\nCode snippet(s):\n{result['code_snippets']}")
+    if result.get("other_programming_mentions"):
+        parts.append(f"\nOther programming mentions:\n{result['other_programming_mentions']}")
+
+    parts.append(f"\n\nThis is the full original bug report for your reference:\n{problem}")
+
+    return "\n".join(parts)
+
+
 def tool_classify_report(problem: str) -> str:
     """Extract programming entities from a bug report using LLM or regex.
 
@@ -66,8 +117,8 @@ def tool_classify_report(problem: str) -> str:
 
     if not state.config.use_llm_classifier:
         result = _regex_extract_programming_entities(problem)
-        state.classification_stats.setdefault(instance_id, {})["method"] = "regex"
-        return json.dumps(result, indent=2)
+        _update_classification_stats(instance_id, result, "regex")
+        return _build_navigation_prompt(result, problem)
 
     try:
         template = load_prompt("classification.txt", state.config.prompts_dir)
@@ -82,14 +133,24 @@ def tool_classify_report(problem: str) -> str:
                 cleaned = cleaned.replace(fence, "").replace("\n```", "")
 
         result = json.loads(cleaned)
-        state.classification_stats.setdefault(instance_id, {})["method"] = "llm"
+
+        # Recompute absent_programming_entities reliably
+        result["absent_programming_entities"] = not (
+            result.get("methods") or
+            result.get("classes") or
+            result.get("stack_traces") or
+            result.get("code_snippets") or
+            result.get("other_programming_mentions")
+        )
+
+        _update_classification_stats(instance_id, result, "llm")
         logger.info(f"LLM classification for {instance_id}: "
                      f"{len(result.get('methods', []))} methods, "
                      f"{len(result.get('classes', []))} classes")
-        return json.dumps(result, indent=2)
+        return _build_navigation_prompt(result, problem)
 
     except Exception as e:
         logger.warning(f"LLM classification failed for {instance_id}, falling back to regex: {e}")
         result = _regex_extract_programming_entities(problem)
-        state.classification_stats.setdefault(instance_id, {})["method"] = "regex_fallback"
-        return json.dumps(result, indent=2)
+        _update_classification_stats(instance_id, result, "regex_fallback")
+        return _build_navigation_prompt(result, problem)

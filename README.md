@@ -84,7 +84,7 @@ python run.py build_graphs \
 
 ### 2. Enhance (Multi-Agent)
 
-Run an exploration agent to analyze the bug using code graphs, then a reviewer agent to validate and improve the report.
+Run an exploration agent to analyze the bug using code graphs, then a reviewer agent to validate and improve the report. Both pre-reviewer and post-reviewer reports are saved automatically.
 
 ```bash
 python run.py enhance \
@@ -94,7 +94,11 @@ python run.py enhance \
     --output data/output/multiagent_enhanced/astropy__astropy.json
 ```
 
-**Output:** Enhanced bug reports with `RootCause`, `FixSteps`, and reviewer validation.
+**Outputs:**
+- **Pre-reviewer (single-agent):** `data/output/enhanced/astropy__astropy.json` (auto-derived from `--output` filename)
+- **Post-reviewer (multi-agent):** `data/output/multiagent_enhanced/astropy__astropy.json` (the `--output` path)
+
+To override the pre-reviewer output path, use `--single-enhanced-file`.
 
 ### 3. Trajectory Enhance
 
@@ -227,7 +231,8 @@ data/by_repo/*.json (original SWE-Bench instances)
   [build_graphs] ──► data/code_graph/<repo>/<commit>/{codegraph,callgraph}.json
         │
         ▼
-    [enhance] ─────► data/output/multiagent_enhanced/<repo>.json
+    [enhance] ─────► data/output/enhanced/<repo>.json  (pre-reviewer)
+               └──► data/output/multiagent_enhanced/<repo>.json  (post-reviewer)
         │
         ├──► [trajectory_enhance] ──► data/output/trajectory_enhanced/<repo>.json
         │

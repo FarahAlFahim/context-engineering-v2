@@ -87,7 +87,9 @@ def append_langgraph_ai_messages_only(chat_history: List[str], chunk: Any):
             content = getattr(msg, "content", "")
             role = getattr(msg, "type", "")
             if role == "ai" and content and content.strip():
-                chat_history.append(f"Thought: {content.strip()}")
+                thought = f"Thought: {content.strip()}"
+                chat_history.append(thought)
+                print(f"\n===== AGENT THOUGHT =====\n{thought}\n===== /AGENT THOUGHT =====\n")
             elif role == "tool" and content:
                 # Tool results are already captured by tracing
                 pass

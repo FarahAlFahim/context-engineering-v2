@@ -85,6 +85,7 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
     # --- Run exploration agent ---
     chat_history: List[str] = []
     state.active_chat_history = chat_history
+    state.trace_include_observations = True
 
     instruction = load_prompt("agent_instruction_multi_agent.txt", state.config.prompts_dir)
     user_text = f"Problem: {problem}\n"
@@ -192,8 +193,16 @@ def run_pipeline(cfg):
         return
 
     mkdirp(os.path.dirname(out_file) or ".")
-    if cfg.single_enhanced_file:
-        mkdirp(os.path.dirname(cfg.single_enhanced_file) or ".")
+
+    # Auto-derive single-enhanced (before reviewer) output path if not set
+    single_enhanced_file = cfg.single_enhanced_file
+    if not single_enhanced_file:
+        enhanced_dir = os.path.join(cfg.output_dir, "enhanced")
+        single_enhanced_file = os.path.join(enhanced_dir, os.path.basename(out_file))
+    mkdirp(os.path.dirname(single_enhanced_file) or ".")
+
+    logger.info(f"Output (before reviewer): {single_enhanced_file}")
+    logger.info(f"Output (after reviewer):  {out_file}")
 
     instances = load_json_safe(cfg.repo_instances_json)
     registry = load_json_safe(cfg.repo_codegraph_index)
@@ -235,7 +244,7 @@ def run_pipeline(cfg):
             merged_entry[k] = v
 
         try:
-            run_for_instance(inst, merged_entry, out_file, cfg.single_enhanced_file)
+            run_for_instance(inst, merged_entry, out_file, single_enhanced_file)
         except Exception as e:
             logger.error(f"Error processing {instance_id}: {e}")
             error_entry = {

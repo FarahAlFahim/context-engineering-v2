@@ -14,7 +14,8 @@
       "Bash(python run.py generate_patches --help)",
       "Bash(python run.py generate_patches --minisweagent-root /Users/fahim/Desktop/PhD/mini-swe-agent-working --patch-dataset data/output/multiagent_enhanced/astropy__astropy.json --patch-variant multiagent_enhanced --instance-ids astropy__astropy-12907 --dry-run)",
       "Bash(python run.py eval_patches --help)",
-      "Bash(python run.py eval_patches --minisweagent-root /Users/fahim/Desktop/PhD/mini-swe-agent-working --eval-targets /Users/fahim/Desktop/PhD/mini-swe-agent-working/results/nonexistent_test --eval-variants multiagent_enhanced)"
+      "Bash(python run.py eval_patches --minisweagent-root /Users/fahim/Desktop/PhD/mini-swe-agent-working --eval-targets /Users/fahim/Desktop/PhD/mini-swe-agent-working/results/nonexistent_test --eval-variants multiagent_enhanced)",
+      "Bash(python run.py enhance --repo-instances data/by_repo/astropy__astropy.json --repo-codegraph-index data/code_graph/astropy__astropy.json --repo-local-path /Users/fahim/Desktop/PhD/swe_bench/astropy --output data/output/multiagent_enhanced/astropy__astropy.json --instance-ids astropy__astropy-14182)"
     ]
   }
 }

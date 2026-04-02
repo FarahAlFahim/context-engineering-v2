@@ -81,31 +81,112 @@ def tool_get_subgraph(input_str: str) -> str:
 # ---------- get_code ----------
 
 def _fuzzy_find_node(query: str) -> Optional[str]:
-    """Find a node ID by exact match, suffix match, or substring match."""
+    """Find a node ID by exact match, suffix match, dotted-path mapping, or substring match.
+
+    Node IDs in the codegraph use single-colon format:
+        astropy/modeling/separable.py:separability_matrix
+    But agents may query with dotted module paths:
+        astropy.modeling.separable.separability_matrix
+    """
+    query = query.strip().replace("'", "").replace('"', '').replace("`", "")
+
+    if not query or not state.nodes_by_id:
+        return None
+
+    # 0. Exact match
     if query in state.nodes_by_id:
         return query
 
-    # Suffix match (e.g., "MyClass.method" matches "file.py::MyClass.method")
+    # 1. Check method_cache first (already fetched nodes)
+    for cached_node in state.method_cache:
+        if cached_node.endswith(query) or cached_node.split(':')[-1].endswith(query):
+            return cached_node
+
+    # 2. Colon-suffix match: entity_part after colon matches query
+    #    e.g. query="separability_matrix" matches "astropy/modeling/separable.py:separability_matrix"
+    matches = []
     for nid in state.nodes_by_id:
-        if nid.endswith(query) or nid.endswith("::" + query):
+        # Exclude test nodes
+        if "/tests/" in nid or "test_" in nid or "tests/" in nid:
+            continue
+        if ':' in nid:
+            entity_part = nid.split(':', 1)[1]
+            if entity_part == query or entity_part.endswith("." + query):
+                matches.append(nid)
+
+    if len(matches) == 1:
+        return matches[0]
+    if len(matches) > 1:
+        # Return None to trigger ambiguous response
+        return None
+
+    # 3. Dotted module path → file path mapping
+    #    e.g. astropy.modeling.separable.separability_matrix
+    #       → astropy/modeling/separable.py:separability_matrix
+    if "." in query:
+        parts = query.split(".")
+        if len(parts) >= 2:
+            func_or_class = parts[-1]
+            module_path = "/".join(parts[:-1]) + ".py"
+            dotted_suffix = module_path + ":" + func_or_class
+            for nid in state.nodes_by_id:
+                if "/tests/" in nid or "test_" in nid or "tests/" in nid:
+                    continue
+                if nid.endswith(dotted_suffix):
+                    matches.append(nid)
+
+            if len(matches) == 1:
+                return matches[0]
+            if len(matches) > 1:
+                return None
+
+    # 4. General suffix match (e.g., "MyClass.method" or "::MyClass.method")
+    for nid in state.nodes_by_id:
+        if nid.endswith(query) or nid.endswith(":" + query) or nid.endswith("::" + query):
             return nid
 
-    # Substring match
+    # 5. Substring match (case-insensitive)
     query_lower = query.lower()
     for nid in state.nodes_by_id:
         if query_lower in nid.lower():
             return nid
 
-    # Try matching just the last segment
-    query_parts = query.replace("::", ".").split(".")
+    # 6. Last segment match
+    query_parts = query.replace("::", ".").replace(":", ".").split(".")
     query_last = query_parts[-1].lower() if query_parts else ""
     if query_last:
         for nid in state.nodes_by_id:
-            nid_parts = nid.replace("::", ".").split(".")
+            nid_parts = nid.replace("::", ".").replace(":", ".").split(".")
             if nid_parts and nid_parts[-1].lower() == query_last:
                 return nid
 
     return None
+
+
+def _find_ambiguous_matches(query: str) -> List[str]:
+    """Return multiple matching node IDs for disambiguation."""
+    query = query.strip().replace("'", "").replace('"', '').replace("`", "")
+    matches = []
+    for nid in state.nodes_by_id:
+        if "/tests/" in nid or "test_" in nid or "tests/" in nid:
+            continue
+        if ':' in nid:
+            entity_part = nid.split(':', 1)[1]
+            if entity_part == query or entity_part.endswith("." + query):
+                matches.append(nid)
+    # Also check dotted path
+    if not matches and "." in query:
+        parts = query.split(".")
+        if len(parts) >= 2:
+            func_or_class = parts[-1]
+            module_path = "/".join(parts[:-1]) + ".py"
+            dotted_suffix = module_path + ":" + func_or_class
+            for nid in state.nodes_by_id:
+                if "/tests/" in nid or "test_" in nid or "tests/" in nid:
+                    continue
+                if nid.endswith(dotted_suffix):
+                    matches.append(nid)
+    return matches
 
 
 def tool_get_code(input_str: str) -> str:
@@ -116,9 +197,24 @@ def tool_get_code(input_str: str) -> str:
     except (json.JSONDecodeError, TypeError):
         query = input_str.strip()
 
+    query = query.strip().replace("'", "").replace('"', '').replace("`", "")
+
     node_id = _fuzzy_find_node(query)
     if not node_id:
-        return f"Node '{query}' not found in code graph. Try get_subgraph or search_codebase to discover available nodes."
+        # Check if there are ambiguous matches
+        ambiguous = _find_ambiguous_matches(query)
+        if ambiguous:
+            return json.dumps({
+                "error": "ambiguous",
+                "node": query,
+                "candidates": ambiguous,
+                "hint": "Multiple matches found. Please use the full node ID from the candidates list."
+            })
+        return json.dumps({
+            "error": "node_not_found",
+            "node": query,
+            "hint": "Try search_codebase to find the correct node ID, or use get_file_context to read the file directly."
+        })
 
     node = state.nodes_by_id[node_id]
     code = node.get("code", "")
@@ -129,10 +225,9 @@ def tool_get_code(input_str: str) -> str:
     state.method_cache[node_id] = code
 
     if not code:
-        return f"[{ntype}] {node_id} ({path}) — no source code available in graph"
+        return json.dumps({"node": node_id, "code": "", "type": ntype, "info": "No source code available in graph"})
 
-    header = f"[{ntype}] {node_id}\nFile: {path}\n{'='*60}\n"
-    return header + code
+    return json.dumps({"node": node_id, "code": code, "type": ntype})
 
 
 # ---------- file_context ----------

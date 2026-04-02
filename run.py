@@ -21,12 +21,22 @@ Examples:
         --repo-local-path /path/to/django \\
         --git-branch main
 
-    # Generate enhanced reports
+    # Generate enhanced reports (saves both pre-reviewer and post-reviewer)
+    # Pre-reviewer output auto-saved to: data/output/enhanced/astropy__astropy.json
+    # Post-reviewer output saved to:     --output path
     python run.py enhance \\
         --repo-instances data/by_repo/astropy__astropy.json \\
         --repo-codegraph-index data/code_graph/astropy__astropy.json \\
         --repo-local-path /path/to/astropy \\
         --output data/output/multiagent_enhanced/astropy__astropy.json
+
+    # Override the pre-reviewer output path explicitly:
+    python run.py enhance \\
+        --repo-instances data/by_repo/astropy__astropy.json \\
+        --repo-codegraph-index data/code_graph/astropy__astropy.json \\
+        --repo-local-path /path/to/astropy \\
+        --output data/output/multiagent_enhanced/astropy__astropy.json \\
+        --single-enhanced-file data/output/enhanced/custom_name.json
 
     # Further enhance with trajectory insights
     python run.py trajectory_enhance \\

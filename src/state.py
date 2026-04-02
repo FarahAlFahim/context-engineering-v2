@@ -31,7 +31,7 @@ current_reg_entry: Optional[Dict[str, Any]] = None
 
 # --- Chat history tracing ---
 active_chat_history: Optional[List[str]] = None
-trace_include_observations: bool = False
+trace_include_observations: bool = True
 
 # --- Config reference (set at startup) ---
 config = None  # will be set to Config instance
@@ -46,7 +46,7 @@ def reset_instance_state():
     method_cache = {}
     current_reg_entry = None
     active_chat_history = None
-    trace_include_observations = False
+    trace_include_observations = True
 
 
 def reset_graph_state():
