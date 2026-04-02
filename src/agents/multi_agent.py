@@ -106,7 +106,7 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
     try:
         final_bug_report = generate_final_bug_report(
             state.method_cache, problem, agent_analysis,
-            prompt_name="final_report_multi_agent.txt"
+            prompt_name="final_report_with_suggestions.txt"
         )
         parsed_report = parse_json_best_effort(
             final_bug_report, preferred_keys=["revised_report", "title", "bug_location"]
