@@ -44,7 +44,11 @@ Before producing any JSON, write out a detailed analysis covering:
 4. Check for any claims in the draft that are not supported by code evidence. Flag them.
 5. Note any important findings from the chat history that the draft report missed.
 6. Perform a completeness check: review the chat history for secondary findings or related issues that were NOT included in the draft report. If the same root cause pattern exists in multiple locations, all must be included.
-7. If you need to verify additional locations, use `get_file_context` or `search_codebase` to confirm.
+7. **Impact completeness check**: Verify the draft accounts for all collateral effects of the proposed fix:
+   - Identify all code paths that interact with the same data or state the fix modifies. If any are missing from the draft, investigate them.
+   - Check whether the class references other classes (via class attributes, inheritance, or composition) that contain hardcoded values or assumptions the fix would invalidate. Use `get_code` or `get_file_context` to inspect them if they are not in the method cache.
+   - For each assumption the fix changes, trace all code that depends on it. If the draft only fixes one code path but the same assumption is embedded elsewhere, flag it as incomplete.
+8. If you need to verify additional locations, use `get_file_context` or `search_codebase` to confirm.
 
 **Phase 2: Final Output**
 

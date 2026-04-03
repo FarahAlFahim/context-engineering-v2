@@ -52,6 +52,7 @@ swe_results/
 test_output.json
 test1.json
 test.json
+terminal_cheatsheet.local.txt
 
 # Jupyter
 .ipynb_checkpoints/
