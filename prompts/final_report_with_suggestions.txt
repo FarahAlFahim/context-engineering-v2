@@ -66,6 +66,11 @@ The enhanced bug report must be structured as **valid JSON** following this sche
 
 ---
 
+### **Critical: Impact Simulation Findings**
+An impact simulation was performed to identify ALL locations that need fixing — not just the primary bug. The simulation identified specific **gaps**: code that still assumes the old behavior and would break under the proposed fix. Your enhanced report MUST address every gap listed below. If a gap identifies a missing method, hardcoded constant, or unhandled code path, the `possible_fix` and `possible_fix_code` fields MUST include fixes for those locations — not just the primary bug.
+
+{simulation_findings}
+
 ### **Input Data Provided**
 
 **Original Bug Report:**

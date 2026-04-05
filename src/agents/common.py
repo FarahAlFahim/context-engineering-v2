@@ -126,7 +126,8 @@ def read_file_at_commit(file_path: str, base_commit: str,
 
 def generate_final_bug_report(method_cache: dict, bug_report: str,
                                chat_history: str,
-                               prompt_name: str = "final_report_multi_agent.txt") -> str:
+                               prompt_name: str = "final_report_multi_agent.txt",
+                               simulation_result: dict = None) -> str:
     """Generate the final enhanced bug report using LLM."""
     template = load_prompt(prompt_name, state.config.prompts_dir)
 
@@ -134,11 +135,47 @@ def generate_final_bug_report(method_cache: dict, bug_report: str,
         f"--- {nid} ---\n{code}" for nid, code in method_cache.items()
     ) if method_cache else "(none)"
 
-    full_prompt = template.format(
-        bug_report=bug_report,
-        chat_history=chat_history,
-        analyzed_methods=analyzed_methods,
-    )
+    # Build simulation findings text
+    simulation_findings = "(No simulation performed)"
+    if simulation_result:
+        parts = []
+        assumption = simulation_result.get("assumption_changed", "")
+        if assumption:
+            parts.append(f"Core assumption being changed: {assumption}")
+
+        proposed_fix = simulation_result.get("proposed_fix", [])
+        if proposed_fix:
+            parts.append("\nProposed fix locations:")
+            for fix in proposed_fix:
+                parts.append(f"  - {fix.get('location', '')}: {fix.get('change', '')}")
+                parts.append(f"    Reason: {fix.get('reason', '')}")
+
+        gaps = simulation_result.get("gaps", [])
+        if gaps:
+            parts.append("\nGAPS — code that still assumes old behavior and MUST also be fixed:")
+            for gap in gaps:
+                parts.append(f"  - {gap.get('location', '')}: {gap.get('issue', '')}")
+                parts.append(f"    Needed change: {gap.get('needed_change', '')}")
+
+        if parts:
+            simulation_findings = "\n".join(parts)
+
+    # Format the prompt — use simulation_findings if the template supports it,
+    # otherwise append to chat_history
+    try:
+        full_prompt = template.format(
+            bug_report=bug_report,
+            chat_history=chat_history,
+            analyzed_methods=analyzed_methods,
+            simulation_findings=simulation_findings,
+        )
+    except KeyError:
+        # Template doesn't have {simulation_findings} placeholder — append to chat_history
+        full_prompt = template.format(
+            bug_report=bug_report,
+            chat_history=chat_history + "\n\n=== Impact Simulation ===\n" + simulation_findings,
+            analyzed_methods=analyzed_methods,
+        )
 
     token_count = count_tokens(full_prompt)
     logger.info(f"Final report prompt: {token_count} tokens")
@@ -154,11 +191,20 @@ def generate_final_bug_report(method_cache: dict, bug_report: str,
 
     prompt = PromptTemplate.from_template(template)
     chain = prompt | state.llm | StrOutputParser()
-    return chain.invoke({
-        "bug_report": bug_report,
-        "chat_history": chat_history,
-        "analyzed_methods": analyzed_methods,
-    })
+
+    try:
+        return chain.invoke({
+            "bug_report": bug_report,
+            "chat_history": chat_history,
+            "analyzed_methods": analyzed_methods,
+            "simulation_findings": simulation_findings,
+        })
+    except KeyError:
+        return chain.invoke({
+            "bug_report": bug_report,
+            "chat_history": chat_history + "\n\n=== Impact Simulation ===\n" + simulation_findings,
+            "analyzed_methods": analyzed_methods,
+        })
 
 
 def parse_reviewer_output(reviewer_history: List[str], agent_events: List[Any],
@@ -276,6 +322,60 @@ def build_class_skeleton_cache() -> dict:
     return out
 
 
+def run_impact_simulation(problem: str, explorer_analysis: str,
+                           architecture_map: str, method_cache: dict,
+                           prompt_name: str = "impact_simulation.txt") -> dict:
+    """Run impact simulation: propose fix + identify gaps (pure LLM call, no tools).
+
+    Returns parsed JSON with keys: assumption_changed, proposed_fix, gaps, verified_safe.
+    """
+    template = load_prompt(prompt_name, state.config.prompts_dir)
+
+    all_code = "\n\n".join(
+        f"--- {nid} ---\n{code}" for nid, code in method_cache.items()
+    ) if method_cache else "(none)"
+
+    full_prompt = template.format(
+        bug_report=problem,
+        explorer_analysis=explorer_analysis,
+        architecture_map=architecture_map,
+        all_code=all_code,
+    )
+
+    token_count = count_tokens(full_prompt)
+    logger.info(f"Impact simulation prompt: {token_count} tokens")
+
+    if token_count > 250000:
+        logger.warning(f"Token count ({token_count}) exceeds limit, splitting")
+        chunks = split_into_chunks(full_prompt, max_tokens=250000)
+        responses = []
+        for chunk in chunks:
+            response = state.llm.invoke(chunk)
+            responses.append(str(response.content if hasattr(response, 'content') else response))
+        raw = "\n".join(responses)
+    else:
+        prompt = PromptTemplate.from_template(template)
+        chain = prompt | state.llm | StrOutputParser()
+        raw = chain.invoke({
+            "bug_report": problem,
+            "explorer_analysis": explorer_analysis,
+            "architecture_map": architecture_map,
+            "all_code": all_code,
+        })
+
+    parsed = parse_json_best_effort(raw, preferred_keys=["gaps", "proposed_fix"])
+    if not parsed:
+        logger.warning("Could not parse impact simulation output as JSON")
+        return {
+            "assumption_changed": "",
+            "proposed_fix": [],
+            "gaps": [],
+            "verified_safe": [],
+            "_raw_output": raw,
+        }
+    return parsed
+
+
 def save_instance_result(instance_summary: dict, out_file: str):
     """Upsert instance result into the output JSON file."""
     instance_id = instance_summary.get("instance_id")
@@ -294,22 +394,53 @@ def save_instance_result(instance_summary: dict, out_file: str):
 
 def run_agent_with_tools(instruction: str, user_text: str, tools: list,
                           chat_history: List[str],
-                          recursion_limit: int = 100) -> List[Any]:
-    """Run an agent (LangGraph or LangChain fallback) and return events."""
+                          recursion_limit: int = 100,
+                          max_retries: int = 2) -> List[Any]:
+    """Run an agent (LangGraph or LangChain fallback) and return events.
+
+    If the agent stream fails (e.g., BrokenPipeError), retries up to max_retries
+    times, continuing from where the previous attempt's chat_history left off.
+    """
     agent_events = []
     agent_llm = make_chat_llm(state.config.openai_model, state.config.llm_temperature)
 
     if LANGGRAPH_AVAILABLE:
         chat_history.append("[agent] Using LangGraph tool-calling agent")
         lg_agent = lg_create_react_agent(agent_llm, tools)
-        inputs = {"messages": [SystemMessage(content=instruction), HumanMessage(content=user_text)]}
-        try:
-            for chunk in lg_agent.stream(inputs, config={"recursion_limit": recursion_limit}):
-                agent_events.append(chunk)
-                append_langgraph_ai_messages_only(chat_history, chunk)
-        except Exception as e:
-            agent_events = [{"output": f"LangGraph agent runtime error: {str(e)}"}]
-            chat_history.append(agent_events[0]["output"])
+
+        for attempt in range(1 + max_retries):
+            # Build messages: system instruction + user text + any prior findings
+            messages = [SystemMessage(content=instruction), HumanMessage(content=user_text)]
+
+            # On retry, append a continuation message with context from prior work
+            if attempt > 0:
+                # Gather what the agent found so far (last N thoughts)
+                prior_thoughts = [e for e in chat_history if e.startswith("Thought:")]
+                prior_actions = [e for e in chat_history
+                                 if e.startswith("Action:") or e.startswith("Observation:")]
+                continuation = (
+                    "You were interrupted mid-investigation. Here is what you found so far:\n\n"
+                    + "\n".join(prior_thoughts[-5:]) + "\n\n"
+                    + "Continue your investigation from where you left off. "
+                    "Do NOT repeat tool calls you already made — build on the findings above."
+                )
+                messages.append(HumanMessage(content=continuation))
+                logger.info(f"Agent retry {attempt}/{max_retries} — continuing with "
+                           f"{len(prior_thoughts)} prior thoughts")
+
+            inputs = {"messages": messages}
+            try:
+                for chunk in lg_agent.stream(inputs, config={"recursion_limit": recursion_limit}):
+                    agent_events.append(chunk)
+                    append_langgraph_ai_messages_only(chat_history, chunk)
+                break  # Success — exit retry loop
+            except Exception as e:
+                error_msg = f"LangGraph agent error (attempt {attempt + 1}): {str(e)}"
+                logger.warning(error_msg)
+                chat_history.append(error_msg)
+                if attempt >= max_retries:
+                    logger.error(f"Agent failed after {max_retries + 1} attempts")
+                    agent_events.append({"output": error_msg})
     else:
         from langchain_classic.agents import initialize_agent, AgentType
         chat_history.append("[agent] Using LangChain legacy ReAct agent (fallback)")
