@@ -11,7 +11,7 @@ logger = logging.getLogger("context_engineering.merge")
 
 ALLOWED_BUG_REPORT_KEYS = (
     "Title", "Description", "RootCause", "StepsToReproduce",
-    "ExpectedBehavior", "ObservedBehavior", "Suggestions",
+    "ExpectedBehavior", "ObservedBehavior",
 )
 
 

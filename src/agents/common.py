@@ -124,10 +124,67 @@ def read_file_at_commit(file_path: str, base_commit: str,
     return out if rc == 0 else None
 
 
+def compress_chat_history(chat_history: List[str], bug_report: str,
+                          method_cache: dict) -> str:
+    """Compress raw chat history into 3-level structured memory.
+
+    Uses an LLM call to distill the full agent trajectory into:
+      - HIGH_LEVEL: 4-6 bullet diagnosis summary
+      - MID_LEVEL: Key findings only (typically 4-8)
+      - LOW_LEVEL: Exact code/values for critical locations
+
+    Returns the compressed text (all three sections concatenated).
+    """
+    template = load_prompt("compress_chat_history.txt", state.config.prompts_dir)
+
+    method_cache_text = "\n\n".join(
+        f"--- {nid} ---\n{code}" for nid, code in method_cache.items()
+    ) if method_cache else "(none)"
+
+    chat_text = "\n".join(chat_history) if chat_history else "(empty)"
+
+    full_prompt = template.format(
+        bug_report=bug_report,
+        chat_history=chat_text,
+        method_cache=method_cache_text,
+    )
+
+    token_count = count_tokens(full_prompt)
+    logger.info(f"Chat history compression prompt: {token_count} tokens "
+                f"({len(chat_history)} history lines)")
+
+    if token_count > 250000:
+        logger.warning(f"Compression prompt too large ({token_count} tokens), "
+                       f"truncating chat history")
+        # Keep first and last portions of chat history
+        mid = len(chat_history) // 2
+        keep = mid // 2
+        truncated = (chat_history[:keep] +
+                     [f"\n... [{len(chat_history) - 2*keep} steps omitted] ...\n"] +
+                     chat_history[-keep:])
+        chat_text = "\n".join(truncated)
+        full_prompt = template.format(
+            bug_report=bug_report,
+            chat_history=chat_text,
+            method_cache=method_cache_text,
+        )
+
+    prompt = PromptTemplate.from_template(template)
+    chain = prompt | state.llm | StrOutputParser()
+    result = chain.invoke({
+        "bug_report": bug_report,
+        "chat_history": chat_text,
+        "method_cache": method_cache_text,
+    })
+
+    logger.info(f"Compressed chat history: {count_tokens(result)} tokens "
+                f"(from {token_count} token prompt)")
+    return result
+
+
 def generate_final_bug_report(method_cache: dict, bug_report: str,
                                chat_history: str,
-                               prompt_name: str = "final_report_multi_agent.txt",
-                               simulation_result: dict = None) -> str:
+                               prompt_name: str = "final_report_multi_agent.txt") -> str:
     """Generate the final enhanced bug report using LLM."""
     template = load_prompt(prompt_name, state.config.prompts_dir)
 
@@ -135,47 +192,11 @@ def generate_final_bug_report(method_cache: dict, bug_report: str,
         f"--- {nid} ---\n{code}" for nid, code in method_cache.items()
     ) if method_cache else "(none)"
 
-    # Build simulation findings text
-    simulation_findings = "(No simulation performed)"
-    if simulation_result:
-        parts = []
-        assumption = simulation_result.get("assumption_changed", "")
-        if assumption:
-            parts.append(f"Core assumption being changed: {assumption}")
-
-        proposed_fix = simulation_result.get("proposed_fix", [])
-        if proposed_fix:
-            parts.append("\nProposed fix locations:")
-            for fix in proposed_fix:
-                parts.append(f"  - {fix.get('location', '')}: {fix.get('change', '')}")
-                parts.append(f"    Reason: {fix.get('reason', '')}")
-
-        gaps = simulation_result.get("gaps", [])
-        if gaps:
-            parts.append("\nGAPS — code that still assumes old behavior and MUST also be fixed:")
-            for gap in gaps:
-                parts.append(f"  - {gap.get('location', '')}: {gap.get('issue', '')}")
-                parts.append(f"    Needed change: {gap.get('needed_change', '')}")
-
-        if parts:
-            simulation_findings = "\n".join(parts)
-
-    # Format the prompt — use simulation_findings if the template supports it,
-    # otherwise append to chat_history
-    try:
-        full_prompt = template.format(
-            bug_report=bug_report,
-            chat_history=chat_history,
-            analyzed_methods=analyzed_methods,
-            simulation_findings=simulation_findings,
-        )
-    except KeyError:
-        # Template doesn't have {simulation_findings} placeholder — append to chat_history
-        full_prompt = template.format(
-            bug_report=bug_report,
-            chat_history=chat_history + "\n\n=== Impact Simulation ===\n" + simulation_findings,
-            analyzed_methods=analyzed_methods,
-        )
+    full_prompt = template.format(
+        bug_report=bug_report,
+        chat_history=chat_history,
+        analyzed_methods=analyzed_methods,
+    )
 
     token_count = count_tokens(full_prompt)
     logger.info(f"Final report prompt: {token_count} tokens")
@@ -191,20 +212,11 @@ def generate_final_bug_report(method_cache: dict, bug_report: str,
 
     prompt = PromptTemplate.from_template(template)
     chain = prompt | state.llm | StrOutputParser()
-
-    try:
-        return chain.invoke({
-            "bug_report": bug_report,
-            "chat_history": chat_history,
-            "analyzed_methods": analyzed_methods,
-            "simulation_findings": simulation_findings,
-        })
-    except KeyError:
-        return chain.invoke({
-            "bug_report": bug_report,
-            "chat_history": chat_history + "\n\n=== Impact Simulation ===\n" + simulation_findings,
-            "analyzed_methods": analyzed_methods,
-        })
+    return chain.invoke({
+        "bug_report": bug_report,
+        "chat_history": chat_history,
+        "analyzed_methods": analyzed_methods,
+    })
 
 
 def parse_reviewer_output(reviewer_history: List[str], agent_events: List[Any],
@@ -320,60 +332,6 @@ def build_class_skeleton_cache() -> dict:
                 break
         out[nid] = "\n".join(skeleton)
     return out
-
-
-def run_impact_simulation(problem: str, explorer_analysis: str,
-                           architecture_map: str, method_cache: dict,
-                           prompt_name: str = "impact_simulation.txt") -> dict:
-    """Run impact simulation: propose fix + identify gaps (pure LLM call, no tools).
-
-    Returns parsed JSON with keys: assumption_changed, proposed_fix, gaps, verified_safe.
-    """
-    template = load_prompt(prompt_name, state.config.prompts_dir)
-
-    all_code = "\n\n".join(
-        f"--- {nid} ---\n{code}" for nid, code in method_cache.items()
-    ) if method_cache else "(none)"
-
-    full_prompt = template.format(
-        bug_report=problem,
-        explorer_analysis=explorer_analysis,
-        architecture_map=architecture_map,
-        all_code=all_code,
-    )
-
-    token_count = count_tokens(full_prompt)
-    logger.info(f"Impact simulation prompt: {token_count} tokens")
-
-    if token_count > 250000:
-        logger.warning(f"Token count ({token_count}) exceeds limit, splitting")
-        chunks = split_into_chunks(full_prompt, max_tokens=250000)
-        responses = []
-        for chunk in chunks:
-            response = state.llm.invoke(chunk)
-            responses.append(str(response.content if hasattr(response, 'content') else response))
-        raw = "\n".join(responses)
-    else:
-        prompt = PromptTemplate.from_template(template)
-        chain = prompt | state.llm | StrOutputParser()
-        raw = chain.invoke({
-            "bug_report": problem,
-            "explorer_analysis": explorer_analysis,
-            "architecture_map": architecture_map,
-            "all_code": all_code,
-        })
-
-    parsed = parse_json_best_effort(raw, preferred_keys=["gaps", "proposed_fix"])
-    if not parsed:
-        logger.warning("Could not parse impact simulation output as JSON")
-        return {
-            "assumption_changed": "",
-            "proposed_fix": [],
-            "gaps": [],
-            "verified_safe": [],
-            "_raw_output": raw,
-        }
-    return parsed
 
 
 def save_instance_result(instance_summary: dict, out_file: str):
