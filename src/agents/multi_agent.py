@@ -18,7 +18,7 @@ from typing import Any, Dict, List
 
 import src.state as state
 from src.agents.common import (
-    prepare_instance_state, filter_chat_history_for_method_cache,
+    prepare_instance_state,
     compress_chat_history, generate_final_bug_report, parse_reviewer_output,
     build_class_skeleton_cache, save_instance_result,
     run_agent_with_tools,
@@ -68,8 +68,7 @@ def run_explorer_agent(problem: str, chat_history: List[str]) -> List[Any]:
 
 def run_reviewer_agent(draft_report: Any, problem: str,
                         method_cache: Dict[str, str],
-                        chat_history: List[str],
-                        compressed_history: str = "") -> dict:
+                        compressed_history: str) -> dict:
     """Tool-enabled reviewer that validates and improves the draft report."""
     logger.info("Running reviewer agent to validate and improve the draft report")
     reviewer_history: List[str] = []
@@ -91,18 +90,11 @@ def run_reviewer_agent(draft_report: Any, problem: str,
     method_cache_text_parts = [f"--- {nid} ---\n{code}" for nid, code in method_cache.items()]
     method_cache_text = "\n\n".join(method_cache_text_parts) if method_cache_text_parts else "(empty)"
 
-    # Use compressed history if available, fall back to filtered raw history
-    if compressed_history:
-        history_section = compressed_history
-    else:
-        filtered_history = filter_chat_history_for_method_cache(chat_history)
-        history_section = "\n".join(filtered_history)
-
     user_text = (
         "Original bug report:\n" + (problem or "") +
         "\n\n=== Draft report JSON ===\n" + draft_json +
         "\n\n=== Method cache (full source code of fetched methods) ===\n" + method_cache_text +
-        "\n\n=== Investigation analysis (compressed) ===\n" + history_section
+        "\n\n=== Investigation analysis (compressed) ===\n" + compressed_history
     )
 
     reviewer_tools = build_tools(for_reviewer=True)
@@ -197,6 +189,7 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
             "method_cache": state.method_cache,
             "class_skeleton_cache": {},
             "chat_history": chat_history,
+            "compressed_analysis": compressed_analysis,
             "bug_report": final_report,
         }
         save_instance_result(single_summary, single_enhanced_file)
@@ -214,8 +207,7 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
         }
 
     reviewer_result = run_reviewer_agent(
-        reviewer_draft, problem, state.method_cache, chat_history,
-        compressed_history=compressed_analysis,
+        reviewer_draft, problem, state.method_cache, compressed_analysis,
     )
     final_report = reviewer_result.get("revised_report", final_report)
 
@@ -230,6 +222,7 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
         "method_cache": state.method_cache,
         "class_skeleton_cache": build_class_skeleton_cache(),
         "chat_history": chat_history,
+        "compressed_analysis": compressed_analysis,
         "reviewer_changes": reviewer_result.get("changes", []),
         "reviewer_evidence": reviewer_result.get("evidence", []),
         "reviewer_history": reviewer_result.get("reviewer_history", []),

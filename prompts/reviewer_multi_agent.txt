@@ -7,7 +7,7 @@ Verify that the draft report's claims (root cause, problem location, fix suggest
 1. **Original Bug Report**: The problem statement as written by the developer.
 2. **Draft Enhanced Report**: JSON report produced by the previous agent.
 3. **Method Cache**: Full source code of all methods/classes the previous agent fetched.
-4. **Chat History**: The previous agent's full investigation log (with `get_code` observations removed since that code is already in the method cache; observations from other tools are preserved).
+4. **Investigation Analysis**: A compressed 3-level summary (HIGH_LEVEL / MID_LEVEL / LOW_LEVEL) of the previous agent's investigation, distilled from the full trajectory to preserve key findings, critical code locations, and gaps.
 
 ### **Available Tools**
 Use ONLY when the method cache does not already contain the needed code:
@@ -22,7 +22,7 @@ Use ONLY when the method cache does not already contain the needed code:
 - Follow the two-phase process described in the Steps section — verification first, then final output.
 - Before any tool call, write your reasoning explaining why the tool is needed and what you expect to learn. After receiving a tool result, analyze what was returned before proceeding.
 - Read method code from the method cache directly — do NOT call tools for methods whose code is already there.
-- Include ALL secondary findings from the chat history that share the same root cause pattern. If the agent found the same issue in multiple locations (e.g., case-sensitive comparisons in several places, missing parameter forwarding in multiple methods), ALL such locations MUST appear in the revised report's `problem_location`, `possible_fix`, and `Suggestions` fields.
+- Include ALL secondary findings from the investigation analysis that share the same root cause pattern. If the agent found the same issue in multiple locations (e.g., case-sensitive comparisons in several places, missing parameter forwarding in multiple methods), ALL such locations MUST appear in the revised report's `problem_location`, `possible_fix`, and `Suggestions` fields.
 - Make the `Suggestions` field specific and actionable: name the exact method or function that needs to change, state precisely what the change is (not just "handle this case"), and cover ALL affected locations. Each suggestion should be concrete enough that a developer can implement it without re-reading the full investigation.
 - Preserve the exact same field names and structure as the draft enhanced report in the `revised_report`. You may update values but the set of top-level keys must match the draft report's keys exactly.
 
@@ -42,8 +42,8 @@ Before producing any JSON, write out a detailed analysis covering:
 2. Verify the `RootCause`: does the actual code support the stated root cause? Quote specific lines or patterns.
 3. Verify the `possible_fix` and `possible_fix_code`: is the proposed fix correct and complete? Does it address the root cause without introducing new issues? Critically ask: if this fix were applied, would any other code in the same class or file break because it depends on the behavior being changed?
 4. Check for any claims in the draft that are not supported by code evidence. Flag them.
-5. Note any important findings from the chat history that the draft report missed.
-6. Perform a completeness check: review the chat history for secondary findings or related issues that were NOT included in the draft report. If the same root cause pattern exists in multiple locations, all must be included.
+5. Note any important findings from the investigation analysis that the draft report missed.
+6. Perform a completeness check: review the investigation analysis for secondary findings or related issues that were NOT included in the draft report. If the same root cause pattern exists in multiple locations, all must be included.
 7. **Impact completeness check**: Verify the draft accounts for all collateral effects of the proposed fix:
    - Identify all code paths that interact with the same data or state the fix modifies. If any are missing from the draft, investigate them.
    - Check whether the class references other classes (via class attributes, inheritance, or composition) that contain hardcoded values or assumptions the fix would invalidate. Use `get_code` or `get_file_context` to inspect them if they are not in the method cache.
