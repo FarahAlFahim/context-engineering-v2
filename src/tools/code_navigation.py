@@ -264,6 +264,14 @@ def tool_get_file_context(input_str: str) -> str:
     selected = lines[max(0, start_line - 1):end_line]
     numbered = [f"{i + start_line}: {line}" for i, line in enumerate(selected)]
     header = f"File: {file_path} (commit {commit[:8]}) lines {start_line}-{min(end_line, len(lines))}/{len(lines)}\n"
+
+    # Cache the file content so it's available for report generation,
+    # same as get_code does for codegraph nodes.
+    cache_key = file_path
+    read_content = "\n".join(selected)
+    state.method_cache[cache_key] = read_content
+    state.method_cache_global.add(cache_key)
+
     return header + "\n".join(numbered)
 
 

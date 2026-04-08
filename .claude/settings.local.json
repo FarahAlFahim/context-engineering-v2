@@ -22,7 +22,11 @@
       "Bash(python -c \"from src.agents.multi_agent import run_pipeline; from src.agents.common import generate_final_bug_report, run_impact_simulation; print\\(''All imports OK''\\)\")",
       "Bash(tail -30 logs/enhance_20260403_*.log)",
       "Bash(python -c \"from src.agents.multi_agent import run_pipeline; print\\(''OK''\\)\")",
-      "Bash(python -c \"import ast; ast.parse\\(open\\(''src/agents/multi_agent.py''\\).read\\(\\)\\); print\\(''OK''\\)\")"
+      "Bash(python -c \"import ast; ast.parse\\(open\\(''src/agents/multi_agent.py''\\).read\\(\\)\\); print\\(''OK''\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\(''src/agents/common.py''\\).read\\(\\)\\); ast.parse\\(open\\(''src/agents/multi_agent.py''\\).read\\(\\)\\); print\\(''OK''\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\(''src/agents/multi_agent.py''\\).read\\(\\)\\); ast.parse\\(open\\(''src/tools/code_navigation.py''\\).read\\(\\)\\); print\\(''OK''\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\(''src/agents/common.py''\\).read\\(\\)\\); ast.parse\\(open\\(''src/agents/multi_agent.py''\\).read\\(\\)\\); ast.parse\\(open\\(''src/tools/code_navigation.py''\\).read\\(\\)\\); print\\(''OK''\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\(''src/agents/multi_agent.py''\\).read\\(\\)\\); ast.parse\\(open\\(''src/tools/code_navigation.py''\\).read\\(\\)\\); ast.parse\\(open\\(''src/agents/common.py''\\).read\\(\\)\\); print\\(''OK''\\)\")"
     ]
   }
 }

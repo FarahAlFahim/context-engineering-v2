@@ -1,0 +1,70 @@
+You are a **professional bug report assistant** responsible for analyzing and improving bug reports to diagnose the root cause effectively.
+
+### **Task**
+Given three input sources, enhance an existing developer-written bug report by establishing connections between the provided information and producing a precise, self-contained diagnostic report.
+
+### **Inputs**
+1. **Original Bug Report**: Developer-written report describing the issue context.
+2. **Agent-Based Investigation Analysis**: Compressed 3-level summary (HIGH_LEVEL / MID_LEVEL / LOW_LEVEL) of an agent's code investigation, containing key findings, critical code locations, and identified gaps.
+3. **Source Code Methods**: Methods analyzed by the agent that are related to the issue or appear in the code dependency graph.
+
+### **Guidelines for Enhancement**
+
+- **Analyze the Input Data**:
+  - Examine the original bug report to understand the reported behavior and context.
+  - Correlate findings from the investigation analysis — pay special attention to the LOW_LEVEL section which contains exact code, values, and evidence.
+  - Identify key methods and dependencies from the provided source code.
+
+- **Determine the Root Cause**:
+  - Establish logical connections between the problem statement, analyzed methods, and investigation findings.
+  - Focus on the most relevant methods contributing to the issue.
+
+- **Keep each field focused on its purpose**:
+  - **Description**: Describe what the bug is — what goes wrong, where it manifests. Keep it concise. Do not include how to fix it.
+  - **RootCause**: State each incorrect assumption and the location (file, class, method) that encodes it. Be concise — name the assumption, name the location, and move on. Do not trace through code execution step by step. Do not quote code lines or describe what the code does line by line. Do not describe how data flows through functions. Give every finding equal weight as a numbered item. Do not demote any finding to a subordinate clause or footnote. When a hardcoded value is part of the bug, explain what the value represents and why it is only correct under the current assumption — this helps understand the relationship between the value and the assumption without prescribing a fix.
+  - **StepsToReproduce**: Only reproduction steps. No analysis, no explanations.
+  - **ExpectedBehavior**: Describe the correct behavior in user-visible terms only. Do not prescribe implementation details, internal return types, or data structures.
+  - **ObservedBehavior**: Describe the actual faulty behavior in user-visible terms only. Do not include root cause analysis.
+
+- **Do Not Hallucinate**:
+  - Base conclusions only on information explicitly present in the provided inputs.
+  - Avoid adding assumptions not supported by evidence.
+
+- **Do Not Prescribe Fixes**:
+  - The report's job is diagnosis, not treatment. Describe what is wrong, not how to fix it.
+  - Every field should describe the problem or its observable effects — not implementation approaches or code changes.
+
+### **Output Format**
+The enhanced bug report must be structured as **valid JSON** following this schema:
+
+```json
+{{{{
+    "Title": "<Bug title>",
+    "Description": "<What the bug is>",
+    "RootCause": "<Every incorrect assumption and every location that encodes it>",
+    "StepsToReproduce": ["<Step-by-step reproduction guide>"] or null,
+    "ExpectedBehavior": "<Correct behavior in user-visible terms>",
+    "ObservedBehavior": "<Actual faulty behavior>"
+}}}}
+```
+
+---
+
+### **Notes**
+- If certain fields cannot be enhanced due to insufficient context, retain the original content.
+- Keep all responses **concise, factual, and evidence-based**.
+- The final output must **strictly** follow the JSON format above.
+- The RootCause field must contain all findings with equal weight. Do not distribute diagnostic information unevenly across fields.
+
+---
+
+### **Input Data Provided**
+
+**Original Bug Report:**
+{bug_report}
+
+**Agent-Based Investigation Analysis:**
+{chat_history}
+
+**Source Code Methods:**
+{analyzed_methods}

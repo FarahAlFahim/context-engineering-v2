@@ -223,7 +223,7 @@ def parse_reviewer_output(reviewer_history: List[str], agent_events: List[Any],
                            draft_report: Any) -> dict:
     """Parse reviewer agent output to extract revised_report."""
     _TOOL_OBS_KEYS = {"node", "pattern", "error"}
-    _REPORT_KEYS = {"Title", "Description", "RootCause", "Suggestions", "problem_location",
+    _REPORT_KEYS = {"Title", "Description", "RootCause", "problem_location",
                      "revised_report", "changes", "evidence"}
 
     def _is_tool_observation(obj: dict) -> bool:
@@ -289,8 +289,7 @@ def parse_reviewer_output(reviewer_history: List[str], agent_events: List[Any],
     # Clean up nested changes/evidence
     _VALID_KEYS = {
         "Title", "Description", "RootCause", "StepsToReproduce",
-        "ExpectedBehavior", "ObservedBehavior", "Suggestions",
-        "problem_location", "possible_fix", "possible_fix_code", "FixSteps",
+        "ExpectedBehavior", "ObservedBehavior",
     }
     if isinstance(revised_report, dict):
         if "changes" in revised_report:
@@ -316,21 +315,36 @@ def parse_reviewer_output(reviewer_history: List[str], agent_events: List[Any],
 
 
 def build_class_skeleton_cache() -> dict:
-    """Build class skeletons from classes in method_cache_global."""
+    """Build class skeletons from classes in method_cache_global.
+
+    Works with both codegraph nodes (from get_code) and file content
+    (from get_file_context). For file content, extracts class/def lines
+    directly from the cached text.
+    """
     out = {}
     for nid in list(state.method_cache_global):
+        # Try codegraph node first
         nd = state.nodes_by_id.get(nid)
-        if not nd or nd.get("type") != "class":
+        if nd and nd.get("type") == "class":
+            code = nd.get("code", "") or ""
+        elif nid in state.method_cache:
+            # File content from get_file_context — extract skeleton from cached text
+            code = state.method_cache[nid]
+        else:
             continue
-        code = nd.get("code", "") or ""
+
+        if not code:
+            continue
+
         skeleton = []
-        for ln in code.splitlines()[:120]:
+        for ln in code.splitlines()[:200]:
             s = ln.strip()
             if s.startswith("def ") or s.startswith("class ") or s.startswith("async def "):
                 skeleton.append(ln)
             if len(skeleton) > 80:
                 break
-        out[nid] = "\n".join(skeleton)
+        if skeleton:
+            out[nid] = "\n".join(skeleton)
     return out
 
 

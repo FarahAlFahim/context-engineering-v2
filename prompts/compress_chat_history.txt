@@ -73,10 +73,8 @@ Write one entry per critical code location that needs to change or that provides
 
 For each entry use this format:
 ### Location: <file:class.method or file:class.attribute>
-- **Current code**: The exact current code or value
-- **Problem**: What assumption this code encodes and why it's wrong
-- **Required change**: What the fix should be, with concrete code if available
-- **Evidence**: What specific finding supports this change (reference the agent's investigation)
-- **Dependencies**: What other locations depend on this change being correct
+- **Wrong assumption**: What incorrect assumption this location encodes (one sentence)
+- **Evidence**: What the agent found that confirms this is wrong
+- **Related locations**: What other locations share or depend on this same assumption
 
 This section is your evidence locker. If a location seems fine, do not include it here.

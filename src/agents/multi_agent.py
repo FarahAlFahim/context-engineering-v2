@@ -31,14 +31,86 @@ from src.utils.json_parser import parse_json_best_effort
 logger = logging.getLogger("context_engineering.agents.multi_agent")
 
 # ---------------------------------------------------------------------------
+# Checkpoint completion detection
+# ---------------------------------------------------------------------------
+
+_CHECKPOINT_MARKERS = [
+    ("checkpoint 1", "identify the bug"),
+    ("checkpoint 2", "read the full file"),
+    ("checkpoint 3", "map the architecture"),
+    ("checkpoint 4", "propose a fix"),
+    ("checkpoint 5", "final report"),
+]
+
+
+def _detect_completed_checkpoints(chat_history: List[str]) -> List[int]:
+    """Detect which checkpoints the agent completed based on chat history.
+
+    Returns list of checkpoint numbers (1-5) that appear to be completed.
+    """
+    full_text = "\n".join(chat_history).lower()
+    completed = []
+    for i, (marker, alt_marker) in enumerate(_CHECKPOINT_MARKERS, 1):
+        if marker in full_text or alt_marker in full_text:
+            completed.append(i)
+    return completed
+
+
+def _build_continuation_prompt(completed: List[int], chat_history: List[str]) -> str:
+    """Build a continuation prompt telling the agent which checkpoints remain."""
+    max_completed = max(completed) if completed else 0
+    remaining = [i for i in range(1, 6) if i > max_completed]
+
+    # Gather the agent's findings so far
+    thoughts = [e for e in chat_history if e.startswith("Thought:")]
+    recent_thoughts = thoughts[-5:] if thoughts else []
+
+    prompt = (
+        "You stopped your investigation early. You completed up to "
+        f"Checkpoint {max_completed} but the protocol requires all 5 checkpoints.\n\n"
+        "Here is what you found so far:\n\n"
+        + "\n".join(recent_thoughts) + "\n\n"
+        f"You MUST now continue with Checkpoint{'s' if len(remaining) > 1 else ''} "
+        f"{', '.join(str(r) for r in remaining)}. "
+        "Do NOT repeat work you already did. Do NOT re-read code you already read. "
+        "Use the tools to continue your investigation from where you left off.\n\n"
+        "Reminder of what remains:\n"
+    )
+
+    checkpoint_descriptions = {
+        2: "Checkpoint 2: Read the ENTIRE file containing the primary class. "
+           "List every class, their parent classes, all class-level attributes, "
+           "and all methods. Use get_code to cache the primary class.",
+        3: "Checkpoint 3: Map the architecture. Use get_code on component classes, "
+           "parent class. Search for sibling classes. Use get_subgraph.",
+        4: "Checkpoint 4: Propose a fix, then challenge it with questions 4a-4e. "
+           "Check reverse operations, hardcoded values, and whether new methods "
+           "need to be added.",
+        5: "Checkpoint 5: Write your complete analysis covering root cause, "
+           "every location that needs to change, hardcoded values, and "
+           "methods to add or override.",
+    }
+
+    for r in remaining:
+        if r in checkpoint_descriptions:
+            prompt += f"\n- {checkpoint_descriptions[r]}"
+
+    return prompt
+
+
+# ---------------------------------------------------------------------------
 # Explorer agent — single comprehensive investigation
 # ---------------------------------------------------------------------------
 
-def run_explorer_agent(problem: str, chat_history: List[str]) -> List[Any]:
+def run_explorer_agent(problem: str, chat_history: List[str],
+                       max_continuations: int = 3) -> List[Any]:
     """Run the explorer agent with the full mandatory protocol.
 
     This single agent finds the bug, maps the architecture, and proposes a
     complete fix — all within one context window. No lossy handoffs.
+
+    If the agent stops before completing all 5 checkpoints, it is re-invoked
+    with a continuation prompt up to max_continuations times.
     """
     logger.info("Running explorer agent (single-agent protocol)")
 
@@ -50,16 +122,42 @@ def run_explorer_agent(problem: str, chat_history: List[str]) -> List[Any]:
 
     tools = build_tools(for_reviewer=False)
 
-    # Higher recursion limit — the protocol requires many tool calls
-    # (classify, get_code x2+, get_file_context for full file, component classes,
-    #  parent class, sibling search, subgraph, impact verification)
+    all_events = []
+
+    # Initial run
     agent_events = run_agent_with_tools(
         instruction, user_text, tools, chat_history,
         recursion_limit=150, max_retries=2,
     )
+    all_events.extend(agent_events)
+
+    # Check if the agent completed all checkpoints; if not, continue
+    for continuation in range(max_continuations):
+        completed = _detect_completed_checkpoints(chat_history)
+        max_completed = max(completed) if completed else 0
+        logger.info(f"Checkpoints completed: {completed} (max: {max_completed})")
+
+        if max_completed >= 4:
+            # Checkpoint 5 is just writing up findings, so 4+ is sufficient
+            logger.info("Agent completed through Checkpoint 4+, investigation sufficient")
+            break
+
+        logger.info(f"Agent stopped at Checkpoint {max_completed}, "
+                     f"sending continuation {continuation + 1}/{max_continuations}")
+
+        continuation_prompt = _build_continuation_prompt(completed, chat_history)
+        continuation_events = run_agent_with_tools(
+            instruction, continuation_prompt, tools, chat_history,
+            recursion_limit=150, max_retries=1,
+        )
+        all_events.extend(continuation_events)
+
+    # Final check
+    completed = _detect_completed_checkpoints(chat_history)
+    logger.info(f"Final checkpoints completed: {completed}")
 
     state.active_chat_history = None
-    return agent_events
+    return all_events
 
 
 # ---------------------------------------------------------------------------
@@ -151,7 +249,7 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
     try:
         final_bug_report = generate_final_bug_report(
             state.method_cache, problem, compressed_analysis,
-            prompt_name="final_report_with_suggestions.txt",
+            prompt_name="final_report.txt",
         )
         parsed_report = parse_json_best_effort(
             final_bug_report, preferred_keys=["revised_report", "title", "bug_location"]
