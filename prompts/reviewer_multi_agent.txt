@@ -6,12 +6,11 @@ Verify that the draft report's diagnostic claims are consistent with the actual 
 ### **Inputs**
 1. **Original Bug Report**: The problem statement as written by the developer.
 2. **Draft Enhanced Report**: JSON report produced by the previous agent.
-3. **Method Cache**: Full source code of all methods/classes the previous agent fetched.
-4. **Investigation Analysis**: A compressed 3-level summary (HIGH_LEVEL / MID_LEVEL / LOW_LEVEL) of the previous agent's investigation, distilled from the full trajectory to preserve key findings, critical code locations, and gaps.
+3. **Investigation Analysis**: A compressed 3-level summary (HIGH_LEVEL / MID_LEVEL / LOW_LEVEL) of the previous agent's investigation, distilled from the full trajectory to preserve key findings, critical code locations, formulas/relationships, and gaps.
 
 ### **Available Tools**
-Use ONLY when the method cache does not already contain the needed code:
-- `get_code`: Retrieve source code for a method/class NOT already in the method cache.
+Use these tools to verify claims in the draft report by reading actual source code:
+- `get_code`: Retrieve source code for a method/class from the code graph.
 - `get_subgraph`: Explore call graph relationships around a node.
 - `get_file_context`: Read a window of lines from a source file at the correct commit. Input JSON: {{"file": "path/to/file.py", "start_line": 1, "end_line": 500}}
 - `search_codebase`: Grep the repository for a pattern. Input JSON: {{"pattern": "function_name", "include": "*.py"}}
@@ -21,7 +20,6 @@ Use ONLY when the method cache does not already contain the needed code:
 **You MUST:**
 - Follow the two-phase process described in the Steps section — verification first, then final output.
 - Before any tool call, write your reasoning explaining why the tool is needed and what you expect to learn. After receiving a tool result, analyze what was returned before proceeding.
-- Read method code from the method cache directly — do NOT call tools for methods whose code is already there.
 - Include ALL secondary findings from the investigation analysis that share the same root cause pattern. If the agent found the same issue in multiple locations, all such locations must appear in the revised report's RootCause field.
 - Ensure the RootCause field gives every finding equal weight. Do not demote any finding to a subordinate clause or footnote.
 - Preserve the exact same field names and structure as the draft enhanced report in the `revised_report`. You may update values but the set of top-level keys must match the draft report's keys exactly.
@@ -38,18 +36,18 @@ Use ONLY when the method cache does not already contain the needed code:
 **Phase 1: Verification and Completeness Check** (write your reasoning as plain text)
 
 Before producing any JSON, write out a detailed analysis covering:
-1. For each method mentioned in the draft report, look up its code in the method cache and verify whether the draft report's claims about that method are accurate.
+1. For each method mentioned in the draft report, use `get_file_context` or `get_code` to read its source and verify whether the draft report's claims about that method are accurate.
 2. Verify the RootCause: does the actual code support the stated root cause? Quote specific lines or patterns. Check that every defect found in the investigation analysis is represented with equal weight in RootCause.
 3. Check for any claims in the draft that are not supported by code evidence. Flag them.
 4. Note any important findings from the investigation analysis that the draft report missed.
 5. Perform a completeness check: review the investigation analysis for secondary findings or related issues that were not included in the draft report. If the same root cause pattern exists in multiple locations, all must be included.
 6. **Impact completeness check**: Verify the draft accounts for all locations affected by the bug:
    - Identify all code paths that interact with the same data or state involved in the bug. If any are missing from the draft, investigate them.
-   - Check whether the class references other classes (via class attributes, inheritance, or composition) that contain hardcoded values or assumptions that are part of the bug. Use `get_code` or `get_file_context` to inspect them if they are not in the method cache.
+   - Check whether the class references other classes (via class attributes, inheritance, or composition) that contain hardcoded values or assumptions that are part of the bug. Use `get_code` or `get_file_context` to inspect them.
    - For each incorrect assumption identified in RootCause, trace all code that depends on it. If the draft only identifies one location but the same assumption is embedded elsewhere, flag it as incomplete.
 7. **Field discipline check**: Verify each field stays focused on its purpose:
    - Description: only what the bug is, concisely. Not how to fix it.
-   - RootCause: only incorrect assumptions and the locations that encode them. Each finding should state the assumption, name the location, and stop. If the draft traces through code execution step by step, quotes code lines, or describes how data flows through functions, rewrite it to just state what is wrong and where. When hardcoded values are involved, ensure the report explains what each value represents and why it is only correct under the current assumption.
+   - RootCause: only incorrect assumptions and the locations that encode them. Each finding should state the assumption, name the location, and stop. If the draft traces through code execution step by step, quotes code lines, or describes how data flows through functions, rewrite it to just state what is wrong and where. When hardcoded values are involved, ensure the report explains what each value represents, why it is only correct under the current assumption, and what the correct relationship or formula should be. Preserving these relationships is critical — if the investigation found that a value should be computed from other variables, that formula must appear in RootCause.
    - ExpectedBehavior: only user-visible correct behavior, not implementation details
    - ObservedBehavior: only user-visible faulty behavior, not root cause analysis
    - If any field contains content that belongs in a different field, move or rewrite it.

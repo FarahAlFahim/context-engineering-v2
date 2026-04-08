@@ -63,24 +63,28 @@ Then immediately work through EVERY question below. Do not skip any. Answer each
 State in one sentence the assumption the current code makes that your fix removes or modifies.
 
 **4b) "What hardcoded values encode this assumption?"**
-Go through every hardcoded constant you noted in Checkpoint 3a (from component classes). For each one, ask: "If the assumption from 4a is no longer true, is this value still correct?" If the value encodes a count, offset, or position that depends on the assumption, it must become dynamic. Do NOT dismiss a hardcoded value just because one code path (e.g., writing) doesn't use it — check ALL code paths.
+Go through every hardcoded constant you noted in Checkpoint 3a (from component classes). For each one, ask: "If the assumption from 4a is no longer true, is this value still correct?" If the value encodes a count, offset, or position that depends on the assumption, it must become dynamic. Do NOT dismiss a hardcoded value just because one code path doesn't use it — check ALL code paths.
 
 **4c) "What about the reverse operation?"**
 This is the most commonly missed category of bug. If your fix changes writing, check reading. If it changes serialization, check deserialization. If it changes construction, check usage. Specifically:
 - Look at the parent class's method list from Checkpoint 3b.
-- For every method the parent defines (read, write, parse, format, etc.), ask: "Does the primary class need to override this method now that my fix changes the assumptions?"
-- If the parent has a `read()` method and your fix changes how data is structured, the primary class almost certainly needs its own `read()` that accounts for the new structure.
-- Use tools to read any code you haven't inspected yet. Do NOT assume a code path is unaffected without reading it.
+- For every inherited method that performs a complementary operation to what your fix changes, use `get_file_context` to read the parent's full implementation. Do not rely on memory from earlier checkpoints — re-read the code here.
+- For each such method, trace through it using the primary class's actual values. Write a concrete substitution: list every variable, what value it would have for the primary class, and whether the computed result is correct. If any computed value would be wrong, the primary class needs to override that method.
 
 **4d) "Does every existing method still work?"**
 Go through each method of the primary class from Checkpoint 2 and verify it still works under your fix.
 
 **4e) "Does any NEW method need to be added?"**
 Review the parent's method list from Checkpoint 3b. For each inherited (non-overridden) method that touches related state:
-- Use `get_file_context` to read the parent's implementation of that method.
-- Trace through it line by line with your fix applied. Substitute concrete values — don't reason abstractly. Plug in actual values and check whether the computed result is correct for the primary class's data format.
-- If the parent's method computes a value that would be WRONG for the primary class under the new assumptions, the primary class MUST override that method. A missing override is a bug.
-- Pay special attention to methods that are the "reverse" of what your fix changes (e.g., read vs write, parse vs format). The primary class may have a unique structure (extra delimiters, headers, separators) that the parent's generic logic doesn't account for.
+- Use `get_file_context` to read the parent's implementation of that method. Do not conclude "no new methods required" without having read the code.
+- After reading, write a concrete value trace for that method:
+  * Method name: [name]
+  * Key variables: [list each variable and what value it would have for the primary class]
+  * Computed result: [what the method would return/compute]
+  * Expected result: [what it SHOULD return/compute for the primary class]
+  * Override needed? [YES/NO with specific reason]
+- Pay special attention to methods that perform the complementary operation to what your fix changes. The primary class may have a unique structure that the parent's generic logic doesn't account for.
+- If the parent's method computes a value that would be wrong for the primary class under the new assumptions, the primary class must override that method. A missing override is a bug.
 
 For each question, if you find code that would break, a value that must change, or a method that needs to be added: **include it in your fix**.
 

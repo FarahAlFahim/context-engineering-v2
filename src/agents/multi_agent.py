@@ -80,12 +80,13 @@ def _build_continuation_prompt(completed: List[int], chat_history: List[str]) ->
     checkpoint_descriptions = {
         2: "Checkpoint 2: Read the ENTIRE file containing the primary class. "
            "List every class, their parent classes, all class-level attributes, "
-           "and all methods. Use get_code to cache the primary class.",
-        3: "Checkpoint 3: Map the architecture. Use get_code on component classes, "
-           "parent class. Search for sibling classes. Use get_subgraph.",
+           "and all methods. Use get_file_context to read the full file.",
+        3: "Checkpoint 3: Map the architecture. Read component classes, "
+           "parent class with get_file_context. Search for sibling classes. Use get_subgraph.",
         4: "Checkpoint 4: Propose a fix, then challenge it with questions 4a-4e. "
-           "Check reverse operations, hardcoded values, and whether new methods "
-           "need to be added.",
+           "You MUST use get_file_context to read inherited methods during 4c and 4e. "
+           "Trace through each method with concrete values. "
+           "Do NOT conclude 'no new methods needed' without reading the code first.",
         5: "Checkpoint 5: Write your complete analysis covering root cause, "
            "every location that needs to change, hardcoded values, and "
            "methods to add or override.",
@@ -127,7 +128,7 @@ def run_explorer_agent(problem: str, chat_history: List[str],
     # Initial run
     agent_events = run_agent_with_tools(
         instruction, user_text, tools, chat_history,
-        recursion_limit=150, max_retries=2,
+        recursion_limit=100, max_retries=2,
     )
     all_events.extend(agent_events)
 
@@ -148,7 +149,7 @@ def run_explorer_agent(problem: str, chat_history: List[str],
         continuation_prompt = _build_continuation_prompt(completed, chat_history)
         continuation_events = run_agent_with_tools(
             instruction, continuation_prompt, tools, chat_history,
-            recursion_limit=150, max_retries=1,
+            recursion_limit=100, max_retries=1,
         )
         all_events.extend(continuation_events)
 
@@ -165,9 +166,13 @@ def run_explorer_agent(problem: str, chat_history: List[str],
 # ---------------------------------------------------------------------------
 
 def run_reviewer_agent(draft_report: Any, problem: str,
-                        method_cache: Dict[str, str],
                         compressed_history: str) -> dict:
-    """Tool-enabled reviewer that validates and improves the draft report."""
+    """Tool-enabled reviewer that validates and improves the draft report.
+
+    The reviewer receives the compressed 3-level analysis instead of raw
+    method_cache. It has tools (get_file_context, get_code, search_codebase)
+    to look up any code it needs to verify.
+    """
     logger.info("Running reviewer agent to validate and improve the draft report")
     reviewer_history: List[str] = []
 
@@ -184,14 +189,9 @@ def run_reviewer_agent(draft_report: Any, problem: str,
 
     instruction = load_prompt("reviewer_multi_agent.txt", state.config.prompts_dir)
 
-    # Build reviewer context
-    method_cache_text_parts = [f"--- {nid} ---\n{code}" for nid, code in method_cache.items()]
-    method_cache_text = "\n\n".join(method_cache_text_parts) if method_cache_text_parts else "(empty)"
-
     user_text = (
         "Original bug report:\n" + (problem or "") +
         "\n\n=== Draft report JSON ===\n" + draft_json +
-        "\n\n=== Method cache (full source code of fetched methods) ===\n" + method_cache_text +
         "\n\n=== Investigation analysis (compressed) ===\n" + compressed_history
     )
 
@@ -248,7 +248,7 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
     raw_report_for_reviewer = None
     try:
         final_bug_report = generate_final_bug_report(
-            state.method_cache, problem, compressed_analysis,
+            problem, compressed_analysis,
             prompt_name="final_report.txt",
         )
         parsed_report = parse_json_best_effort(
@@ -305,7 +305,7 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
         }
 
     reviewer_result = run_reviewer_agent(
-        reviewer_draft, problem, state.method_cache, compressed_analysis,
+        reviewer_draft, problem, compressed_analysis,
     )
     final_report = reviewer_result.get("revised_report", final_report)
 

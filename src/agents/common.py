@@ -182,20 +182,19 @@ def compress_chat_history(chat_history: List[str], bug_report: str,
     return result
 
 
-def generate_final_bug_report(method_cache: dict, bug_report: str,
-                               chat_history: str,
+def generate_final_bug_report(bug_report: str, chat_history: str,
                                prompt_name: str = "final_report_multi_agent.txt") -> str:
-    """Generate the final enhanced bug report using LLM."""
-    template = load_prompt(prompt_name, state.config.prompts_dir)
+    """Generate the final enhanced bug report using LLM.
 
-    analyzed_methods = "\n\n".join(
-        f"--- {nid} ---\n{code}" for nid, code in method_cache.items()
-    ) if method_cache else "(none)"
+    Uses the original bug report and the compressed 3-level analysis
+    (HIGH_LEVEL / MID_LEVEL / LOW_LEVEL) which already contains the
+    critical code snippets, formulas, and relationships.
+    """
+    template = load_prompt(prompt_name, state.config.prompts_dir)
 
     full_prompt = template.format(
         bug_report=bug_report,
         chat_history=chat_history,
-        analyzed_methods=analyzed_methods,
     )
 
     token_count = count_tokens(full_prompt)
@@ -215,7 +214,6 @@ def generate_final_bug_report(method_cache: dict, bug_report: str,
     return chain.invoke({
         "bug_report": bug_report,
         "chat_history": chat_history,
-        "analyzed_methods": analyzed_methods,
     })
 
 
