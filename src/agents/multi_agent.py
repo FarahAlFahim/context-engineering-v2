@@ -238,7 +238,7 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
     # Compress chat history into 3-level structured memory
     # (HIGH_LEVEL / MID_LEVEL / LOW_LEVEL) to avoid information loss
     # =====================================================================
-    compressed_analysis = compress_chat_history(chat_history, problem, state.method_cache)
+    compressed_analysis = compress_chat_history(chat_history, problem)
     logger.info("Compressed chat history into 3-level memory for report generation")
 
     # =====================================================================

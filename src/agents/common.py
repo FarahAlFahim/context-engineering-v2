@@ -124,29 +124,23 @@ def read_file_at_commit(file_path: str, base_commit: str,
     return out if rc == 0 else None
 
 
-def compress_chat_history(chat_history: List[str], bug_report: str,
-                          method_cache: dict) -> str:
+def compress_chat_history(chat_history: List[str], bug_report: str) -> str:
     """Compress raw chat history into 3-level structured memory.
 
     Uses an LLM call to distill the full agent trajectory into:
       - HIGH_LEVEL: 4-6 bullet diagnosis summary
       - MID_LEVEL: Key findings only (typically 4-8)
-      - LOW_LEVEL: Exact code/values for critical locations
+      - LOW_LEVEL: Exact code/values/formulas for critical locations
 
     Returns the compressed text (all three sections concatenated).
     """
     template = load_prompt("compress_chat_history.txt", state.config.prompts_dir)
-
-    method_cache_text = "\n\n".join(
-        f"--- {nid} ---\n{code}" for nid, code in method_cache.items()
-    ) if method_cache else "(none)"
 
     chat_text = "\n".join(chat_history) if chat_history else "(empty)"
 
     full_prompt = template.format(
         bug_report=bug_report,
         chat_history=chat_text,
-        method_cache=method_cache_text,
     )
 
     token_count = count_tokens(full_prompt)
@@ -166,7 +160,6 @@ def compress_chat_history(chat_history: List[str], bug_report: str,
         full_prompt = template.format(
             bug_report=bug_report,
             chat_history=chat_text,
-            method_cache=method_cache_text,
         )
 
     prompt = PromptTemplate.from_template(template)
@@ -174,7 +167,6 @@ def compress_chat_history(chat_history: List[str], bug_report: str,
     result = chain.invoke({
         "bug_report": bug_report,
         "chat_history": chat_text,
-        "method_cache": method_cache_text,
     })
 
     logger.info(f"Compressed chat history: {count_tokens(result)} tokens "

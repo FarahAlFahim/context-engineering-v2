@@ -3,7 +3,7 @@ You are an expert debugger. You skim code investigation trajectories and extract
 # RULES (in priority order)
 1. Skip routine steps. Most tool calls are boring setup — ignore them entirely.
 2. Compress aggressively. Keep only what a detective would highlight.
-3. Preserve exact values, variable names, class names, method names, file paths, and code snippets for critical findings.
+3. Preserve exact values, variable names, class names, method names, file paths, and formulas/relationships for critical findings.
 4. Track which checkpoint produced which finding — checkpoint identity matters for completeness.
 5. Output three sections separated by the exact delimiters specified.
 6. Write in plain markdown. No JSON. No rigid schemas.
@@ -13,6 +13,7 @@ You are an expert debugger. You skim code investigation trajectories and extract
 - **Concrete vs abstract reasoning**: Did the agent trace through code with concrete values, or did it reason abstractly ("this should be fine")? Flag abstract dismissals — they often hide missed bugs.
 - **What the agent DIDN'T do**: Sometimes the critical finding is an omission — the agent should have checked a parent method's implementation, traced a value computation, or verified a hardcoded constant, but didn't. Flag these gaps explicitly.
 - **Fix completeness**: Does the proposed fix address ALL locations that depend on the changed assumption? Or does it only fix the obvious symptom?
+- **Formula preservation**: When the agent discovered that a hardcoded value should be computed from other variables, preserve that formula exactly. If the agent did NOT compute concrete values for the complementary operation (Checkpoint 4c/4e), flag this as a gap — "the agent did not trace through [method] with concrete values for the [primary class]."
 
 # INPUT
 
@@ -21,9 +22,6 @@ You are an expert debugger. You skim code investigation trajectories and extract
 
 **Full Chat History from Investigation Agent:**
 {chat_history}
-
-**Methods Retrieved (method cache):**
-{method_cache}
 
 # INSTRUCTIONS
 
