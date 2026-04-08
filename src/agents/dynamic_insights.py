@@ -210,7 +210,7 @@ def _reviewer_agent(enhanced_report: Any, problem: str,
         "\n\n=== Trajectory summary ===\n" + trajectory_summary
     )
 
-    reviewer_tools = build_tools(for_reviewer=True)
+    reviewer_tools = build_tools(role="reviewer")
     agent_events = run_agent_with_tools(
         instruction, user_text, reviewer_tools, reviewer_history, recursion_limit=60
     )

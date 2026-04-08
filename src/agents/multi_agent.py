@@ -1,20 +1,26 @@
-"""Multi-agent pipeline: single comprehensive explorer + reviewer.
+"""Multi-agent pipeline: Discovery → Challenge → Report → Reviewer.
 
 Phase: 'enhance'
 Input: Original SWE-Bench instances + code graphs
 Output: Enhanced bug reports with root cause analysis and fix suggestions
 
-Pipeline structure:
-  1. Explorer agent — single agent with mandatory protocol that finds the bug,
-     maps the full architecture, and proposes a complete fix (all in one context)
-  2. Final report generation (LLM call) — formats findings into structured JSON
-  3. Reviewer agent — validates and refines the report
+Pipeline structure (inspired by claw-code's role-based agent separation):
+  1. Discovery agent — finds the bug, catalogs code, maps architecture.
+     Outputs structured JSON handoff (not free-form prose).
+     Tools: all (classify_report, semantic_rank, navigation tools).
+  2. Challenge agent — receives structured handoff and systematically
+     verifies EVERY inherited method and hardcoded value with concrete
+     value traces. Does not choose what to check — checks everything.
+     Tools: navigation tools only (get_file_context, get_code, etc).
+  3. Final report generation (LLM call) — formats findings into JSON.
+  4. Reviewer agent — validates and refines the report.
 """
 
 import json
 import logging
 import os
-from typing import Any, Dict, List
+import re
+from typing import Any, Dict, List, Optional
 
 import src.state as state
 from src.agents.common import (
@@ -31,97 +37,209 @@ from src.utils.json_parser import parse_json_best_effort
 logger = logging.getLogger("context_engineering.agents.multi_agent")
 
 # ---------------------------------------------------------------------------
-# Checkpoint completion detection
+# Checkpoint completion detection (for Discovery agent)
 # ---------------------------------------------------------------------------
 
-_CHECKPOINT_MARKERS = [
+_DISCOVERY_CHECKPOINT_MARKERS = [
     ("checkpoint 1", "identify the bug"),
     ("checkpoint 2", "read the full file"),
     ("checkpoint 3", "map the architecture"),
-    ("checkpoint 4", "propose a fix"),
-    ("checkpoint 5", "final report"),
+    ("checkpoint 4", "structured handoff"),
+]
+
+_CHALLENGE_STEP_MARKERS = [
+    ("step 1", "understand the handoff"),
+    ("step 2", "propose a fix"),
+    ("step 3", "challenge every hardcoded"),
+    ("step 4", "challenge every inherited"),
+    ("step 5", "check existing overridden"),
+    ("step 6", "final diagnosis"),
 ]
 
 
-def _detect_completed_checkpoints(chat_history: List[str]) -> List[int]:
-    """Detect which checkpoints the agent completed based on chat history.
-
-    Returns list of checkpoint numbers (1-5) that appear to be completed.
-    """
+def _detect_completed_markers(chat_history: List[str],
+                               markers: list) -> List[int]:
+    """Detect which checkpoints/steps the agent completed."""
     full_text = "\n".join(chat_history).lower()
     completed = []
-    for i, (marker, alt_marker) in enumerate(_CHECKPOINT_MARKERS, 1):
+    for i, (marker, alt_marker) in enumerate(markers, 1):
         if marker in full_text or alt_marker in full_text:
             completed.append(i)
     return completed
 
 
-def _build_continuation_prompt(completed: List[int], chat_history: List[str]) -> str:
-    """Build a continuation prompt telling the agent which checkpoints remain."""
+def _build_discovery_continuation(completed: List[int],
+                                   chat_history: List[str]) -> str:
+    """Build continuation prompt for Discovery agent."""
     max_completed = max(completed) if completed else 0
-    remaining = [i for i in range(1, 6) if i > max_completed]
+    remaining = [i for i in range(1, 5) if i > max_completed]
 
-    # Gather the agent's findings so far
     thoughts = [e for e in chat_history if e.startswith("Thought:")]
     recent_thoughts = thoughts[-5:] if thoughts else []
 
     prompt = (
         "You stopped your investigation early. You completed up to "
-        f"Checkpoint {max_completed} but the protocol requires all 5 checkpoints.\n\n"
+        f"Checkpoint {max_completed} but the protocol requires all 4 checkpoints.\n\n"
         "Here is what you found so far:\n\n"
         + "\n".join(recent_thoughts) + "\n\n"
         f"You MUST now continue with Checkpoint{'s' if len(remaining) > 1 else ''} "
         f"{', '.join(str(r) for r in remaining)}. "
         "Do NOT repeat work you already did. Do NOT re-read code you already read. "
-        "Use the tools to continue your investigation from where you left off.\n\n"
+        "Continue from where you left off.\n\n"
         "Reminder of what remains:\n"
     )
 
-    checkpoint_descriptions = {
+    descriptions = {
         2: "Checkpoint 2: Read the ENTIRE file containing the primary class. "
            "List every class, their parent classes, all class-level attributes, "
            "and all methods. Use get_file_context to read the full file.",
         3: "Checkpoint 3: Map the architecture. Read component classes, "
-           "parent class with get_file_context. Search for sibling classes. Use get_subgraph.",
-        4: "Checkpoint 4: Propose a fix, then challenge it with questions 4a-4e. "
-           "You MUST use get_file_context to read inherited methods during 4c and 4e. "
-           "Trace through each method with concrete values. "
-           "Do NOT conclude 'no new methods needed' without reading the code first.",
-        5: "Checkpoint 5: Write your complete analysis covering root cause, "
-           "every location that needs to change, hardcoded values, and "
-           "methods to add or override.",
+           "parent class with get_file_context. Search for sibling classes. "
+           "Use get_subgraph.",
+        4: "Checkpoint 4: Produce the structured JSON handoff. This MUST "
+           "include all inherited methods, all hardcoded values, and all "
+           "component classes. Output the JSON in a ```json code block.",
     }
 
     for r in remaining:
-        if r in checkpoint_descriptions:
-            prompt += f"\n- {checkpoint_descriptions[r]}"
+        if r in descriptions:
+            prompt += f"\n- {descriptions[r]}"
+
+    return prompt
+
+
+def _build_challenge_continuation(completed: List[int],
+                                   chat_history: List[str]) -> str:
+    """Build continuation prompt for Challenge agent."""
+    max_completed = max(completed) if completed else 0
+    remaining = [i for i in range(1, 7) if i > max_completed]
+
+    thoughts = [e for e in chat_history if e.startswith("Thought:")]
+    recent_thoughts = thoughts[-5:] if thoughts else []
+
+    prompt = (
+        "You stopped your verification early. You completed up to "
+        f"Step {max_completed} but the protocol requires all 6 steps.\n\n"
+        "Here is what you found so far:\n\n"
+        + "\n".join(recent_thoughts) + "\n\n"
+        f"You MUST now continue with Step{'s' if len(remaining) > 1 else ''} "
+        f"{', '.join(str(r) for r in remaining)}. "
+        "Do NOT repeat work you already did. Continue from where you left off.\n\n"
+        "Reminder of what remains:\n"
+    )
+
+    descriptions = {
+        3: "Step 3: Challenge every hardcoded value from the handoff.",
+        4: "Step 4: Challenge every inherited method — read each one with "
+           "get_file_context and write a concrete value trace.",
+        5: "Step 5: Check existing overridden methods still work under the fix.",
+        6: "Step 6: Write the final diagnosis with all locations, formulas, "
+           "and methods that need to change.",
+    }
+
+    for r in remaining:
+        if r in descriptions:
+            prompt += f"\n- {descriptions[r]}"
 
     return prompt
 
 
 # ---------------------------------------------------------------------------
-# Explorer agent — single comprehensive investigation
+# Handoff parsing: extract structured JSON from Discovery agent output
 # ---------------------------------------------------------------------------
 
-def run_explorer_agent(problem: str, chat_history: List[str],
-                       max_continuations: int = 3) -> List[Any]:
-    """Run the explorer agent with the full mandatory protocol.
+def _extract_handoff_json(chat_history: List[str]) -> Optional[dict]:
+    """Extract the structured handoff JSON from the Discovery agent's output.
 
-    This single agent finds the bug, maps the architecture, and proposes a
-    complete fix — all within one context window. No lossy handoffs.
-
-    If the agent stops before completing all 5 checkpoints, it is re-invoked
-    with a continuation prompt up to max_continuations times.
+    Looks for a JSON block in the agent's thoughts, searching from the end
+    (most recent output) backwards.
     """
-    logger.info("Running explorer agent (single-agent protocol)")
+    # Join all chat history and search for ```json ... ``` blocks
+    full_text = "\n".join(chat_history)
+
+    # Find all ```json blocks
+    json_blocks = re.findall(r'```json\s*\n(.*?)```', full_text, re.DOTALL)
+
+    # Try blocks from last to first (most recent is most likely the handoff)
+    for block in reversed(json_blocks):
+        try:
+            parsed = json.loads(block.strip())
+            # Validate it looks like a handoff (has expected keys)
+            if isinstance(parsed, dict) and "primary_class" in parsed:
+                return parsed
+        except json.JSONDecodeError:
+            continue
+
+    # Fallback: try parse_json_best_effort on each thought line (reversed)
+    for line in reversed(chat_history):
+        if "primary_class" in line and "parent_class_methods" in line:
+            parsed = parse_json_best_effort(
+                line, preferred_keys=["primary_class"]
+            )
+            if parsed and "primary_class" in parsed:
+                return parsed
+
+    return None
+
+
+def _format_handoff_for_challenge(handoff: dict) -> str:
+    """Format the structured handoff JSON into the Challenge agent's input."""
+    return (
+        "=== DISCOVERY AGENT HANDOFF ===\n\n"
+        "The Discovery agent has completed its investigation. Below is the "
+        "structured output. You MUST check EVERY method in "
+        "`inherited_without_override` and EVERY value in "
+        "`hardcoded_values`.\n\n"
+        "```json\n"
+        + json.dumps(handoff, indent=2, ensure_ascii=False)
+        + "\n```"
+    )
+
+
+def _build_fallback_handoff(chat_history: List[str], problem: str) -> str:
+    """Build a fallback handoff when structured JSON extraction fails.
+
+    Uses the Discovery agent's raw reasoning as context for the Challenge agent.
+    """
+    thoughts = [e for e in chat_history if e.startswith("Thought:")]
+    actions = [e for e in chat_history
+               if e.startswith("Action:") or e.startswith("Observation:")]
+
+    # Take the last N thoughts and actions as context
+    recent = thoughts[-10:] + actions[-10:]
+
+    return (
+        "=== DISCOVERY AGENT FINDINGS (unstructured fallback) ===\n\n"
+        "The Discovery agent did not produce a valid structured JSON handoff. "
+        "Below are its most recent findings. You must extract the relevant "
+        "information and proceed with your verification protocol.\n\n"
+        "Original bug report:\n" + problem + "\n\n"
+        "Discovery agent findings:\n" + "\n".join(recent)
+    )
+
+
+# ---------------------------------------------------------------------------
+# Discovery agent — broad search and architecture mapping
+# ---------------------------------------------------------------------------
+
+def run_discovery_agent(problem: str, chat_history: List[str],
+                        max_continuations: int = 3) -> List[Any]:
+    """Run the Discovery agent (Checkpoints 1-3 + structured handoff).
+
+    This agent finds the bug, catalogs all code, and maps the architecture.
+    It outputs a structured JSON handoff for the Challenge agent.
+
+    Tools: all (classify_report, semantic_rank, + navigation tools).
+    """
+    logger.info("Running Discovery agent (broad search + architecture mapping)")
 
     state.active_chat_history = chat_history
     state.trace_include_observations = True
 
-    instruction = load_prompt("agent_instruction_multi_agent.txt", state.config.prompts_dir)
+    instruction = load_prompt("discovery_agent.txt", state.config.prompts_dir)
     user_text = f"Problem: {problem}\n"
 
-    tools = build_tools(for_reviewer=False)
+    tools = build_tools(role="discovery")
 
     all_events = []
 
@@ -134,19 +252,26 @@ def run_explorer_agent(problem: str, chat_history: List[str],
 
     # Check if the agent completed all checkpoints; if not, continue
     for continuation in range(max_continuations):
-        completed = _detect_completed_checkpoints(chat_history)
+        completed = _detect_completed_markers(
+            chat_history, _DISCOVERY_CHECKPOINT_MARKERS
+        )
         max_completed = max(completed) if completed else 0
-        logger.info(f"Checkpoints completed: {completed} (max: {max_completed})")
+        logger.info(f"Discovery checkpoints completed: {completed} "
+                    f"(max: {max_completed})")
 
-        if max_completed >= 4:
-            # Checkpoint 5 is just writing up findings, so 4+ is sufficient
-            logger.info("Agent completed through Checkpoint 4+, investigation sufficient")
-            break
+        if max_completed >= 3:
+            # Checkpoint 4 is the handoff — check if JSON was produced
+            handoff = _extract_handoff_json(chat_history)
+            if handoff or max_completed >= 4:
+                logger.info("Discovery agent completed, handoff available")
+                break
 
-        logger.info(f"Agent stopped at Checkpoint {max_completed}, "
-                     f"sending continuation {continuation + 1}/{max_continuations}")
+        logger.info(f"Discovery agent stopped at Checkpoint {max_completed}, "
+                    f"sending continuation {continuation + 1}/{max_continuations}")
 
-        continuation_prompt = _build_continuation_prompt(completed, chat_history)
+        continuation_prompt = _build_discovery_continuation(
+            completed, chat_history
+        )
         continuation_events = run_agent_with_tools(
             instruction, continuation_prompt, tools, chat_history,
             recursion_limit=100, max_retries=1,
@@ -154,8 +279,82 @@ def run_explorer_agent(problem: str, chat_history: List[str],
         all_events.extend(continuation_events)
 
     # Final check
-    completed = _detect_completed_checkpoints(chat_history)
-    logger.info(f"Final checkpoints completed: {completed}")
+    completed = _detect_completed_markers(
+        chat_history, _DISCOVERY_CHECKPOINT_MARKERS
+    )
+    logger.info(f"Discovery final checkpoints: {completed}")
+
+    state.active_chat_history = None
+    return all_events
+
+
+# ---------------------------------------------------------------------------
+# Challenge agent — targeted verification of every method and value
+# ---------------------------------------------------------------------------
+
+def run_challenge_agent(problem: str, handoff_text: str,
+                        chat_history: List[str],
+                        max_continuations: int = 2) -> List[Any]:
+    """Run the Challenge agent (Steps 1-6).
+
+    This agent receives the structured handoff from Discovery and
+    systematically verifies EVERY inherited method and hardcoded value.
+    It does not choose what to check — it checks everything in the handoff.
+
+    Tools: navigation only (get_file_context, get_code, search_codebase,
+    get_subgraph). No classify_report or semantic_rank — it doesn't need
+    broad search.
+    """
+    logger.info("Running Challenge agent (targeted verification)")
+
+    state.active_chat_history = chat_history
+    state.trace_include_observations = True
+
+    instruction = load_prompt("challenge_agent.txt", state.config.prompts_dir)
+    user_text = f"Original bug report:\n{problem}\n\n{handoff_text}\n"
+
+    tools = build_tools(role="challenge")
+
+    all_events = []
+
+    # Initial run
+    agent_events = run_agent_with_tools(
+        instruction, user_text, tools, chat_history,
+        recursion_limit=100, max_retries=2,
+    )
+    all_events.extend(agent_events)
+
+    # Check if the agent completed all steps; if not, continue
+    for continuation in range(max_continuations):
+        completed = _detect_completed_markers(
+            chat_history, _CHALLENGE_STEP_MARKERS
+        )
+        max_completed = max(completed) if completed else 0
+        logger.info(f"Challenge steps completed: {completed} "
+                    f"(max: {max_completed})")
+
+        if max_completed >= 5:
+            # Step 6 is final diagnosis — 5+ is sufficient
+            logger.info("Challenge agent completed through Step 5+")
+            break
+
+        logger.info(f"Challenge agent stopped at Step {max_completed}, "
+                    f"sending continuation {continuation + 1}/{max_continuations}")
+
+        continuation_prompt = _build_challenge_continuation(
+            completed, chat_history
+        )
+        continuation_events = run_agent_with_tools(
+            instruction, continuation_prompt, tools, chat_history,
+            recursion_limit=100, max_retries=1,
+        )
+        all_events.extend(continuation_events)
+
+    # Final check
+    completed = _detect_completed_markers(
+        chat_history, _CHALLENGE_STEP_MARKERS
+    )
+    logger.info(f"Challenge final steps: {completed}")
 
     state.active_chat_history = None
     return all_events
@@ -195,7 +394,7 @@ def run_reviewer_agent(draft_report: Any, problem: str,
         "\n\n=== Investigation analysis (compressed) ===\n" + compressed_history
     )
 
-    reviewer_tools = build_tools(for_reviewer=True)
+    reviewer_tools = build_tools(role="reviewer")
     agent_events = run_agent_with_tools(
         instruction, user_text, reviewer_tools, reviewer_history, recursion_limit=60
     )
@@ -212,7 +411,7 @@ def run_reviewer_agent(draft_report: Any, problem: str,
 
 def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
                       out_summary_file: str, single_enhanced_file: str = "") -> dict:
-    """Orchestrate a single instance: explorer -> report -> reviewer."""
+    """Orchestrate: Discovery → Challenge → Report → Reviewer."""
     instance_id = instance.get("instance_id")
     logger.info(f"Processing instance: {instance_id}")
 
@@ -224,22 +423,55 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
     problem = instance.get("problem_statement", "") or ""
 
     # =====================================================================
-    # Single explorer agent — full protocol in one context
+    # Phase 1: Discovery agent — broad search + architecture mapping
     # =====================================================================
-    chat_history: List[str] = []
-    run_explorer_agent(problem, chat_history)
+    discovery_history: List[str] = []
+    run_discovery_agent(problem, discovery_history)
 
-    # Extract analysis from the agent's reasoning
-    agent_thoughts = [e for e in chat_history if e.startswith("Thought:")]
-    logger.info(f"Explorer: {len(agent_thoughts)} thoughts, "
+    discovery_thoughts = [e for e in discovery_history if e.startswith("Thought:")]
+    logger.info(f"Discovery: {len(discovery_thoughts)} thoughts, "
                 f"{len(state.method_cache)} methods cached")
 
     # =====================================================================
-    # Compress chat history into 3-level structured memory
-    # (HIGH_LEVEL / MID_LEVEL / LOW_LEVEL) to avoid information loss
+    # Extract structured handoff from Discovery agent
     # =====================================================================
-    compressed_analysis = compress_chat_history(chat_history, problem)
-    logger.info("Compressed chat history into 3-level memory for report generation")
+    handoff = _extract_handoff_json(discovery_history)
+    if handoff:
+        handoff_text = _format_handoff_for_challenge(handoff)
+        logger.info(f"Structured handoff extracted: "
+                    f"{len(handoff.get('parent_class_methods', {}).get('inherited_without_override', []))} "
+                    f"inherited methods, "
+                    f"{sum(len(c.get('hardcoded_values', {})) for c in handoff.get('component_classes', []))} "
+                    f"hardcoded values")
+    else:
+        logger.warning("No structured handoff JSON found — using fallback")
+        handoff_text = _build_fallback_handoff(discovery_history, problem)
+
+    # =====================================================================
+    # Phase 2: Challenge agent — targeted verification
+    # =====================================================================
+    challenge_history: List[str] = []
+    run_challenge_agent(problem, handoff_text, challenge_history)
+
+    challenge_thoughts = [e for e in challenge_history if e.startswith("Thought:")]
+    logger.info(f"Challenge: {len(challenge_thoughts)} thoughts, "
+                f"{len(state.method_cache)} methods cached")
+
+    # =====================================================================
+    # Combine histories for compression
+    # The combined history gives the compressor the full investigation
+    # trajectory: discovery findings + challenge verifications
+    # =====================================================================
+    combined_history = (
+        ["=== DISCOVERY PHASE ==="] + discovery_history +
+        ["=== CHALLENGE PHASE ==="] + challenge_history
+    )
+
+    # =====================================================================
+    # Compress combined history into 3-level structured memory
+    # =====================================================================
+    compressed_analysis = compress_chat_history(combined_history, problem)
+    logger.info("Compressed combined history into 3-level memory")
 
     # =====================================================================
     # Generate final bug report
@@ -267,7 +499,8 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
             "repo": instance.get("repo"),
             "base_commit": instance.get("base_commit"),
             "error": str(e),
-            "chat_history": chat_history,
+            "discovery_history": discovery_history,
+            "challenge_history": challenge_history,
             "method_cache": state.method_cache,
             "bug_report": {},
         }
@@ -276,7 +509,7 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
         return error_summary
 
     # =====================================================================
-    # Save single-agent output (before reviewer)
+    # Save pre-reviewer output
     # =====================================================================
     if single_enhanced_file:
         single_summary = {
@@ -286,12 +519,14 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
             "classification_stats": state.classification_stats.get(instance_id, {}),
             "method_cache": state.method_cache,
             "class_skeleton_cache": {},
-            "chat_history": chat_history,
+            "discovery_history": discovery_history,
+            "challenge_history": challenge_history,
+            "handoff": handoff,
             "compressed_analysis": compressed_analysis,
             "bug_report": final_report,
         }
         save_instance_result(single_summary, single_enhanced_file)
-        logger.info(f"Saved single-agent output for {instance_id}")
+        logger.info(f"Saved pre-reviewer output for {instance_id}")
 
     # =====================================================================
     # Reviewer agent
@@ -319,7 +554,9 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
         "classification_stats": state.classification_stats.get(instance_id, {}),
         "method_cache": state.method_cache,
         "class_skeleton_cache": build_class_skeleton_cache(),
-        "chat_history": chat_history,
+        "discovery_history": discovery_history,
+        "challenge_history": challenge_history,
+        "handoff": handoff,
         "compressed_analysis": compressed_analysis,
         "reviewer_changes": reviewer_result.get("changes", []),
         "reviewer_evidence": reviewer_result.get("evidence", []),

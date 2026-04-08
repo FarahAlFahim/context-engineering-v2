@@ -38,7 +38,7 @@ class Config:
     git_cmd_timeout: int = 600
 
     # --- Model ---
-    openai_model: str = "gpt-5-mini-2025-08-07"
+    openai_model: str = "gpt-5.4-2026-03-05" # "gpt-5.4-mini-2026-03-17" # "gpt-5-mini-2025-08-07"
     embed_model: str = "text-embedding-3-large"
     llm_temperature: float = 1.0
 
@@ -201,7 +201,7 @@ Examples:
     p.add_argument("--use-worktree", dest="use_worktree", action="store_true")
 
     # --- Model ---
-    p.add_argument("--model", dest="openai_model", default="gpt-5-mini-2025-08-07")
+    p.add_argument("--model", dest="openai_model", default="gpt-5.4-2026-03-05")
     p.add_argument("--embed-model", dest="embed_model", default="text-embedding-3-large")
     p.add_argument("--temperature", dest="llm_temperature", type=float, default=1.0)
 

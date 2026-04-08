@@ -60,31 +60,18 @@ def _search_codebase(pattern: str, include: str = "*.py") -> str:
     return tool_search_codebase(json.dumps({"pattern": pattern, "include": include}))
 
 
-def build_tools(for_reviewer: bool = False) -> List[StructuredTool]:
-    """Build the list of LangChain StructuredTools for agents.
+# ---------- Role-based tool sets ----------
+# Mirrors claw-code's allowed_tools_for_subagent pattern:
+# each agent role gets only the tools it needs.
 
-    Args:
-        for_reviewer: If True, excludes classify_report and semantic_rank
-                      (reviewer doesn't need discovery tools).
-    """
-    tools = []
+_NAVIGATION_TOOLS = None  # lazy-built below
+_DISCOVERY_TOOLS = None
+_CHALLENGE_TOOLS = None
 
-    if not for_reviewer:
-        tools.append(StructuredTool.from_function(
-            func=_classify_report,
-            name="classify_report",
-            description="Extract programming entities (methods, classes, stack traces, code snippets) "
-                        "from a bug report.",
-            args_schema=ClassifyReportInput,
-        ))
-        tools.append(StructuredTool.from_function(
-            func=_semantic_rank,
-            name="semantic_rank",
-            description="Rank code entities by semantic similarity to a query.",
-            args_schema=SemanticRankInput,
-        ))
 
-    tools.extend([
+def _navigation_tools() -> List[StructuredTool]:
+    """Core navigation tools shared by all agent roles."""
+    return [
         StructuredTool.from_function(
             func=_get_subgraph,
             name="get_subgraph",
@@ -109,7 +96,45 @@ def build_tools(for_reviewer: bool = False) -> List[StructuredTool]:
             description="Grep the repository for a pattern.",
             args_schema=SearchCodebaseInput,
         ),
-    ])
+    ]
 
-    # Wrap all tools with tracing
+
+def _discovery_only_tools() -> List[StructuredTool]:
+    """Tools exclusive to the Discovery agent (broad search/classification)."""
+    return [
+        StructuredTool.from_function(
+            func=_classify_report,
+            name="classify_report",
+            description="Extract programming entities (methods, classes, stack traces, code snippets) "
+                        "from a bug report.",
+            args_schema=ClassifyReportInput,
+        ),
+        StructuredTool.from_function(
+            func=_semantic_rank,
+            name="semantic_rank",
+            description="Rank code entities by semantic similarity to a query.",
+            args_schema=SemanticRankInput,
+        ),
+    ]
+
+
+def build_tools(role: str = "discovery") -> List[StructuredTool]:
+    """Build LangChain StructuredTools for a specific agent role.
+
+    Roles (similar to claw-code's subagent types):
+        - "discovery": All tools including classify_report and semantic_rank.
+                       Used by the Discovery agent (broad search, architecture mapping).
+        - "challenge": Navigation tools only (get_file_context, get_code,
+                       search_codebase, get_subgraph). Used by the Challenge agent
+                       (targeted verification of specific methods/values).
+        - "reviewer":  Same as challenge. Used by the Reviewer agent.
+    """
+    if role == "discovery":
+        tools = _discovery_only_tools() + _navigation_tools()
+    elif role in ("challenge", "reviewer"):
+        tools = _navigation_tools()
+    else:
+        # Fallback: all tools
+        tools = _discovery_only_tools() + _navigation_tools()
+
     return [wrap_tool_for_tracing(t) for t in tools]
