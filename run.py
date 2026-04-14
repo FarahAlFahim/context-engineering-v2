@@ -9,6 +9,7 @@ Phases:
     enhance               Generate enhanced bug reports (multi-agent + reviewer)
     trajectory_enhance    Further enhance using trajectory insights
     dynamic_enhance       Iterative enhancement with mini-sweagent feedback
+    generate_fix_steps    Generate fix steps from existing enhanced reports
     merge                 Merge original + enhanced reports
     evaluate              Run method-match evaluation
     generate_patches      Run mini-swe-agent to generate patches from reports
@@ -56,6 +57,12 @@ Examples:
         --trajectory-folder /path/to/trajectories \\
         --minisweagent-root /path/to/mini-swe-agent \\
         --output data/output/dynamic_enhanced/matplotlib__matplotlib.json
+
+    # Generate fix steps from existing enhanced reports
+    python run.py generate_fix_steps \\
+        --fix-steps-input data/output/multiagent_enhanced/astropy__astropy.json \\
+        --fix-steps-output data/output/gpt-5.4_fix/multiagent_enhanced/astropy__astropy.json \\
+        --instance-ids astropy__astropy-7746
 
     # Merge reports
     python run.py merge \\
@@ -121,6 +128,10 @@ def main():
     elif cfg.phase == "dynamic_enhance":
         from src.agents.dynamic_insights import run_pipeline
         run_pipeline(cfg)
+
+    elif cfg.phase == "generate_fix_steps":
+        from src.fix_steps import run_fix_steps
+        run_fix_steps(cfg)
 
     elif cfg.phase == "merge":
         from src.merge import run_merge
