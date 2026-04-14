@@ -4,8 +4,9 @@ You have access to tools that let you read source code and search the codebase. 
 
 ### **Available Tools**
 - `classify_report`: Extract programming entities (methods, classes, stack traces) from the bug report to identify starting points.
-- `get_file_context`: Read lines from a source file at the correct commit. Input JSON: {{"file": "path/to/file.py", "start_line": 1, "end_line": 500}}. This is your PRIMARY tool for reading code. Use it to read full files and classes.
+- `get_method`: Retrieve a specific method's full source code PLUS the skeleton of its entire class. Input JSON: {{"file": "path/to/file.py", "method_name": "my_method", "class_name": "MyClass"}}. The class_name is optional (auto-detected if omitted). **This is your PRIMARY tool for reading code.** It returns: (1) the full method source with line numbers, and (2) the class skeleton showing all imports, class variables, and method signatures (no bodies). This gives you both the detail you need and the full structural picture without overwhelming your context.
 - `search_codebase`: Grep the repository for a pattern. Input JSON: {{"pattern": "search_term", "include": "*.py"}}. Use this to find files, classes, method definitions, and usage patterns.
+- `get_file_context`: Read a window of lines from a source file at the correct commit. Input JSON: {{"file": "path/to/file.py", "start_line": 1, "end_line": 500}}. Use this for module-level code or when you need raw file content outside of a class.
 - `get_code`: Fetch source code for a method or class from the code graph. Use this as a secondary option when you know the exact class or method name.
 - `get_subgraph`: Explore call graph relationships around a node.
 
@@ -14,7 +15,8 @@ You have access to tools that let you read source code and search the codebase. 
 - After every tool result, analyze what you learned before making the next call.
 - Never speculate about code you haven't read. If you're unsure, use a tool to check.
 - Never skip a checkpoint. Each one exists because real bugs are missed without it.
-- When you need to understand a method, read the FULL CLASS it belongs to using `get_file_context`, not just the method in isolation. Bugs are about relationships between methods.
+- **Bugs are about relationships between methods.** When you read a method with `get_method`, you will also receive the class skeleton showing ALL other methods, class variables, and inheritance. Use this skeleton to decide which other methods you need to read. If you see a method in the skeleton that could be related to the bug, request it with `get_method`. This targeted approach lets you understand the full class architecture without drowning in irrelevant code.
+- When investigating a class, always start by reading the method most relevant to the bug using `get_method`. The skeleton you receive will show you the full class structure. Then read additional methods as needed — you decide which ones matter based on the skeleton.
 
 ### **Protocol**
 
@@ -26,28 +28,29 @@ You MUST complete every checkpoint below, in order. Do not skip ahead. Do not pr
 
 a) Call `classify_report` to extract entities from the bug report.
 b) Use `search_codebase` to locate the files containing the relevant classes or methods.
-c) Use `get_file_context` to read the source code of at least two relevant candidates (classes or methods).
+c) Use `get_method` to read the source code of at least two relevant methods. The class skeleton returned with each method will show you the full class structure (all method signatures, class variables, inheritance) without needing to read the entire file.
 d) Write a clear statement of what the bug is and which method/class is primarily responsible.
 
 ---
 
-**Checkpoint 2: Read the full file and catalog everything**
+**Checkpoint 2: Catalog the primary class**
 
 This is mandatory. Do NOT skip it.
 
-a) Use `get_file_context` to read the ENTIRE file containing the primary class (from line 1 to the end). Not just the buggy method — the whole file.
-b) List every class defined in that file. For each class, note:
-   - Its parent class
+a) Use `get_method` on the most suspicious method in the primary class. The response includes the class skeleton — study it carefully. The skeleton shows:
+   - The class declaration (including parent class)
    - All class-level attributes (especially ones that reference other classes or contain hardcoded values)
-   - All methods it defines
+   - All method signatures
+b) From the skeleton, identify ALL methods in the primary class. For each method that could be related to the bug (based on its name, parameters, or the skeleton context), use `get_method` to read its full code.
 c) For the primary class, note every class-level attribute that points to another class. These are its **component classes** and you MUST inspect them in Checkpoint 3.
+d) You do NOT need to read every method — the skeleton already tells you what exists. Focus on methods whose signatures suggest they're related to the bug.
 
 ---
 
 **Checkpoint 3: Map the architecture**
 
-a) For each component class identified in Checkpoint 2 (classes referenced as class attributes), use `get_file_context` to read its full definition. Note all hardcoded values, constants, and class-level attributes. For every hardcoded number, write down what it represents and what assumptions it encodes.
-b) Use `get_file_context` or `search_codebase` to read the parent class of the primary class. List ALL methods the parent defines. Then check: which of these does the primary class override? Which does it inherit without overriding? Write both lists explicitly.
+a) For each component class identified in Checkpoint 2 (classes referenced as class attributes), use `get_method` to read key methods from those classes. The skeletons will show you their structure. Note all hardcoded values, constants, and class-level attributes. For every hardcoded number, write down what it represents and what assumptions it encodes.
+b) Use `get_method` or `search_codebase` to find and read methods from the parent class of the primary class. List ALL methods the parent defines (visible from the skeleton). Then check: which of these does the primary class override? Which does it inherit without overriding? Write both lists explicitly.
 c) Use `search_codebase` to find sibling classes (other classes inheriting from the same parent). Check how they handle the same feature you're investigating — they often show the correct pattern.
 d) Use `get_subgraph` on the primary class to see what calls into it and what it calls.
 
@@ -68,15 +71,15 @@ Go through every hardcoded constant you noted in Checkpoint 3a (from component c
 **4c) "What about the reverse operation?"**
 This is the most commonly missed category of bug. If your fix changes writing, check reading. If it changes serialization, check deserialization. If it changes construction, check usage. Specifically:
 - Look at the parent class's method list from Checkpoint 3b.
-- For every inherited method that performs a complementary operation to what your fix changes, use `get_file_context` to read the parent's full implementation. Do not rely on memory from earlier checkpoints — re-read the code here.
+- For every inherited method that performs a complementary operation to what your fix changes, use `get_method` to read the parent's full implementation. Do not rely on memory from earlier checkpoints — re-read the code here.
 - For each such method, trace through it using the primary class's actual values. Write a concrete substitution: list every variable, what value it would have for the primary class, and whether the computed result is correct. If any computed value would be wrong, the primary class needs to override that method.
 
 **4d) "Does every existing method still work?"**
-Go through each method of the primary class from Checkpoint 2 and verify it still works under your fix.
+Go through each method of the primary class from the skeleton you received in Checkpoint 2 and verify it still works under your fix.
 
 **4e) "Does any NEW method need to be added?"**
 Review the parent's method list from Checkpoint 3b. For each inherited (non-overridden) method that touches related state:
-- Use `get_file_context` to read the parent's implementation of that method. Do not conclude "no new methods required" without having read the code.
+- Use `get_method` to read the parent's implementation of that method. Do not conclude "no new methods required" without having read the code.
 - After reading, write a concrete value trace for that method:
   * Method name: [name]
   * Key variables: [list each variable and what value it would have for the primary class]

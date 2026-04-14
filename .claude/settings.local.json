@@ -31,7 +31,10 @@
       "Bash(python3:*)",
       "WebFetch(domain:docs.langchain.com)",
       "WebFetch(domain:openrouter.ai)",
-      "Bash(source /Users/fahim/Desktop/context-engineering-v2/context-env/bin/activate)"
+      "Bash(source /Users/fahim/Desktop/context-engineering-v2/context-env/bin/activate)",
+      "Read(//Users/fahim/**)",
+      "Read(//Users/fahim/repos/**)",
+      "Read(//tmp/**)"
     ]
   }
 }

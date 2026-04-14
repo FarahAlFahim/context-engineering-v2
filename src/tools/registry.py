@@ -8,7 +8,8 @@ from pydantic import BaseModel, Field
 from src.tools.classify import tool_classify_report
 from src.tools.semantic_rank import tool_semantic_rank
 from src.tools.code_navigation import (
-    tool_get_subgraph, tool_get_code, tool_get_file_context, tool_search_codebase
+    tool_get_subgraph, tool_get_code, tool_get_file_context, tool_search_codebase,
+    tool_get_method,
 )
 from src.tools.tracing import wrap_tool_for_tracing
 
@@ -36,6 +37,11 @@ class SearchCodebaseInput(BaseModel):
     pattern: str = Field(description="Grep pattern to search for in the repository.")
     include: str = Field(default="*.py", description="File glob to restrict search, e.g. '*.py'.")
 
+class GetMethodInput(BaseModel):
+    file: str = Field(description="Path to the source file relative to the repo root, e.g. 'astropy/io/ascii/rst.py'.")
+    method_name: str = Field(description="Name of the method to retrieve, e.g. '__init__' or 'write'.")
+    class_name: str = Field(default="", description="Name of the class containing the method. If omitted, auto-detected.")
+
 
 # ---------- Wrapper functions that accept structured args ----------
 
@@ -58,6 +64,10 @@ def _get_file_context(file: str, start_line: int = 1, end_line: int = 500) -> st
 def _search_codebase(pattern: str, include: str = "*.py") -> str:
     import json
     return tool_search_codebase(json.dumps({"pattern": pattern, "include": include}))
+
+def _get_method(file: str, method_name: str, class_name: str = "") -> str:
+    import json
+    return tool_get_method(json.dumps({"file": file, "method_name": method_name, "class_name": class_name}))
 
 
 def build_tools(for_reviewer: bool = False) -> List[StructuredTool]:
@@ -98,9 +108,20 @@ def build_tools(for_reviewer: bool = False) -> List[StructuredTool]:
             args_schema=GetCodeInput,
         ),
         StructuredTool.from_function(
+            func=_get_method,
+            name="get_method",
+            description=(
+                "Retrieve a specific method's full source code PLUS the skeleton of its "
+                "entire class (imports, class variables, all method signatures with bodies "
+                "replaced by '...'). This is the PRIMARY tool for reading class methods — "
+                "it gives you the exact code you need plus the full structural context."
+            ),
+            args_schema=GetMethodInput,
+        ),
+        StructuredTool.from_function(
             func=_get_file_context,
             name="get_file_context",
-            description="Read a window of lines from a source file at the correct commit.",
+            description="Read a window of lines from a source file at the correct commit. Use for module-level code or when you need raw file content.",
             args_schema=GetFileContextInput,
         ),
         StructuredTool.from_function(

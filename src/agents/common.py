@@ -307,10 +307,12 @@ def parse_reviewer_output(reviewer_history: List[str], agent_events: List[Any],
 def build_class_skeleton_cache() -> dict:
     """Build class skeletons from classes in method_cache_global.
 
-    Works with both codegraph nodes (from get_code) and file content
-    (from get_file_context). For file content, extracts class/def lines
-    directly from the cached text.
+    Uses the proper skeleton builder from code_navigation which preserves
+    imports, class variables, decorators, docstrings, and method signatures.
     """
+    import re
+    from src.tools.code_navigation import build_class_skeleton
+
     out = {}
     for nid in list(state.method_cache_global):
         # Try codegraph node first
@@ -318,7 +320,6 @@ def build_class_skeleton_cache() -> dict:
         if nd and nd.get("type") == "class":
             code = nd.get("code", "") or ""
         elif nid in state.method_cache:
-            # File content from get_file_context — extract skeleton from cached text
             code = state.method_cache[nid]
         else:
             continue
@@ -326,15 +327,13 @@ def build_class_skeleton_cache() -> dict:
         if not code:
             continue
 
-        skeleton = []
-        for ln in code.splitlines()[:200]:
-            s = ln.strip()
-            if s.startswith("def ") or s.startswith("class ") or s.startswith("async def "):
-                skeleton.append(ln)
-            if len(skeleton) > 80:
-                break
-        if skeleton:
-            out[nid] = "\n".join(skeleton)
+        # Find class names in the code and build skeletons
+        for m in re.finditer(r'^class\s+(\w+)', code, re.MULTILINE):
+            class_name = m.group(1)
+            skeleton = build_class_skeleton(code, class_name)
+            if skeleton:
+                key = f"{nid}:{class_name}" if ":" not in nid else nid
+                out[key] = skeleton
     return out
 
 

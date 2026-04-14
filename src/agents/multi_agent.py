@@ -78,13 +78,14 @@ def _build_continuation_prompt(completed: List[int], chat_history: List[str]) ->
     )
 
     checkpoint_descriptions = {
-        2: "Checkpoint 2: Read the ENTIRE file containing the primary class. "
-           "List every class, their parent classes, all class-level attributes, "
-           "and all methods. Use get_file_context to read the full file.",
-        3: "Checkpoint 3: Map the architecture. Read component classes, "
-           "parent class with get_file_context. Search for sibling classes. Use get_subgraph.",
+        2: "Checkpoint 2: Catalog the primary class. Use get_method on the most "
+           "suspicious method — the response includes the class skeleton showing ALL "
+           "method signatures, class variables, and inheritance. Then use get_method "
+           "to read other methods that the skeleton shows could be related to the bug.",
+        3: "Checkpoint 3: Map the architecture. Use get_method to read key methods from "
+           "component classes and the parent class. Search for sibling classes. Use get_subgraph.",
         4: "Checkpoint 4: Propose a fix, then challenge it with questions 4a-4e. "
-           "You MUST use get_file_context to read inherited methods during 4c and 4e. "
+           "You MUST use get_method to read inherited methods during 4c and 4e. "
            "Trace through each method with concrete values. "
            "Do NOT conclude 'no new methods needed' without reading the code first.",
         5: "Checkpoint 5: Write your complete analysis covering root cause, "

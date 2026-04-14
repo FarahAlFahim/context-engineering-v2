@@ -1,7 +1,9 @@
-"""Code navigation tools: subgraph, get_code, file_context, search."""
+"""Code navigation tools: subgraph, get_code, file_context, search, get_method."""
 
 import json
 import logging
+import re
+import textwrap
 from collections import deque
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -314,3 +316,351 @@ def tool_search_codebase(input_str: str) -> str:
         lines.append(f"[... truncated, showing first 50 of many matches]")
 
     return f"Search results for '{pattern}' in {include}:\n" + "\n".join(lines)
+
+
+# ---------- class skeleton extraction ----------
+
+def _read_file_content(file_path: str) -> Optional[str]:
+    """Read full file content from git at the current commit."""
+    reg = state.current_reg_entry or {}
+    commit = reg.get("base_commit", "")
+    repo_path = state.config.repo_local_path
+    if not commit or not repo_path:
+        return None
+    rc, content, err = run_cmd(
+        ["git", "show", f"{commit}:{file_path}"],
+        cwd=repo_path, timeout=30,
+    )
+    return content if rc == 0 else None
+
+
+def _find_class_for_method(file_content: str, method_name: str) -> Optional[str]:
+    """Find which class a method belongs to in a file.
+
+    Returns the class name, or None if the method is a module-level function.
+    """
+    current_class = None
+    for line in file_content.splitlines():
+        stripped = line.lstrip()
+        indent = len(line) - len(stripped)
+
+        # Top-level class definition (indent 0)
+        m = re.match(r'^class\s+(\w+)', stripped)
+        if m and indent == 0:
+            current_class = m.group(1)
+            continue
+
+        # Method definition inside a class (indent > 0)
+        m = re.match(r'(?:def|async\s+def)\s+(\w+)\s*\(', stripped)
+        if m and m.group(1) == method_name and indent > 0 and current_class:
+            return current_class
+
+    return None
+
+
+def build_class_skeleton(file_content: str, class_name: str) -> str:
+    """Build a skeleton for a class: imports, class declaration, variables,
+    decorators, and method signatures (without method bodies).
+
+    This gives the agent the full structural picture of the class while
+    keeping token count very low.
+    """
+    lines = file_content.splitlines()
+
+    # Phase 1: Collect module-level imports (top of file, before any class)
+    imports = []
+    for line in lines:
+        stripped = line.strip()
+        if stripped.startswith("import ") or stripped.startswith("from "):
+            imports.append(line)
+        elif stripped.startswith("class ") or (stripped.startswith("def ") and not stripped.startswith("def _")):
+            # Stop at first class or public function
+            break
+        elif stripped and not stripped.startswith("#") and not stripped.startswith('"""') and not stripped.startswith("'''"):
+            # Module-level assignment or constant — could be relevant
+            if "=" in stripped and not stripped.startswith("("):
+                imports.append(line)
+
+    # Phase 2: Find the target class and extract its skeleton
+    class_start = None
+    class_indent = None
+    for i, line in enumerate(lines):
+        m = re.match(r'^(\s*)class\s+' + re.escape(class_name) + r'\b', line)
+        if m:
+            class_start = i
+            class_indent = len(m.group(1))
+            break
+
+    if class_start is None:
+        return f"# Class '{class_name}' not found in file"
+
+    skeleton_lines = []
+    i = class_start
+    in_method_body = False
+    method_body_indent = None
+
+    while i < len(lines):
+        line = lines[i]
+        stripped = line.lstrip()
+        indent = len(line) - len(stripped)
+
+        # Past the end of the class (back to class indent level or less, non-empty)
+        if i > class_start and stripped and indent <= class_indent and not stripped.startswith("#"):
+            # Check if it's another class or top-level code
+            break
+
+        if not stripped:
+            # Blank line — include if we're not inside a method body
+            if not in_method_body:
+                skeleton_lines.append("")
+            i += 1
+            continue
+
+        # Detect method/function definitions inside the class
+        is_def = bool(re.match(r'(?:def|async\s+def)\s+\w+\s*\(', stripped))
+        is_decorator = stripped.startswith("@")
+
+        if is_def and indent > class_indent:
+            # This is a method definition
+            in_method_body = True
+            method_body_indent = indent
+
+            # Include the full signature (may span multiple lines)
+            sig_lines = [line]
+            # Handle multi-line signatures
+            while i + 1 < len(lines) and not lines[i].rstrip().endswith(":"):
+                i += 1
+                sig_lines.append(lines[i])
+            skeleton_lines.extend(sig_lines)
+
+            # Add a placeholder for the body
+            body_indent = " " * (indent + 4)
+            skeleton_lines.append(f"{body_indent}...")
+
+            i += 1
+            continue
+
+        if in_method_body:
+            # Skip lines that are part of the method body
+            if indent > method_body_indent:
+                i += 1
+                continue
+            else:
+                # Exited the method body
+                in_method_body = False
+                method_body_indent = None
+
+        # Class-level content: class line, docstrings, class vars, decorators
+        if is_decorator:
+            skeleton_lines.append(line)
+        elif stripped.startswith("class "):
+            skeleton_lines.append(line)
+        elif indent > class_indent and not in_method_body:
+            # Class-level content (variables, docstrings, etc.)
+            # Include docstrings
+            if stripped.startswith('"""') or stripped.startswith("'''"):
+                skeleton_lines.append(line)
+                quote = stripped[:3]
+                # If docstring doesn't close on same line, consume until close
+                if stripped.count(quote) == 1:
+                    i += 1
+                    while i < len(lines):
+                        skeleton_lines.append(lines[i])
+                        if quote in lines[i]:
+                            break
+                        i += 1
+            else:
+                # Class variable or assignment
+                skeleton_lines.append(line)
+
+        i += 1
+
+    # Assemble
+    parts = []
+    if imports:
+        parts.append("# === Module imports ===")
+        parts.extend(imports)
+        parts.append("")
+    parts.append(f"# === Class skeleton for {class_name} (method bodies replaced with '...') ===")
+    parts.extend(skeleton_lines)
+
+    return "\n".join(parts)
+
+
+def _extract_method_code(file_content: str, class_name: str, method_name: str) -> Optional[str]:
+    """Extract the full source code of a specific method from a class."""
+    lines = file_content.splitlines()
+
+    # Find the class first
+    class_start = None
+    class_indent = None
+    for i, line in enumerate(lines):
+        m = re.match(r'^(\s*)class\s+' + re.escape(class_name) + r'\b', line)
+        if m:
+            class_start = i
+            class_indent = len(m.group(1))
+            break
+
+    if class_start is None:
+        return None
+
+    # Find the method inside the class
+    method_start = None
+    method_indent = None
+    for i in range(class_start + 1, len(lines)):
+        line = lines[i]
+        stripped = line.lstrip()
+        indent = len(line) - len(stripped)
+
+        # Past end of class
+        if stripped and indent <= class_indent and i > class_start:
+            break
+
+        m = re.match(r'(?:def|async\s+def)\s+' + re.escape(method_name) + r'\s*\(', stripped)
+        if m and indent > class_indent:
+            # Check for decorators above (including multi-line decorators)
+            dec_start = i
+            while dec_start > class_start + 1:
+                prev = lines[dec_start - 1].lstrip()
+                if prev.startswith("@"):
+                    dec_start -= 1
+                elif prev and not prev.startswith("def ") and not prev.startswith("async def "):
+                    # Could be continuation of a multi-line decorator —
+                    # keep walking back to see if we hit an '@' line
+                    peek = dec_start - 1
+                    found_decorator = False
+                    while peek > class_start:
+                        peek_line = lines[peek - 1].lstrip()
+                        if peek_line.startswith("@"):
+                            found_decorator = True
+                            break
+                        elif not peek_line or peek_line.startswith("def ") or peek_line.startswith("async def ") or peek_line.startswith("class "):
+                            break
+                        peek -= 1
+                    if found_decorator:
+                        dec_start = peek
+                    else:
+                        break
+                else:
+                    break
+            method_start = dec_start
+            method_indent = indent
+            break
+
+    if method_start is None:
+        return None
+
+    # Collect the method body (everything at indent > method_indent, plus the def line)
+    method_lines = []
+    i = method_start
+    started_body = False
+    while i < len(lines):
+        line = lines[i]
+        stripped = line.lstrip()
+        indent = len(line) - len(stripped)
+
+        if i == method_start:
+            method_lines.append(line)
+            i += 1
+            continue
+
+        # Handle multi-line signature
+        if not started_body and not lines[i - 1].rstrip().endswith(":"):
+            method_lines.append(line)
+            i += 1
+            continue
+
+        started_body = True
+
+        # Past end of method
+        if stripped and indent <= method_indent:
+            break
+
+        method_lines.append(line)
+        i += 1
+
+    # Add line numbers
+    numbered = []
+    for j, ml in enumerate(method_lines):
+        numbered.append(f"{method_start + j + 1}: {ml}")
+
+    return "\n".join(numbered)
+
+
+# ---------- get_method tool ----------
+
+def tool_get_method(input_str: str) -> str:
+    """Retrieve a specific method's full source code along with its class skeleton.
+
+    Returns:
+      1. The full source of the requested method (with line numbers)
+      2. The class skeleton: imports, class declaration, class variables,
+         and all method signatures (bodies replaced with '...')
+
+    This gives you the exact code you need plus the full structural context
+    of the class it belongs to.
+    """
+    try:
+        inp = json.loads(input_str)
+    except (json.JSONDecodeError, TypeError):
+        return ("Invalid input. Expected JSON: "
+                "{\"file\": \"path/to/file.py\", \"class_name\": \"MyClass\", \"method_name\": \"my_method\"}")
+
+    file_path = inp.get("file", "")
+    method_name = inp.get("method_name", "")
+    class_name = inp.get("class_name", "")
+
+    if not file_path or not method_name:
+        return "Missing required fields. Need 'file' and 'method_name'."
+
+    # Read full file
+    file_content = _read_file_content(file_path)
+    if file_content is None:
+        reg = state.current_reg_entry or {}
+        commit = reg.get("base_commit", "")[:8]
+        return f"Could not read {file_path} at commit {commit}"
+
+    # Auto-detect class if not provided
+    if not class_name:
+        class_name = _find_class_for_method(file_content, method_name)
+        if not class_name:
+            # It may be a module-level function — fall back to get_file_context
+            return (f"Method '{method_name}' does not appear to be inside a class in {file_path}. "
+                    f"Use get_file_context to read it directly, or provide 'class_name'.")
+
+    # Extract the method code
+    method_code = _extract_method_code(file_content, class_name, method_name)
+    if method_code is None:
+        return (f"Could not find method '{method_name}' in class '{class_name}' in {file_path}. "
+                f"Use search_codebase to verify the method name and file.")
+
+    # Build the class skeleton
+    skeleton = build_class_skeleton(file_content, class_name)
+
+    # Cache the method code
+    cache_key = f"{file_path}:{class_name}.{method_name}"
+    state.method_cache[cache_key] = method_code
+    state.method_cache_global.add(cache_key)
+
+    # Also cache the full file for later use
+    state.method_cache[file_path] = file_content
+    state.method_cache_global.add(file_path)
+
+    # Build response
+    reg = state.current_reg_entry or {}
+    commit = reg.get("base_commit", "")[:8]
+
+    parts = [
+        f"=== Method: {class_name}.{method_name} ===",
+        f"File: {file_path} (commit {commit})",
+        "",
+        method_code,
+        "",
+        f"=== Class skeleton for {class_name} (all method signatures, no bodies) ===",
+        f"Use this skeleton to understand the full class structure.",
+        f"To read any other method's full code, call get_method again with that method name.",
+        "",
+        skeleton,
+    ]
+
+    return "\n".join(parts)
