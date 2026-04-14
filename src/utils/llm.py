@@ -96,8 +96,26 @@ def _wrap_drop_stop_for_gpt5(llm):
     return _DropStopRunnable(llm)
 
 
-def make_chat_llm(model_name: str, temperature=None):
-    """Create a ChatOpenAI instance with model-specific compatibility handling."""
+def _is_openrouter(api_key_env: str) -> bool:
+    return api_key_env == "OPENROUTER_API_KEY"
+
+
+def make_chat_llm(model_name: str, temperature=None, api_base: str = "", api_key_env: str = "OPENAI_API_KEY"):
+    """Create a chat LLM instance with provider-specific handling.
+
+    Uses ChatOpenRouter for OpenRouter models, ChatOpenAI for OpenAI models.
+    """
     temp = _normalize_temperature(model_name, temperature)
-    base = ChatOpenAI(model=model_name, temperature=temp)
+
+    if _is_openrouter(api_key_env):
+        from langchain_openrouter import ChatOpenRouter
+        return ChatOpenRouter(model=model_name, temperature=temp)
+
+    kwargs = {"model": model_name, "temperature": temp}
+    if api_base:
+        kwargs["base_url"] = api_base
+    api_key = os.environ.get(api_key_env, "")
+    if api_key:
+        kwargs["api_key"] = api_key
+    base = ChatOpenAI(**kwargs)
     return _wrap_drop_stop_for_gpt5(base) if _is_gpt5_model(model_name) else base

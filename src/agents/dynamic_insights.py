@@ -492,7 +492,7 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
 def run_pipeline(cfg):
     """Run the dynamic iterative enhancement pipeline."""
     state.config = cfg
-    state.llm = make_chat_llm(cfg.openai_model, cfg.llm_temperature)
+    state.llm = make_chat_llm(cfg.openai_model, cfg.llm_temperature, cfg.openai_api_base, cfg.openai_api_key_env)
 
     out_file = cfg.output_file
     if not out_file:

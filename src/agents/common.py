@@ -364,7 +364,7 @@ def run_agent_with_tools(instruction: str, user_text: str, tools: list,
     times, continuing from where the previous attempt's chat_history left off.
     """
     agent_events = []
-    agent_llm = make_chat_llm(state.config.openai_model, state.config.llm_temperature)
+    agent_llm = make_chat_llm(state.config.openai_model, state.config.llm_temperature, state.config.openai_api_base, state.config.openai_api_key_env)
 
     if LANGGRAPH_AVAILABLE:
         chat_history.append("[agent] Using LangGraph tool-calling agent")

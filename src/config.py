@@ -38,9 +38,20 @@ class Config:
     git_cmd_timeout: int = 600
 
     # --- Model ---
-    openai_model: str = "gpt-5-mini-2025-08-07"
+    # Change these defaults to switch models in one place.
+    # For OpenAI models:  openai_api_key_env = "OPENAI_API_KEY"
+    # For OpenRouter models: openai_api_key_env = "OPENROUTER_API_KEY"
+    # For OpenAI:
+    openai_model: str = "gpt-5-mini-2025-08-07" # "gpt-5-mini-2025-08-07" | "gpt-5.4-mini-2026-03-17" | "gpt-5.4-2026-03-05"
+    openai_api_key_env: str = "OPENAI_API_KEY"
+    # For OpenRouter:
+    # openai_model: str = "minimax/minimax-m2.5"
+    # openai_api_key_env: str = "OPENROUTER_API_KEY"
+
     embed_model: str = "text-embedding-3-large"
     llm_temperature: float = 1.0
+    openai_api_base: str = ""  # custom base URL (only needed for non-OpenAI/non-OpenRouter providers)
+    
 
     # --- Features ---
     use_llm_classifier: bool = True
@@ -73,6 +84,10 @@ class Config:
     minisweagent_run_name: str = ""
     max_iterative_refinement_rounds: int = 8
     dry_run: bool = False
+
+    # --- Fix steps ---
+    fix_steps_input: str = ""   # input multiagent_enhanced JSON
+    fix_steps_output: str = ""  # output JSON with fix_steps added
 
     # --- Merge ---
     merge_original: str = ""
@@ -172,7 +187,8 @@ Examples:
 
     p.add_argument("phase", nargs="?", default="enhance",
                    choices=["build_graphs", "enhance", "trajectory_enhance",
-                            "dynamic_enhance", "merge", "evaluate",
+                            "dynamic_enhance", "generate_fix_steps",
+                            "merge", "evaluate",
                             "generate_patches", "eval_patches"],
                    help="Pipeline phase to run (default: enhance)")
 
@@ -200,10 +216,15 @@ Examples:
     p.add_argument("--git-branch", dest="git_branch", default="main")
     p.add_argument("--use-worktree", dest="use_worktree", action="store_true")
 
-    # --- Model ---
-    p.add_argument("--model", dest="openai_model", default="gpt-5-mini-2025-08-07")
-    p.add_argument("--embed-model", dest="embed_model", default="text-embedding-3-large")
-    p.add_argument("--temperature", dest="llm_temperature", type=float, default=1.0)
+    # --- Model (defaults come from Config dataclass – change in one place) ---
+    _defaults = Config()
+    p.add_argument("--model", dest="openai_model", default=_defaults.openai_model)
+    p.add_argument("--embed-model", dest="embed_model", default=_defaults.embed_model)
+    p.add_argument("--temperature", dest="llm_temperature", type=float, default=_defaults.llm_temperature)
+    p.add_argument("--api-base", dest="openai_api_base", default=_defaults.openai_api_base,
+                   help="Custom API base URL (e.g. https://openrouter.ai/api/v1)")
+    p.add_argument("--api-key-env", dest="openai_api_key_env", default=_defaults.openai_api_key_env,
+                   help="Env var name for API key (default: OPENAI_API_KEY)")
 
     # --- Features ---
     p.add_argument("--use-regex-classifier", dest="use_llm_classifier",
@@ -228,6 +249,12 @@ Examples:
     p.add_argument("--max-refinement-rounds", dest="max_iterative_refinement_rounds",
                    type=int, default=8)
     p.add_argument("--dry-run", dest="dry_run", action="store_true")
+
+    # --- Fix steps ---
+    p.add_argument("--fix-steps-input", dest="fix_steps_input", default="",
+                   help="Input multiagent_enhanced JSON file (with bug_report + compressed_analysis)")
+    p.add_argument("--fix-steps-output", dest="fix_steps_output", default="",
+                   help="Output JSON file (same fields + fix_steps before bug_report)")
 
     # --- Merge ---
     p.add_argument("--merge-original", dest="merge_original", default="")

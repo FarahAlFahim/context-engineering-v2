@@ -26,7 +26,12 @@
       "Bash(python -c \"import ast; ast.parse\\(open\\(''src/agents/common.py''\\).read\\(\\)\\); ast.parse\\(open\\(''src/agents/multi_agent.py''\\).read\\(\\)\\); print\\(''OK''\\)\")",
       "Bash(python -c \"import ast; ast.parse\\(open\\(''src/agents/multi_agent.py''\\).read\\(\\)\\); ast.parse\\(open\\(''src/tools/code_navigation.py''\\).read\\(\\)\\); print\\(''OK''\\)\")",
       "Bash(python -c \"import ast; ast.parse\\(open\\(''src/agents/common.py''\\).read\\(\\)\\); ast.parse\\(open\\(''src/agents/multi_agent.py''\\).read\\(\\)\\); ast.parse\\(open\\(''src/tools/code_navigation.py''\\).read\\(\\)\\); print\\(''OK''\\)\")",
-      "Bash(python -c \"import ast; ast.parse\\(open\\(''src/agents/multi_agent.py''\\).read\\(\\)\\); ast.parse\\(open\\(''src/tools/code_navigation.py''\\).read\\(\\)\\); ast.parse\\(open\\(''src/agents/common.py''\\).read\\(\\)\\); print\\(''OK''\\)\")"
+      "Bash(python -c \"import ast; ast.parse\\(open\\(''src/agents/multi_agent.py''\\).read\\(\\)\\); ast.parse\\(open\\(''src/tools/code_navigation.py''\\).read\\(\\)\\); ast.parse\\(open\\(''src/agents/common.py''\\).read\\(\\)\\); print\\(''OK''\\)\")",
+      "Bash(python -c \"import src.agents.multi_agent; import src.tools.registry; print\\(''OK''\\)\")",
+      "Bash(python3:*)",
+      "WebFetch(domain:docs.langchain.com)",
+      "WebFetch(domain:openrouter.ai)",
+      "Bash(source /Users/fahim/Desktop/context-engineering-v2/context-env/bin/activate)"
     ]
   }
 }
