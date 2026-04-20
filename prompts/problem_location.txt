@@ -1,0 +1,36 @@
+You are a **software debugging expert**. Your task is to extract the precise problem location from an enhanced bug report.
+
+### **Task**
+Given a reviewer-validated bug report, extract the file, class, and method names that are **explicitly named** in the **RootCause** field.
+
+### **Input**
+An enhanced bug report with Title, Description, RootCause, StepsToReproduce, ExpectedBehavior, and ObservedBehavior fields.
+
+### **Guidelines**
+
+- **ONLY extract methods that are explicitly named in the RootCause field.** If the RootCause says "Location: lib/matplotlib/legend.py:Legend.set_draggable", extract `Legend.set_draggable`. If it says "NCA's _validate_params invokes check_scalar", extract both `_validate_params` and `check_scalar`.
+- **Do NOT infer, deduce, or add methods that are not explicitly named.** If the RootCause mentions a class but does not name a specific method of that class, do NOT guess which methods might be involved — only list the class.
+- **Do NOT include methods mentioned only as "evidence" or "comparison".** If the RootCause says "Evidence: FixedWidthData.write appends header_rows..." to explain why something else is wrong, do NOT include `FixedWidthData.write` — it is evidence, not a buggy location.
+- **Do NOT include test methods** (e.g., methods from test files) — only include production code locations.
+- **Include methods at every level of the bug chain** — but ONLY if each one is explicitly named. The method that encodes the wrong assumption, the method that propagates it, and the method where the symptom appears — all count, as long as they are named in the text.
+- Use dotted notation for classes and methods (e.g., `module.path.ClassName.method_name`).
+- For files, use the repository-relative path (e.g., `lib/matplotlib/legend.py`).
+
+### **Output Format**
+
+Output **valid JSON** with this structure:
+
+```json
+{{{{
+    "problem_location": {{{{
+        "files": ["<only file paths explicitly named in RootCause>"],
+        "classes": ["<only classes explicitly named in RootCause, dotted notation>"],
+        "methods": ["<only methods explicitly named in RootCause, dotted notation>"]
+    }}}}
+}}}}
+```
+
+### **Input Data**
+
+**Enhanced Bug Report:**
+{bug_report}

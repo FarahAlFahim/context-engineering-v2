@@ -64,6 +64,11 @@ Examples:
         --fix-steps-output data/output/gpt-5.4_fix/multiagent_enhanced/astropy__astropy.json \\
         --instance-ids astropy__astropy-7746
 
+    # Generate problem_location from enhanced reports
+    python run.py generate_problem_location \\
+        --problem-location-input data/output/multiagent_enhanced/astropy__astropy.json \\
+        --problem-location-output data/output/problem_location/astropy__astropy.json
+
     # Merge reports
     python run.py merge \\
         --merge-original data/by_repo/django__django.json \\
@@ -132,6 +137,10 @@ def main():
     elif cfg.phase == "generate_fix_steps":
         from src.fix_steps import run_fix_steps
         run_fix_steps(cfg)
+
+    elif cfg.phase == "generate_problem_location":
+        from src.problem_location import run_problem_location
+        run_problem_location(cfg)
 
     elif cfg.phase == "merge":
         from src.merge import run_merge

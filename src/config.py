@@ -89,6 +89,10 @@ class Config:
     fix_steps_input: str = ""   # input multiagent_enhanced JSON
     fix_steps_output: str = ""  # output JSON with fix_steps added
 
+    # --- Problem location ---
+    problem_location_input: str = ""   # input multiagent_enhanced JSON
+    problem_location_output: str = ""  # output JSON with problem_location added
+
     # --- Merge ---
     merge_original: str = ""
     merge_enhanced: str = ""
@@ -188,6 +192,7 @@ Examples:
     p.add_argument("phase", nargs="?", default="enhance",
                    choices=["build_graphs", "enhance", "trajectory_enhance",
                             "dynamic_enhance", "generate_fix_steps",
+                            "generate_problem_location",
                             "merge", "evaluate",
                             "generate_patches", "eval_patches"],
                    help="Pipeline phase to run (default: enhance)")
@@ -255,6 +260,12 @@ Examples:
                    help="Input multiagent_enhanced JSON file (with bug_report + compressed_analysis)")
     p.add_argument("--fix-steps-output", dest="fix_steps_output", default="",
                    help="Output JSON file (same fields + fix_steps before bug_report)")
+
+    # --- Problem location ---
+    p.add_argument("--problem-location-input", dest="problem_location_input", default="",
+                   help="Input multiagent_enhanced JSON file (with bug_report)")
+    p.add_argument("--problem-location-output", dest="problem_location_output", default="",
+                   help="Output JSON file (same fields + problem_location before bug_report)")
 
     # --- Merge ---
     p.add_argument("--merge-original", dest="merge_original", default="")

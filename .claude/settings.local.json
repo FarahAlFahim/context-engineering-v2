@@ -31,7 +31,20 @@
       "Bash(python3:*)",
       "WebFetch(domain:docs.langchain.com)",
       "WebFetch(domain:openrouter.ai)",
-      "Bash(source /Users/fahim/Desktop/context-engineering-v2/context-env/bin/activate)"
+      "Bash(source /Users/fahim/Desktop/context-engineering-v2/context-env/bin/activate)",
+      "Bash(python src/evaluate_localization.py --ground_truth data/by_repo/astropy__astropy.json --predictions data/output/gpt-5-mini_fix/multiagent_enhanced/astropy__astropy.json)",
+      "Bash(python src/evaluate_localization.py --ground_truth data/by_repo/astropy__astropy.json --predictions data/output/gpt-5-mini_fix/multiagent_enhanced/astropy__astropy.json --output data/output/localization/gpt-5-mini_fix/multiagent_enhanced/astropy__astropy111.json)",
+      "Bash(python run.py generate_problem_location --problem-location-input data/output/multiagent_enhanced/astropy__astropy.json --problem-location-output data/output/problem_location/astropy__astropy.json --instance-ids astropy__astropy-14182)",
+      "Bash(python run.py generate_problem_location --problem-location-input data/output/multiagent_enhanced/matplotlib__matplotlib.json --problem-location-output data/output/problem_location/matplotlib__matplotlib.json --instance-ids matplotlib__matplotlib-25311)",
+      "Bash(python run.py generate_problem_location --problem-location-input data/output/multiagent_enhanced/matplotlib__matplotlib.json --problem-location-output data/output/problem_location/matplotlib__matplotlib.json --instance-ids matplotlib__matplotlib-23913 matplotlib__matplotlib-25433)",
+      "Bash(python run.py generate_problem_location --problem-location-input data/output/multiagent_enhanced/scikit-learn__scikit-learn.json --problem-location-output data/output/problem_location/scikit-learn__scikit-learn.json --instance-ids scikit-learn__scikit-learn-14092 scikit-learn__scikit-learn-14983)",
+      "Bash(python run.py generate_problem_location --problem-location-input data/output/multiagent_enhanced/astropy__astropy.json --problem-location-output data/output/problem_location/astropy__astropy.json)",
+      "Bash(python run.py generate_problem_location --problem-location-input data/output/multiagent_enhanced/matplotlib__matplotlib.json --problem-location-output data/output/problem_location/matplotlib__matplotlib.json)",
+      "Bash(python run.py generate_problem_location --problem-location-input data/output/multiagent_enhanced/scikit-learn__scikit-learn.json --problem-location-output data/output/problem_location/scikit-learn__scikit-learn.json)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(pip list:*)",
+      "Bash(conda list:*)",
+      "Bash(/Users/fahim/Desktop/PhD/mini-swe-agent-working/mini_sweagent-env/bin/python3 -c ':*)"
     ]
   }
 }

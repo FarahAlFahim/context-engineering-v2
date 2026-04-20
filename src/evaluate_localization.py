@@ -8,17 +8,32 @@ against ground-truth locations extracted from patches.
 Granularities: class-level, method-level.
 
 Metrics:
-  - Hit@1     : 1 if the first predicted item matches any GT item, else 0.
-  - Precision : 1 if ALL ground-truth items are found in predictions, else 0.
+  - Hit       : 1 if ANY predicted item matches any GT item, else 0.
+  - Precision : 1 if ALL ground-truth items are found in predictions, else 0
+                (all-or-nothing).  Extra predictions beyond GT count are fine.
 
-Usage:
+Usage (single repo):
     python src/evaluate_localization.py \
         --ground_truth data/by_repo/astropy__astropy.json \
         --predictions data/output/gpt-5-mini_fix/multiagent_enhanced/astropy__astropy.json
 
+Usage (single repo, custom output path):
+    python src/evaluate_localization.py \
+        --ground_truth data/by_repo/astropy__astropy.json \
+        --predictions data/output/gpt-5-mini_fix/multiagent_enhanced/astropy__astropy.json \
+        --output data/output/localization/gpt-5-mini_fix/multiagent_enhanced/astropy__astropy.json
+
+Usage (all repos in a directory):
     python src/evaluate_localization.py \
         --ground_truth_dir data/by_repo \
-        --predictions_dir data/output/gpt-5-mini_fix/multiagent_enhanced
+        --predictions_dir data/output/gpt-5-mini_fix/multiagent_enhanced \
+        --output data/output/localization/gpt-5-mini_fix/multiagent_enhanced/overall.json
+
+Output:
+    JSON results are always written to a file. If --output is not specified,
+    the path is auto-derived from the predictions path:
+        data/output/<variant>/<repo>.json
+        -> data/output/localization/<variant>/<repo>.json
 """
 
 import argparse
@@ -176,15 +191,16 @@ def names_match(predicted: str, ground_truth: str) -> bool:
 # Metrics
 # ---------------------------------------------------------------------------
 
-def compute_hit1(pred_list: list, gt_list: list) -> int:
-    """1 if the first prediction matches any GT. None if GT is empty."""
+def compute_hit(pred_list: list, gt_list: list) -> int:
+    """1 if ANY prediction matches any GT item. None if GT is empty."""
     if not gt_list:
         return None
     if not pred_list:
         return 0
-    for gt in gt_list:
-        if names_match(pred_list[0], gt):
-            return 1
+    for pred in pred_list:
+        for gt in gt_list:
+            if names_match(pred, gt):
+                return 1
     return 0
 
 
@@ -213,9 +229,9 @@ def evaluate_instance(gt_item: dict, pred_item: dict) -> dict:
     gt_methods = _deduplicate_bare(gt['methods'])
 
     results = {
-        'class_hit@1': compute_hit1(pred['classes'], gt_classes),
+        'class_hit': compute_hit(pred['classes'], gt_classes),
         'class_precision': compute_precision(pred['classes'], gt_classes),
-        'method_hit@1': compute_hit1(pred['methods'], gt_methods),
+        'method_hit': compute_hit(pred['methods'], gt_methods),
         'method_precision': compute_precision(pred['methods'], gt_methods),
     }
 
@@ -264,13 +280,13 @@ def evaluate_file_pair(gt_path: str, pred_path: str, verbose: bool = False) -> l
             print(f"  GT  methods: {res['gt']['methods']}")
             print(f"  Pred methods: {res['pred']['methods']}")
             for level in LEVELS:
-                h = r[f'{level}_hit@1']
+                h = r[f'{level}_hit']
                 p = r[f'{level}_precision']
                 h_str = "Y" if h == 1 else ("-" if h == 0 else "skip")
                 p_str = "Y" if p == 1 else ("-" if p == 0 else "skip")
                 gt_n = c[f'{level}_gt']
                 pr_n = c[f'{level}_pred']
-                print(f"    {level:<8}  hit@1={h_str}  precision={p_str}"
+                print(f"    {level:<8}  hit={h_str}  precision={p_str}"
                       f"  (GT={gt_n}, Pred={pr_n})")
 
     return results
@@ -282,7 +298,7 @@ def aggregate_results(all_results: list) -> dict:
 
     summary = {}
     for level in LEVELS:
-        for metric_key in [f'{level}_hit@1', f'{level}_precision']:
+        for metric_key in [f'{level}_hit', f'{level}_precision']:
             values = [r['results'][metric_key] for r in all_results
                       if r['results'][metric_key] is not None]
             n = len(values)
@@ -304,17 +320,60 @@ def aggregate_results(all_results: list) -> dict:
     return summary
 
 
-def print_summary(summary: dict, label: str = ""):
+def print_instance_details(all_results: list):
+    """Print per-instance GT vs Pred comparison for each level."""
+    for res in all_results:
+        iid = res['instance_id']
+        r = res['results']
+        gt = res['gt']
+        pred = res['pred']
+
+        print(f"\n  {iid}")
+        for level in LEVELS:
+            key = f'{level}es' if level == 'class' else f'{level}s'
+            gt_items = gt.get(key, gt.get(level + 'es', gt.get(level + 's', [])))
+            pred_items = pred.get(key, pred.get(level + 'es', pred.get(level + 's', [])))
+
+            h = r[f'{level}_hit']
+            p = r[f'{level}_precision']
+
+            if h is None:
+                status = "skip (no GT)"
+            elif h == 1 and p == 1:
+                status = "PASS"
+            else:
+                parts = []
+                if h == 0:
+                    parts.append("hit=MISS")
+                if p == 0:
+                    parts.append("precision=MISS")
+                status = ", ".join(parts) if parts else "partial"
+
+            gt_str = ", ".join(gt_items) if gt_items else "(none)"
+            pred_str = ", ".join(pred_items) if pred_items else "(none)"
+            print(f"    {level:<8}  [{status}]")
+            print(f"      GT:   {gt_str}")
+            print(f"      Pred: {pred_str}")
+
+            # Show which GT items were missed
+            if p == 0 and gt_items:
+                missed = [g for g in gt_items
+                          if not any(names_match(pp, g) for pp in pred_items)]
+                if missed:
+                    print(f"      Missing: {', '.join(missed)}")
+
+
+def print_summary(summary: dict, all_results: list = None, label: str = ""):
     if label:
         print(f"\n{'='*70}")
         print(f"  {label}")
         print(f"{'='*70}")
 
     print()
-    print(f"  {'Level':<10} {'Hit@1':>12} {'Precision':>12}")
+    print(f"  {'Level':<10} {'Hit':>12} {'Precision':>12}")
     print(f"  {'-'*36}")
     for level in LEVELS:
-        h = summary.get(f'{level}_hit@1', {})
+        h = summary.get(f'{level}_hit', {})
         p = summary.get(f'{level}_precision', {})
         h_pct, h_s, h_n = h.get('avg', 0.0), int(h.get('sum', 0)), h.get('total', 0)
         p_pct, p_s, p_n = p.get('avg', 0.0), int(p.get('sum', 0)), p.get('total', 0)
@@ -327,12 +386,98 @@ def print_summary(summary: dict, label: str = ""):
         c = summary.get(f'{level}_counts', {})
         print(f"  {level:<10} {c.get('avg_gt',0):>8.1f} {c.get('avg_pred',0):>10.1f}"
               f" {c.get('total_gt',0):>10} {c.get('total_pred',0):>12}")
+
+    # Print per-instance details
+    if all_results:
+        print(f"\n  --- Per-instance details ---")
+        print_instance_details(all_results)
     print()
 
 
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
+
+def _derive_output_path(predictions_path: str) -> str:
+    """Auto-derive output path from predictions path.
+
+    data/output/<variant>/<sub>/<repo>.json
+    -> data/output/localization/<variant>/<sub>/<repo>.json
+    """
+    parts = Path(predictions_path).parts
+    # Find 'output' in the path and insert 'localization' after it
+    try:
+        idx = parts.index('output')
+        new_parts = parts[:idx + 1] + ('localization',) + parts[idx + 1:]
+        return str(Path(*new_parts))
+    except ValueError:
+        # Fallback: put next to predictions
+        p = Path(predictions_path)
+        return str(p.parent / 'localization' / p.name)
+
+
+def _build_output_data(per_repo_summaries: dict, all_results: list,
+                       repo_results_map: dict) -> dict:
+    output_data = {
+        'per_repo': {},
+        'per_instance': [],
+    }
+    for repo, summary in per_repo_summaries.items():
+        repo_out = {}
+        for k, v in summary.items():
+            if k.endswith('_counts'):
+                repo_out[k] = v
+            else:
+                repo_out[k] = {'avg': round(v['avg'], 2),
+                               'count': int(v['sum']),
+                               'total': v['total']}
+        output_data['per_repo'][repo] = repo_out
+    for res in all_results:
+        output_data['per_instance'].append({
+            'instance_id': res['instance_id'],
+            'results': res['results'],
+            'counts': res['counts'],
+            'ground_truth': res['gt'],
+            'predicted': res['pred'],
+        })
+    if len(per_repo_summaries) > 1:
+        overall = aggregate_results(all_results)
+        overall_out = {}
+        for k, v in overall.items():
+            if k.endswith('_counts'):
+                overall_out[k] = v
+            else:
+                overall_out[k] = {'avg': round(v['avg'], 2),
+                                  'count': int(v['sum']),
+                                  'total': v['total']}
+        output_data['overall'] = overall_out
+
+    # Build per-repo lists of instances with precision=1 and hit=1
+    precision_1 = {}
+    hit_1 = {}
+    for repo, results in repo_results_map.items():
+        p1 = []
+        h1 = []
+        for res in results:
+            iid = res['instance_id']
+            r = res['results']
+            # Consider an instance precision=1 if ALL non-skipped levels got precision 1
+            level_precisions = [r[f'{lv}_precision'] for lv in LEVELS
+                                if r[f'{lv}_precision'] is not None]
+            level_hits = [r[f'{lv}_hit'] for lv in LEVELS
+                          if r[f'{lv}_hit'] is not None]
+            if level_precisions and all(p == 1 for p in level_precisions):
+                p1.append(iid)
+            if level_hits and all(h == 1 for h in level_hits):
+                h1.append(iid)
+        precision_1[repo] = p1
+        hit_1[repo] = h1
+
+    output_data['precision_1_instances'] = precision_1
+    output_data['hit_1_instances'] = hit_1
+
+    return output_data
+
 
 def main():
     parser = argparse.ArgumentParser(description='Evaluate bug localization accuracy')
@@ -347,12 +492,14 @@ def main():
     parser.add_argument('--verbose', '-v', action='store_true',
                         help='Print per-instance details')
     parser.add_argument('--output', '-o', type=str,
-                        help='Write JSON results to file')
+                        help='Write JSON results to file (auto-derived if omitted)')
 
     args = parser.parse_args()
 
     all_results = []
     per_repo_summaries = {}
+    repo_results_map = {}  # repo_name -> list of per-instance results
+    output_paths = []  # for auto-deriving per-repo output
 
     if args.ground_truth and args.predictions:
         results = evaluate_file_pair(args.ground_truth, args.predictions, args.verbose)
@@ -360,7 +507,9 @@ def main():
         repo_name = Path(args.ground_truth).stem
         summary = aggregate_results(results)
         per_repo_summaries[repo_name] = summary
-        print_summary(summary, repo_name)
+        repo_results_map[repo_name] = results
+        print_summary(summary, results, repo_name)
+        output_paths.append(args.predictions)
 
     elif args.ground_truth_dir and args.predictions_dir:
         gt_dir = Path(args.ground_truth_dir)
@@ -375,7 +524,9 @@ def main():
                     all_results.extend(results)
                     summary = aggregate_results(results)
                     per_repo_summaries[repo_name] = summary
-                    print_summary(summary, repo_name)
+                    repo_results_map[repo_name] = results
+                    print_summary(summary, results, repo_name)
+                    output_paths.append(str(pred_file))
             else:
                 print(f"  [SKIP] No prediction file for {gt_file.name}")
 
@@ -386,46 +537,23 @@ def main():
 
     if len(per_repo_summaries) > 1:
         overall = aggregate_results(all_results)
-        print_summary(overall, "OVERALL")
+        print_summary(overall, all_results, "OVERALL")
+
+    # Write output JSON — auto-derive path if not specified
+    output_data = _build_output_data(per_repo_summaries, all_results, repo_results_map)
 
     if args.output:
-        output_data = {
-            'per_repo': {},
-            'per_instance': [],
-        }
-        for repo, summary in per_repo_summaries.items():
-            repo_out = {}
-            for k, v in summary.items():
-                if k.endswith('_counts'):
-                    repo_out[k] = v
-                else:
-                    repo_out[k] = {'avg': round(v['avg'], 2),
-                                   'count': int(v['sum']),
-                                   'total': v['total']}
-            output_data['per_repo'][repo] = repo_out
-        for res in all_results:
-            output_data['per_instance'].append({
-                'instance_id': res['instance_id'],
-                'results': res['results'],
-                'counts': res['counts'],
-                'ground_truth': res['gt'],
-                'predicted': res['pred'],
-            })
-        if len(per_repo_summaries) > 1:
-            overall = aggregate_results(all_results)
-            overall_out = {}
-            for k, v in overall.items():
-                if k.endswith('_counts'):
-                    overall_out[k] = v
-                else:
-                    overall_out[k] = {'avg': round(v['avg'], 2),
-                                      'count': int(v['sum']),
-                                      'total': v['total']}
-            output_data['overall'] = overall_out
+        out_path = args.output
+    elif output_paths:
+        out_path = _derive_output_path(output_paths[0])
+    else:
+        out_path = None
 
-        with open(args.output, 'w') as f:
+    if out_path:
+        Path(out_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(out_path, 'w') as f:
             json.dump(output_data, f, indent=2)
-        print(f"  Results written to {args.output}")
+        print(f"  Results written to {out_path}")
 
 
 if __name__ == '__main__':
