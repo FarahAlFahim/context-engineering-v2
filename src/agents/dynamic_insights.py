@@ -350,6 +350,11 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
     trajectory_phases = split_extracted_trajectory_phases(extracted_trajectory)
     logger.info(f"Trajectory phases: localization={len(trajectory_phases.get('localization',''))} chars, "
                 f"repair={len(trajectory_phases.get('repair',''))} chars")
+    print(f"Trajectory phases for instance_id={instance_id}")
+    for phase_name in ("localization", "repair"):
+        phase_text = trajectory_phases.get(phase_name, "")
+        print(f"\n[{phase_name.upper()}]")
+        print(phase_text[:500] if phase_text else "(empty)")
 
     phase_order = ("localization", "repair")
     phase_usage = {"localization": False, "repair": False}
@@ -376,20 +381,29 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
             chat_history=run_chat_history,
         )
         if all_redundant:
+            print(f" Skipping instance {instance_id} because both localization and repair phases are redundant")
             logger.info(f"Skipping {instance_id}: both phases redundant")
             summary = {
                 "instance_id": instance_id,
                 "repo": instance.get("repo"),
                 "base_commit": instance.get("base_commit"),
+                "classification_stats": state.classification_stats.get(instance_id, {}),
                 "method_cache": input_method_cache,
                 "class_skeleton_cache": input_class_skeleton_cache,
                 "chat_history": run_chat_history,
+                "run_chat_history": run_chat_history,
+                "iteration_chat_histories": [],
+                "iteration_method_caches": [],
+                "iteration_class_skeleton_caches": [],
+                "iteration_selected_phases": [],
                 "further_enhanced": False,
+                "trajectory_path": latest_trajectory_path,
                 "trajectory_phases": latest_trajectory_phases,
                 "phase_usage": latest_phase_usage,
                 "bug_report": problem_obj if isinstance(problem_obj, (dict, list)) else {"raw": problem},
             }
             save_instance_result(summary, out_summary_file)
+            print(f"Wrote/updated (both phases redundant) instance {instance_id} into {out_summary_file}")
             state.current_reg_entry = None
             return summary
     except Exception:
@@ -405,6 +419,8 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
     iterative_rounds = 0
     while iterative_rounds < cfg.max_iterative_refinement_rounds:
         iterative_rounds += 1
+        print(f" Proceeding with reviewer-based further enhancement for instance {instance_id} "
+              f"using phase: {latest_selected_phase} (round {iterative_rounds}/{cfg.max_iterative_refinement_rounds})")
         logger.info(f"Enhancement round {iterative_rounds} for {instance_id}, phase: {latest_selected_phase}")
         iteration_selected_phases.append(latest_selected_phase)
 
@@ -442,6 +458,11 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
 
         latest_trajectory_path = str(new_traj_path) if new_traj_path else latest_trajectory_path
         latest_trajectory_phases = split_extracted_trajectory_phases(new_traj)
+        print(f"Iterative trajectory phases for instance_id={instance_id} (round={iterative_rounds})")
+        for phase_name in ("localization", "repair"):
+            phase_text = latest_trajectory_phases.get(phase_name, "")
+            print(f"\n[{phase_name.upper()}]")
+            print(phase_text[:500] if phase_text else "(empty)")
 
         try:
             (all_redundant, latest_phase_usage, latest_selected_phase,
@@ -453,6 +474,7 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
             if latest_reason:
                 further_enhancement_reason = latest_reason
             if all_redundant:
+                print(f"Stopping iterative loop for instance {instance_id}: new trajectory is redundant")
                 logger.info(f"Stopping iterative loop: trajectory is redundant")
                 break
         except Exception:
@@ -473,6 +495,8 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
         "chat_history": (iteration_chat_histories[-1] if iteration_chat_histories else run_chat_history),
         "run_chat_history": run_chat_history,
         "iteration_chat_histories": iteration_chat_histories,
+        "iteration_method_caches": iteration_method_caches,
+        "iteration_class_skeleton_caches": iteration_class_skeleton_caches,
         "iteration_selected_phases": iteration_selected_phases,
         "further_enhancement_reason": further_enhancement_reason,
         "further_enhanced": True,
@@ -485,6 +509,7 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
     }
 
     save_instance_result(instance_summary, out_summary_file)
+    print(f"Wrote/updated instance {instance_id} into {out_summary_file}")
     state.current_reg_entry = None
     return instance_summary
 
