@@ -1,28 +1,45 @@
-Compare a bug report with a summary of agent interaction history to determine whether they reflect the same analysis or whether the agent history adds new diagnostic value.
+You are a professional software developer comparing a bug report with a summary of agent interaction history.
 
-You are a professional software developer. You are given two inputs:
-1) a bug report, and
-2) a summary of agent interaction history.
+### **Goal**
+Determine whether the agent interaction history adds genuinely new **diagnostic** value beyond what the bug report already covers, or whether the two reflect the same analysis. The bug report is a diagnosis-only document (it describes what is wrong and where, but does not prescribe fixes). Your comparison must account for this.
 
-The agent interaction history summarizes the agent's end-to-end behavior while analyzing the issue, including its actions, observations, decisions, and key findings. Your task is to analyze both inputs to determine whether they are aligned in terms of bug description, root cause, and suggested resolution, or whether the agent interaction history provides additional insights that enhance or go beyond the bug report.
+### **Inputs**
+1. **Bug report** — a structured diagnosis containing fields such as Title, Description, RootCause, StepsToReproduce, ExpectedBehavior, and ObservedBehavior. It does NOT contain fix suggestions or implementation guidance.
+2. **Agent interaction history** — a summary of an agent's end-to-end behavior while analyzing or repairing the issue, including actions, observations, decisions, and findings. This may come from either a localization phase or a repair phase.
 
-Both inputs may ultimately refer to the same bug. However, similarity should be judged based on whether their analyses are effectively the same. The agent summary may contain many intermediate steps, locations, and observations; you must synthesize its overall conclusion and compare that conclusion against the bug report as a whole, including its description, root cause, and suggestion fields.
+### **Guidelines**
 
-If the agent interaction history provides additional useful diagnostic information, deeper root-cause analysis, or new actionable suggestions that are not already present in the bug report, then they should be considered not similar, and the reason must clearly explain what extra value the agent history adds.
+**Synthesize before comparing.** The agent history may contain many intermediate steps, locations, and observations. Synthesize its overall diagnostic conclusion and compare that conclusion against the bug report as a whole.
 
-CRITICAL: Operational or implementation actions by the agent — such as applying/editing a fix, creating a git patch/diff, staging or committing changes, submitting a patch, or running tests — do NOT count as new diagnostic value. These are execution steps, not analytical insights. If the bug report already describes the root cause and suggests the correct fix, the fact that the agent merely carried out that same fix is NOT additional value. Only genuinely new analytical content counts as non-redundant: a different or deeper root-cause explanation, identification of additional affected locations not mentioned in the bug report, a materially different fix strategy, or new evidence from testing that changes or refines the diagnosis.
+**What counts as new diagnostic value (similar = false):**
+- A different or deeper root-cause explanation that the bug report does not cover.
+- Identification of additional affected code locations not mentioned anywhere in the bug report's RootCause or Description.
+- New evidence from testing or code exploration that materially changes or refines the diagnosis (e.g., the agent discovered the root cause is actually in a different method than the report claims).
+- A finding that contradicts or corrects a claim in the bug report.
+
+**What does NOT count as new diagnostic value (similar = true):**
+- Operational or implementation actions: applying/editing a fix, creating a git patch/diff, staging or committing changes, submitting a patch, running tests to validate a fix. These are execution steps, not analytical insights.
+- Fix suggestions or repair strategies that implement what the bug report's RootCause already implies. A bug report that precisely identifies the defective code location and describes the incorrect behavior (e.g., "method X writes literal 1s instead of preserving the incoming array's structure") already implies the corresponding fix. The agent merely carrying out or articulating that fix is NOT additional diagnostic value.
+- Restating the same root cause in different words or at a different level of detail without adding new locations or findings.
+- Exploring the same code locations already named in the bug report, even if the agent quotes specific lines.
+
+**Key principle for repair-phase trajectories:** If the bug report's RootCause is specific enough that a competent developer reading it would arrive at the same fix the agent applied, then the agent's repair actions are redundant. Judge by whether the report already names the exact defective location and describes precisely what is wrong there — if so, the natural fix is implied and the repair trajectory adds nothing new diagnostically.
 
 Do not hallucinate. Base your judgment strictly on the provided inputs.
 
-# Output Format
+### **Output Format**
 The output must be valid JSON only, with no additional text or formatting. Return a single valid JSON object with exactly the following fields:
 {{{{
     "similar": boolean,
     "reason": string
 }}}}
 
-# You are given the **bug report** below:
+Set "similar" to true if the agent history is diagnostically redundant with the bug report. Set it to false only if genuinely new diagnostic insights exist, and explain them in "reason".
+
+### **Inputs to compare**
+
+**Bug report:**
 {problem}
 
-# You are given the **summary of agent interaction history** below:
+**Agent interaction history:**
 {traj}
