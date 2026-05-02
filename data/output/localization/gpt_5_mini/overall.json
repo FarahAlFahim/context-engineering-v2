@@ -1,0 +1,2109 @@
+{
+  "per_repo": {
+    "astropy__astropy": {
+      "class_hit": {
+        "avg": 100.0,
+        "count": 1,
+        "total": 1
+      },
+      "class_precision": {
+        "avg": 100.0,
+        "count": 1,
+        "total": 1
+      },
+      "class_counts": {
+        "total_gt": 2,
+        "total_pred": 8,
+        "avg_gt": 0.3333333333333333,
+        "avg_pred": 1.3333333333333333
+      },
+      "method_hit": {
+        "avg": 100.0,
+        "count": 6,
+        "total": 6
+      },
+      "method_precision": {
+        "avg": 83.33,
+        "count": 5,
+        "total": 6
+      },
+      "method_counts": {
+        "total_gt": 10,
+        "total_pred": 33,
+        "avg_gt": 1.6666666666666667,
+        "avg_pred": 5.5
+      }
+    },
+    "matplotlib__matplotlib": {
+      "class_hit": {
+        "avg": 0.0,
+        "count": 0,
+        "total": 1
+      },
+      "class_precision": {
+        "avg": 0.0,
+        "count": 0,
+        "total": 1
+      },
+      "class_counts": {
+        "total_gt": 2,
+        "total_pred": 82,
+        "avg_gt": 0.08695652173913043,
+        "avg_pred": 3.5652173913043477
+      },
+      "method_hit": {
+        "avg": 91.3,
+        "count": 21,
+        "total": 23
+      },
+      "method_precision": {
+        "avg": 65.22,
+        "count": 15,
+        "total": 23
+      },
+      "method_counts": {
+        "total_gt": 37,
+        "total_pred": 138,
+        "avg_gt": 1.608695652173913,
+        "avg_pred": 6.0
+      }
+    },
+    "scikit-learn__scikit-learn": {
+      "class_hit": {
+        "avg": 66.67,
+        "count": 2,
+        "total": 3
+      },
+      "class_precision": {
+        "avg": 66.67,
+        "count": 2,
+        "total": 3
+      },
+      "class_counts": {
+        "total_gt": 4,
+        "total_pred": 59,
+        "avg_gt": 0.17391304347826086,
+        "avg_pred": 2.5652173913043477
+      },
+      "method_hit": {
+        "avg": 95.65,
+        "count": 22,
+        "total": 23
+      },
+      "method_precision": {
+        "avg": 82.61,
+        "count": 19,
+        "total": 23
+      },
+      "method_counts": {
+        "total_gt": 30,
+        "total_pred": 106,
+        "avg_gt": 1.3043478260869565,
+        "avg_pred": 4.608695652173913
+      }
+    }
+  },
+  "per_instance": [
+    {
+      "instance_id": "astropy__astropy-12907",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 2,
+        "method_gt": 1,
+        "method_pred": 5
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_cstack"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "astropy.modeling.core.Model",
+          "astropy.modeling.core.CompoundModel"
+        ],
+        "methods": [
+          "astropy.modeling.separable._cstack",
+          "astropy.modeling.separable._separable",
+          "astropy.modeling.core.Model._calculate_separability_matrix",
+          "astropy.modeling.separable._coord_matrix",
+          "astropy.modeling.separable._arith_oper"
+        ]
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-14182",
+      "results": {
+        "class_hit": 1,
+        "class_precision": 1,
+        "method_hit": 1,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 2,
+        "class_pred": 2,
+        "method_gt": 3,
+        "method_pred": 3
+      },
+      "ground_truth": {
+        "classes": [
+          "SimpleRSTData",
+          "RST"
+        ],
+        "methods": [
+          "__init__",
+          "write",
+          "read"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "astropy.io.ascii.rst.RST",
+          "astropy.io.ascii.rst.SimpleRSTData"
+        ],
+        "methods": [
+          "astropy.io.ascii.rst.RST.__init__",
+          "astropy.io.ascii.rst.RST.write",
+          "astropy.io.ascii.rst.SimpleRSTData.start_line"
+        ]
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-14365",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 1,
+        "method_gt": 2,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_line_type",
+          "_get_tables_from_qdp_file"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "astropy.io.ascii.qdp.QDPData"
+        ],
+        "methods": [
+          "astropy.io.ascii.qdp._line_type",
+          "astropy.io.ascii.qdp._get_tables_from_qdp_file",
+          "astropy.io.ascii.qdp._write_table_qdp",
+          "astropy.io.ascii.qdp.QDPData.fill_values"
+        ]
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-14995",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 1,
+        "method_gt": 1,
+        "method_pred": 2
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_arithmetic_mask"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "astropy.nddata.mixins.ndarithmetic.NDArithmeticMixin"
+        ],
+        "methods": [
+          "astropy.nddata.mixins.ndarithmetic.NDArithmeticMixin._arithmetic_mask",
+          "astropy.nddata.mixins.ndarithmetic.NDArithmeticMixin._arithmetic"
+        ]
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-6938",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 1,
+        "method_gt": 1,
+        "method_pred": 2
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_scale_back_ascii"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "astropy.io.fits.fitsrec.FITS_rec"
+        ],
+        "methods": [
+          "astropy.io.fits.fitsrec.FITS_rec._scale_back_ascii",
+          "astropy.io.fits.fitsrec.FITS_rec._convert_ascii"
+        ]
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-7746",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 1,
+        "method_gt": 2,
+        "method_pred": 17
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_return_list_of_arrays",
+          "_return_single_array"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "astropy.wcs.wcs.WCS"
+        ],
+        "methods": [
+          "WCS._array_converter",
+          "WCS._return_list_of_arrays",
+          "WCS._return_single_array",
+          "WCS.wcs_pix2world",
+          "WCS.all_pix2world",
+          "WCS.wcs_world2pix",
+          "WCS.all_world2pix",
+          "WCS.pix2foc",
+          "WCS.p4_pix2foc",
+          "WCS.det2im",
+          "WCS.sip_pix2foc",
+          "WCS.sip_foc2pix",
+          "self.wcs.p2s",
+          "self.wcs.s2p",
+          "astropy.wcs.wcs._denormalize_sky",
+          "astropy.wcs.wcs._normalize_sky",
+          "wcsp2s"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-18869",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 1,
+        "method_gt": 3,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "__getattr__",
+          "_parse_to_version_info",
+          "_get_version"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "packaging.version.LegacyVersion"
+        ],
+        "methods": [
+          "matplotlib.__getattr__",
+          "matplotlib.__dir__",
+          "matplotlib.parse_version",
+          "packaging.version.parse"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-22711",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 2,
+        "method_gt": 3,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_update_val_from_pos",
+          "_update",
+          "set_val"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "RangeSlider",
+          "Polygon"
+        ],
+        "methods": [
+          "RangeSlider.set_val",
+          "Polygon.set_xy",
+          "axvspan",
+          "axhspan"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-22835",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 1,
+        "method_pred": 5
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "format_cursor_data"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "Artist",
+          "BoundaryNorm",
+          "colors.NoNorm"
+        ],
+        "methods": [
+          "Artist.format_cursor_data",
+          "BoundaryNorm.inverse",
+          "_process_values",
+          "_reset_locator_formatter_scale",
+          "_locate"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-23299",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 2,
+        "method_gt": 1,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "rc_context"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "matplotlib.RcParams",
+          "matplotlib._pylab_helpers.Gcf"
+        ],
+        "methods": [
+          "matplotlib.rc_context",
+          "matplotlib.RcParams.__getitem__",
+          "matplotlib.pyplot.switch_backend",
+          "matplotlib._pylab_helpers.Gcf.destroy_all"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-23314",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 1,
+        "method_pred": 2
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "draw"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "mpl_toolkits.mplot3d.axes3d.Axes3D",
+          "mpl_toolkits.mplot3d.axis3d.Axis",
+          "matplotlib.axes._base._AxesBase"
+        ],
+        "methods": [
+          "mpl_toolkits.mplot3d.axes3d.Axes3D.draw",
+          "mpl_toolkits.mplot3d.axis3d.Axis.get_tightbbox"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-23476",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 4,
+        "method_gt": 1,
+        "method_pred": 5
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "__getstate__"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "lib.matplotlib.figure.Figure",
+          "lib.matplotlib.backend_bases.FigureCanvasBase",
+          "lib.matplotlib.backends.backend_macosx.FigureCanvasMac",
+          "_macosx.FigureCanvas"
+        ],
+        "methods": [
+          "lib.matplotlib.figure.Figure.__getstate__",
+          "lib.matplotlib.figure.Figure.__setstate__",
+          "lib.matplotlib.figure.Figure._set_dpi",
+          "lib.matplotlib.backend_bases.FigureCanvasBase.__init__",
+          "lib.matplotlib.backend_bases.FigureCanvasBase._set_device_pixel_ratio"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-23562",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 2,
+        "method_pred": 7
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "get_facecolor",
+          "get_edgecolor"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "lib.mpl_toolkits.mplot3d.art3d.Poly3DCollection",
+          "lib.matplotlib.collections.PolyCollection",
+          "lib.mpl_toolkits.mplot3d.axes3d.Axes3D"
+        ],
+        "methods": [
+          "lib.mpl_toolkits.mplot3d.art3d.Poly3DCollection.get_facecolor",
+          "lib.mpl_toolkits.mplot3d.art3d.Poly3DCollection.get_edgecolor",
+          "lib.mpl_toolkits.mplot3d.art3d.Poly3DCollection.do_3d_projection",
+          "lib.mpl_toolkits.mplot3d.art3d.Poly3DCollection.set_3d_properties",
+          "lib.mpl_toolkits.mplot3d.art3d.Poly3DCollection.set_facecolor",
+          "lib.mpl_toolkits.mplot3d.art3d.Poly3DCollection.set_edgecolor",
+          "lib.mpl_toolkits.mplot3d.axes3d.Axes3D.plot_surface"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-23563",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 8,
+        "method_gt": 1,
+        "method_pred": 15
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "set_3d_properties"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "lib.mpl_toolkits.mplot3d.art3d.Text3D",
+          "lib.mpl_toolkits.mplot3d.art3d.Line3D",
+          "lib.mpl_toolkits.mplot3d.art3d.Line3DCollection",
+          "lib.mpl_toolkits.mplot3d.art3d.Patch3D",
+          "lib.mpl_toolkits.mplot3d.art3d.PathPatch3D",
+          "lib.mpl_toolkits.mplot3d.art3d.Path3DCollection",
+          "lib.mpl_toolkits.mplot3d.art3d.Patch3DCollection",
+          "lib.mpl_toolkits.mplot3d.art3d.Poly3DCollection"
+        ],
+        "methods": [
+          "lib.mpl_toolkits.mplot3d.art3d.text_2d_to_3d",
+          "lib.mpl_toolkits.mplot3d.art3d.line_2d_to_3d",
+          "lib.mpl_toolkits.mplot3d.art3d.line_collection_2d_to_3d",
+          "lib.mpl_toolkits.mplot3d.art3d.patch_2d_to_3d",
+          "lib.mpl_toolkits.mplot3d.art3d.pathpatch_2d_to_3d",
+          "lib.mpl_toolkits.mplot3d.art3d.patch_collection_2d_to_3d",
+          "lib.mpl_toolkits.mplot3d.art3d.poly_collection_2d_to_3d",
+          "lib.mpl_toolkits.mplot3d.art3d.Line3D.set_3d_properties",
+          "lib.mpl_toolkits.mplot3d.art3d.Line3D.get_xdata",
+          "lib.mpl_toolkits.mplot3d.art3d.Line3D.get_ydata",
+          "lib.mpl_toolkits.mplot3d.art3d.Line3D.draw",
+          "lib.mpl_toolkits.mplot3d.art3d.Line3DCollection.set_segments",
+          "lib.mpl_toolkits.mplot3d.art3d.Poly3DCollection.set_verts_and_codes",
+          "lib.mpl_toolkits.mplot3d.art3d.juggle_axes",
+          "numpy.broadcast_to"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-23913",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 5,
+        "method_gt": 3,
+        "method_pred": 6
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_update_bbox_to_anchor",
+          "__init__",
+          "val_or_rc"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "matplotlib.legend.Legend",
+          "matplotlib.legend.DraggableLegend",
+          "matplotlib.offsetbox.DraggableOffsetBox",
+          "matplotlib.axes._axes.Axes",
+          "matplotlib.figure.Figure"
+        ],
+        "methods": [
+          "matplotlib.legend.Legend.__init__",
+          "matplotlib.legend.Legend.set_draggable",
+          "matplotlib.legend.Legend.get_draggable",
+          "matplotlib.legend.Legend._init_legend_box",
+          "matplotlib.legend.Legend._set_loc",
+          "matplotlib.axes._axes.Axes.legend"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-23964",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 4,
+        "method_gt": 1,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "draw_text"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "RendererPS",
+          "LayoutItem",
+          "Text",
+          "RendererPdf"
+        ],
+        "methods": [
+          "RendererPS.draw_text",
+          "layout",
+          "Text.draw",
+          "Text._get_layout"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-23987",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 4,
+        "method_gt": 1,
+        "method_pred": 7
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "__init__"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "matplotlib.figure.Figure",
+          "matplotlib.figure.FigureBase",
+          "matplotlib.layout_engine.ConstrainedLayoutEngine",
+          "matplotlib.layout_engine.TightLayoutEngine"
+        ],
+        "methods": [
+          "matplotlib.figure.Figure.__init__",
+          "matplotlib.figure.FigureBase.subplots_adjust",
+          "matplotlib.figure.FigureBase.get_layout_engine",
+          "matplotlib.figure.Figure.set_layout_engine",
+          "matplotlib.figure.Figure.set_constrained_layout",
+          "matplotlib.figure.Figure.set_tight_layout",
+          "matplotlib.pyplot.subplots"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-24149",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 2,
+        "method_gt": 1,
+        "method_pred": 9
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_convert_dx"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "matplotlib.axes._axes.Axes",
+          "matplotlib.units.Registry"
+        ],
+        "methods": [
+          "matplotlib.cbook._safe_first_finite",
+          "matplotlib.axes._axes.Axes._convert_dx",
+          "matplotlib.axes._axes.broken_barh",
+          "matplotlib.axes._axes._upcast_err",
+          "matplotlib.axes._axes._parse_scatter_color_args",
+          "matplotlib.dates.default_units",
+          "matplotlib.units.Registry.get_converter",
+          "matplotlib.axes._base.update_datalim",
+          "matplotlib.axes._base._update_patch_limits"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-24265",
+      "results": {
+        "class_hit": 0,
+        "class_precision": 0,
+        "method_hit": 1,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 2,
+        "class_pred": 0,
+        "method_gt": 3,
+        "method_pred": 6
+      },
+      "ground_truth": {
+        "classes": [
+          "__getattr__",
+          "_StyleLibrary"
+        ],
+        "methods": [
+          "fix_style",
+          "__getitem__",
+          "reload_library"
+        ]
+      },
+      "predicted": {
+        "classes": [],
+        "methods": [
+          "matplotlib.style.core.read_style_directory",
+          "matplotlib.style.core.reload_library",
+          "matplotlib.style.core.use",
+          "matplotlib.style.core.fix_style",
+          "matplotlib.style.core.update_user_library",
+          "matplotlib.style.core.update_nested_dict"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-24334",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 6,
+        "method_gt": 1,
+        "method_pred": 7
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "set_ticks"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "Axis",
+          "Artist",
+          "Text",
+          "Axes",
+          "SecondaryAxis",
+          "Colorbar"
+        ],
+        "methods": [
+          "Axis.set_ticks",
+          "Axis.set_ticklabels",
+          "tick.label1._internal_update",
+          "Artist._update_props",
+          "Axes.set_xticks",
+          "Axes.set_yticks",
+          "_axis_method_wrapper"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-24970",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 1,
+        "method_gt": 1,
+        "method_pred": 3
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "__call__"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "matplotlib.colors.Colormap"
+        ],
+        "methods": [
+          "matplotlib.colors.Colormap.__init__",
+          "matplotlib.colors.Colormap.__call__",
+          "matplotlib.colors.Colormap._set_extremes"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-25079",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 0,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 5,
+        "method_gt": 1,
+        "method_pred": 10
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "autoscale"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "Colorbar",
+          "LogTransform",
+          "LogNorm",
+          "LogScale",
+          "Normalize"
+        ],
+        "methods": [
+          "Colorbar._process_values",
+          "Colorbar._mesh",
+          "LogTransform.transform_non_affine",
+          "self._trf.transform",
+          "self.norm.inverse",
+          "self.norm.scaled",
+          "self.norm.callbacks.blocked",
+          "mtransforms.nonsingular",
+          "cbook._setattr_cm",
+          "make_norm_from_scale"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-25311",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 5,
+        "method_gt": 1,
+        "method_pred": 3
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "__init__"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "lib.matplotlib.offsetbox.DraggableBase",
+          "lib.matplotlib.legend.Legend",
+          "lib.matplotlib.text._AnnotationBase",
+          "lib.matplotlib.text.Text",
+          "lib.matplotlib.figure.Figure"
+        ],
+        "methods": [
+          "lib.matplotlib.offsetbox.DraggableBase.__init__",
+          "lib.matplotlib.legend.Legend.set_draggable",
+          "lib.matplotlib.text.Text.__getstate__"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-25332",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 5,
+        "method_gt": 2,
+        "method_pred": 6
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "__getstate__",
+          "__setstate__"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "matplotlib.cbook.Grouper",
+          "matplotlib.figure.FigureBase",
+          "matplotlib.figure.Figure",
+          "matplotlib.axis.Axis",
+          "matplotlib.artist.Artist"
+        ],
+        "methods": [
+          "matplotlib.cbook.Grouper.join",
+          "matplotlib.cbook.Grouper.get_siblings",
+          "matplotlib.figure.Figure.align_xlabels",
+          "matplotlib.figure.Figure.align_ylabels",
+          "matplotlib.axis.Axis._get_tick_boxes_siblings",
+          "matplotlib.artist.Artist.__getstate__"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-25433",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 0,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 6,
+        "method_gt": 1,
+        "method_pred": 6
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_break_share_link"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "lib.matplotlib.figure.FigureBase",
+          "lib.matplotlib.figure.Figure",
+          "lib.matplotlib.backend_bases.FigureCanvasBase",
+          "lib.matplotlib.widgets.SliderBase",
+          "lib.matplotlib.widgets.RangeSlider",
+          "lib.matplotlib.widgets.Button"
+        ],
+        "methods": [
+          "lib.matplotlib.figure.FigureBase.delaxes",
+          "lib.matplotlib.figure.Figure.clear",
+          "lib.matplotlib.figure.Figure.clf",
+          "lib.matplotlib.backend_bases.FigureCanvasBase.grab_mouse",
+          "lib.matplotlib.backend_bases.FigureCanvasBase.release_mouse",
+          "lib.matplotlib.widgets.SliderBase.set_val"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-25442",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 4,
+        "method_gt": 4,
+        "method_pred": 8
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "__init__",
+          "on_pick",
+          "on_release",
+          "disconnect"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "matplotlib.offsetbox.DraggableBase",
+          "matplotlib.offsetbox.DraggableOffsetBox",
+          "matplotlib.offsetbox.DraggableAnnotation",
+          "matplotlib.cbook.CallbackRegistry"
+        ],
+        "methods": [
+          "matplotlib.offsetbox.DraggableBase.canvas",
+          "matplotlib.offsetbox.DraggableBase.__init__",
+          "matplotlib.offsetbox.DraggableBase._check_still_parented",
+          "matplotlib.offsetbox.DraggableBase.disconnect",
+          "matplotlib.offsetbox.DraggableBase.on_pick",
+          "matplotlib.offsetbox.DraggableBase.on_motion",
+          "matplotlib.offsetbox.DraggableBase.on_release",
+          "matplotlib.cbook.CallbackRegistry.process"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-25498",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 2,
+        "method_pred": 6
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "__init__",
+          "_process_values"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "Colorbar",
+          "LogNorm",
+          "ScalarMappable"
+        ],
+        "methods": [
+          "Colorbar._process_values",
+          "Colorbar.update_normal",
+          "LogNorm.inverse",
+          "mtransforms.nonsingular",
+          "ScalarMappable.autoscale_None",
+          "update_bruteforce"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-26011",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 1,
+        "method_pred": 8
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_set_lim"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "Axis",
+          "_AxesBase",
+          "CallbackRegistry"
+        ],
+        "methods": [
+          "Axis._set_lim",
+          "_get_shared_axes",
+          "_get_axis_name",
+          "_AxesBase.sharex",
+          "_AxesBase.sharey",
+          "set_xlim",
+          "set_ylim",
+          "CallbackRegistry.process"
+        ]
+      }
+    },
+    {
+      "instance_id": "matplotlib__matplotlib-26020",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 1,
+        "method_pred": 3
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_tick_only"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "mpl_toolkits.axes_grid1.axes_grid.CbarAxesBase",
+          "mpl_toolkits.axes_grid1.mpl_axes.AxisDict",
+          "mpl_toolkits.axes_grid1.mpl_axes.SimpleAxisArtist"
+        ],
+        "methods": [
+          "mpl_toolkits.axes_grid1.axes_grid._tick_only",
+          "mpl_toolkits.axes_grid1.axes_grid.CbarAxesBase.toggle_label",
+          "mpl_toolkits.axes_grid1.mpl_axes.SimpleAxisArtist.toggle"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-10297",
+      "results": {
+        "class_hit": 1,
+        "class_precision": 1,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 2,
+        "class_pred": 4,
+        "method_gt": 1,
+        "method_pred": 2
+      },
+      "ground_truth": {
+        "classes": [
+          "RidgeCV",
+          "RidgeClassifierCV"
+        ],
+        "methods": [
+          "__init__"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.linear_model.ridge.RidgeClassifierCV",
+          "sklearn.linear_model.ridge._BaseRidgeCV",
+          "sklearn.linear_model.ridge._RidgeGCV",
+          "sklearn.linear_model.ridge.RidgeCV"
+        ],
+        "methods": [
+          "sklearn.linear_model.ridge.RidgeClassifierCV.__init__",
+          "sklearn.linear_model.ridge._BaseRidgeCV.fit"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-10508",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 1,
+        "method_gt": 2,
+        "method_pred": 5
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "transform",
+          "inverse_transform"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.preprocessing.label.LabelEncoder"
+        ],
+        "methods": [
+          "sklearn.preprocessing.label.LabelEncoder.transform",
+          "sklearn.utils.validation.column_or_1d",
+          "sklearn.utils.validation.check_is_fitted",
+          "numpy.searchsorted",
+          "numpy.ravel"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-10949",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 2,
+        "method_gt": 1,
+        "method_pred": 2
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "check_array"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "pandas.DataFrame",
+          "DataConversionWarning"
+        ],
+        "methods": [
+          "sklearn.utils.validation.check_array",
+          "sklearn.utils.validation.check_X_y"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-11040",
+      "results": {
+        "class_hit": 0,
+        "class_precision": 0,
+        "method_hit": 0,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 1,
+        "class_pred": 3,
+        "method_gt": 1,
+        "method_pred": 3
+      },
+      "ground_truth": {
+        "classes": [
+          "from"
+        ],
+        "methods": [
+          "_fit"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.neighbors.base.NeighborsBase",
+          "sklearn.neighbors.base.KNeighborsMixin",
+          "sklearn.neighbors.binary_tree.NeighborsHeap"
+        ],
+        "methods": [
+          "sklearn.neighbors.base.NeighborsBase.__init__",
+          "sklearn.neighbors.base.KNeighborsMixin.kneighbors",
+          "sklearn.neighbors.base.KNeighborsMixin.kneighbors_graph"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-11281",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 7,
+        "method_gt": 2,
+        "method_pred": 6
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "fit",
+          "fit_predict"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "BaseMixture",
+          "GaussianMixture",
+          "BayesianGaussianMixture",
+          "GMM",
+          "ClusterMixin",
+          "DensityMixin",
+          "BaseEstimator"
+        ],
+        "methods": [
+          "BaseMixture.fit",
+          "BaseMixture._set_parameters",
+          "BaseMixture.predict",
+          "BaseMixture._estimate_weighted_log_prob",
+          "BaseMixture.fit_predict",
+          "BaseMixture.__init__"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-12471",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 1,
+        "method_pred": 6
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_transform"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.preprocessing._encoders._BaseEncoder",
+          "sklearn.preprocessing._encoders.OneHotEncoder",
+          "sklearn.preprocessing._encoders.OrdinalEncoder"
+        ],
+        "methods": [
+          "sklearn.preprocessing._encoders._BaseEncoder._check_X",
+          "sklearn.preprocessing._encoders._BaseEncoder._transform",
+          "sklearn.preprocessing._encoders.OneHotEncoder._transform_new",
+          "sklearn.preprocessing.label._encode_numpy",
+          "sklearn.preprocessing.label._encode_check_unknown",
+          "sklearn.preprocessing._encoders.OrdinalEncoder._fit"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-13142",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 1,
+        "method_pred": 8
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "fit_predict"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.mixture.base.BaseMixture",
+          "sklearn.mixture.gaussian_mixture.GaussianMixture",
+          "sklearn.mixture.bayesian_mixture.BayesianGaussianMixture"
+        ],
+        "methods": [
+          "sklearn.mixture.base.BaseMixture.fit_predict",
+          "sklearn.mixture.base.BaseMixture._e_step",
+          "sklearn.mixture.base.BaseMixture._estimate_log_prob_resp",
+          "sklearn.mixture.base.BaseMixture._estimate_log_prob",
+          "sklearn.mixture.base.BaseMixture._estimate_log_weights",
+          "sklearn.mixture.base.BaseMixture.predict",
+          "sklearn.mixture.base.BaseMixture._estimate_weighted_log_prob",
+          "sklearn.mixture.base.BaseMixture._set_parameters"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-13241",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 1,
+        "method_gt": 1,
+        "method_pred": 6
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_fit_transform"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.decomposition.kernel_pca.KernelPCA"
+        ],
+        "methods": [
+          "sklearn.decomposition.kernel_pca.KernelPCA._fit_transform",
+          "sklearn.decomposition.kernel_pca.KernelPCA.fit_transform",
+          "sklearn.decomposition.kernel_pca.KernelPCA.fit",
+          "sklearn.decomposition.kernel_pca.KernelPCA.transform",
+          "linalg.eigh",
+          "eigsh"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-13439",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 5,
+        "method_gt": 1,
+        "method_pred": 6
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "__len__"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.utils.metaestimators._BaseComposition",
+          "sklearn.pipeline.Pipeline",
+          "sklearn.pipeline.FeatureUnion",
+          "sklearn.compose._column_transformer.ColumnTransformer",
+          "sklearn.ensemble.voting_classifier.VotingClassifier"
+        ],
+        "methods": [
+          "sklearn.utils.metaestimators._BaseComposition._get_params",
+          "sklearn.utils.metaestimators._BaseComposition._set_params",
+          "sklearn.utils.metaestimators._BaseComposition._replace_estimator",
+          "sklearn.utils.metaestimators._BaseComposition._validate_names",
+          "sklearn.utils.metaestimators._BaseComposition.__len__",
+          "sklearn.pipeline.Pipeline.__getitem__"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-13496",
+      "results": {
+        "class_hit": 1,
+        "class_precision": 1,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 1,
+        "class_pred": 3,
+        "method_gt": 1,
+        "method_pred": 2
+      },
+      "ground_truth": {
+        "classes": [
+          "IsolationForest"
+        ],
+        "methods": [
+          "__init__"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.ensemble.iforest.IsolationForest",
+          "sklearn.ensemble.bagging.BaseBagging",
+          "sklearn.ensemble.forest.BaseForest"
+        ],
+        "methods": [
+          "sklearn.ensemble.iforest.IsolationForest.__init__",
+          "sklearn.ensemble.bagging.BaseBagging._fit"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-13497",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 0,
+        "method_gt": 1,
+        "method_pred": 3
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_estimate_mi"
+        ]
+      },
+      "predicted": {
+        "classes": [],
+        "methods": [
+          "sklearn.feature_selection.mutual_info_._estimate_mi",
+          "sklearn.feature_selection.mutual_info_.mutual_info_regression",
+          "sklearn.feature_selection.mutual_info_.mutual_info_classif"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-13584",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 1,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_changed_params"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.utils._pprint._EstimatorPrettyPrinter",
+          "BaseEstimator",
+          "sklearn.linear_model.logistic.LogisticRegressionCV"
+        ],
+        "methods": [
+          "sklearn.utils._pprint._changed_params",
+          "sklearn.utils._pprint._EstimatorPrettyPrinter._pprint_estimator",
+          "sklearn.utils._pprint._safe_repr",
+          "BaseEstimator.__repr__"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-13779",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 1,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "fit"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.ensemble.voting._BaseVoting",
+          "sklearn.ensemble.voting.VotingClassifier",
+          "sklearn.ensemble.voting.VotingRegressor"
+        ],
+        "methods": [
+          "sklearn.ensemble.voting._BaseVoting.fit",
+          "sklearn.utils.validation.has_fit_parameter",
+          "sklearn.ensemble.voting._parallel_fit_estimator",
+          "sklearn.ensemble.voting._weights_not_none"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-14087",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 1,
+        "method_gt": 1,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "fit"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.linear_model.logistic.LogisticRegressionCV"
+        ],
+        "methods": [
+          "sklearn.linear_model.logistic.LogisticRegressionCV.fit",
+          "sklearn.linear_model.logistic._check_multi_class",
+          "sklearn.linear_model.logistic._logistic_regression_path",
+          "sklearn.linear_model.logistic._log_reg_scoring_path"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-14092",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 1,
+        "method_pred": 5
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_validate_params"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.neighbors.nca.NeighborhoodComponentsAnalysis",
+          "sklearn.model_selection._search.ParameterGrid",
+          "sklearn.base.BaseEstimator"
+        ],
+        "methods": [
+          "sklearn.utils.validation.check_scalar",
+          "sklearn.neighbors.nca.NeighborhoodComponentsAnalysis._validate_params",
+          "sklearn.model_selection._search.ParameterGrid.__iter__",
+          "sklearn.model_selection._search.ParameterGrid.__getitem__",
+          "sklearn.base.BaseEstimator.set_params"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-14894",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 1,
+        "method_gt": 1,
+        "method_pred": 2
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_sparse_fit"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.svm.base.BaseLibSVM"
+        ],
+        "methods": [
+          "sklearn.svm.base.BaseLibSVM._sparse_fit",
+          "sklearn.svm.libsvm_sparse.libsvm_sparse_train"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-14983",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 6,
+        "method_gt": 2,
+        "method_pred": 3
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "__repr__",
+          "_build_repr"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.model_selection._split._RepeatedSplits",
+          "sklearn.model_selection._split.BaseCrossValidator",
+          "sklearn.model_selection._split.RepeatedKFold",
+          "sklearn.model_selection._split.RepeatedStratifiedKFold",
+          "sklearn.model_selection._split.KFold",
+          "builtins.object"
+        ],
+        "methods": [
+          "sklearn.model_selection._split.BaseCrossValidator.__repr__",
+          "sklearn.model_selection._split.RepeatedKFold.__init__",
+          "sklearn.model_selection._split._build_repr"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-15512",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 1,
+        "method_gt": 2,
+        "method_pred": 3
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "affinity_propagation",
+          "predict"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.cluster._affinity_propagation.AffinityPropagation"
+        ],
+        "methods": [
+          "sklearn.cluster._affinity_propagation.affinity_propagation",
+          "sklearn.cluster._affinity_propagation.AffinityPropagation.fit",
+          "sklearn.cluster._affinity_propagation.AffinityPropagation.predict"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-15535",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 0,
+        "method_gt": 1,
+        "method_pred": 6
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "check_clusterings"
+        ]
+      },
+      "predicted": {
+        "classes": [],
+        "methods": [
+          "sklearn.metrics.cluster._supervised.check_clusterings",
+          "sklearn.utils.validation.check_array",
+          "sklearn.metrics.cluster._supervised.contingency_matrix",
+          "sklearn.metrics.cluster._supervised.mutual_info_score",
+          "sklearn.metrics.cluster._supervised.adjusted_rand_score",
+          "sklearn.metrics.cluster._supervised.entropy"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-25500",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 5,
+        "method_gt": 3,
+        "method_pred": 5
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "transform",
+          "_transform",
+          "predict"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.calibration._CalibratedClassifier",
+          "sklearn.isotonic.IsotonicRegression",
+          "sklearn.calibration._SigmoidCalibration",
+          "sklearn.base.TransformerMixin",
+          "sklearn.utils._set_output._SetOutputMixin"
+        ],
+        "methods": [
+          "sklearn.calibration._CalibratedClassifier.predict_proba",
+          "sklearn.isotonic.IsotonicRegression.transform",
+          "sklearn.isotonic.IsotonicRegression.predict",
+          "sklearn.calibration._fit_calibrator",
+          "sklearn.isotonic.IsotonicRegression.get_feature_names_out"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-25570",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 1,
+        "method_gt": 1,
+        "method_pred": 6
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_hstack"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.compose._column_transformer.ColumnTransformer"
+        ],
+        "methods": [
+          "sklearn.compose._column_transformer.ColumnTransformer._iter",
+          "sklearn.compose._column_transformer._is_empty_column_selection",
+          "sklearn.compose._column_transformer.ColumnTransformer._update_fitted_transformers",
+          "sklearn.compose._column_transformer.ColumnTransformer._hstack",
+          "sklearn.compose._column_transformer.ColumnTransformer._validate_output",
+          "sklearn.compose._column_transformer.ColumnTransformer._record_output_indices"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-25638",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 0,
+        "method_gt": 2,
+        "method_pred": 7
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "is_multilabel",
+          "type_of_target"
+        ]
+      },
+      "predicted": {
+        "classes": [],
+        "methods": [
+          "sklearn.utils.multiclass.type_of_target",
+          "sklearn.utils.multiclass._unique_multiclass",
+          "xp.asarray",
+          "xp.unique_values",
+          "sklearn.utils.validation.check_array",
+          "sklearn.utils.validation._pandas_dtype_needs_early_conversion",
+          "sklearn.utils.fixes._object_dtype_isnan"
+        ]
+      }
+    },
+    {
+      "instance_id": "scikit-learn__scikit-learn-25747",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 1
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 1,
+        "method_pred": 8
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_wrap_in_pandas_container"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sklearn.base.TransformerMixin",
+          "sklearn.pipeline.FeatureUnion",
+          "sklearn.utils._set_output._SetOutputMixin"
+        ],
+        "methods": [
+          "sklearn.utils._set_output._wrap_in_pandas_container",
+          "sklearn.utils._set_output._wrap_data_with_container",
+          "sklearn.utils._set_output._wrap_method_output",
+          "sklearn.utils._set_output._SetOutputMixin.__init_subclass__",
+          "sklearn.base.TransformerMixin.transform",
+          "sklearn.base.TransformerMixin.fit_transform",
+          "sklearn.base.TransformerMixin.get_feature_names_out",
+          "sklearn.pipeline.FeatureUnion._hstack"
+        ]
+      }
+    }
+  ],
+  "overall": {
+    "class_hit": {
+      "avg": 60.0,
+      "count": 3,
+      "total": 5
+    },
+    "class_precision": {
+      "avg": 60.0,
+      "count": 3,
+      "total": 5
+    },
+    "class_counts": {
+      "total_gt": 8,
+      "total_pred": 149,
+      "avg_gt": 0.15384615384615385,
+      "avg_pred": 2.8653846153846154
+    },
+    "method_hit": {
+      "avg": 94.23,
+      "count": 49,
+      "total": 52
+    },
+    "method_precision": {
+      "avg": 75.0,
+      "count": 39,
+      "total": 52
+    },
+    "method_counts": {
+      "total_gt": 77,
+      "total_pred": 277,
+      "avg_gt": 1.4807692307692308,
+      "avg_pred": 5.326923076923077
+    }
+  },
+  "precision_1_instances": {
+    "astropy__astropy": [
+      "astropy__astropy-12907",
+      "astropy__astropy-14365",
+      "astropy__astropy-14995",
+      "astropy__astropy-6938",
+      "astropy__astropy-7746"
+    ],
+    "matplotlib__matplotlib": [
+      "matplotlib__matplotlib-22835",
+      "matplotlib__matplotlib-23299",
+      "matplotlib__matplotlib-23314",
+      "matplotlib__matplotlib-23476",
+      "matplotlib__matplotlib-23562",
+      "matplotlib__matplotlib-23563",
+      "matplotlib__matplotlib-23964",
+      "matplotlib__matplotlib-23987",
+      "matplotlib__matplotlib-24149",
+      "matplotlib__matplotlib-24334",
+      "matplotlib__matplotlib-24970",
+      "matplotlib__matplotlib-25311",
+      "matplotlib__matplotlib-25442",
+      "matplotlib__matplotlib-26011",
+      "matplotlib__matplotlib-26020"
+    ],
+    "scikit-learn__scikit-learn": [
+      "scikit-learn__scikit-learn-10297",
+      "scikit-learn__scikit-learn-10949",
+      "scikit-learn__scikit-learn-11281",
+      "scikit-learn__scikit-learn-12471",
+      "scikit-learn__scikit-learn-13142",
+      "scikit-learn__scikit-learn-13241",
+      "scikit-learn__scikit-learn-13439",
+      "scikit-learn__scikit-learn-13496",
+      "scikit-learn__scikit-learn-13497",
+      "scikit-learn__scikit-learn-13584",
+      "scikit-learn__scikit-learn-13779",
+      "scikit-learn__scikit-learn-14087",
+      "scikit-learn__scikit-learn-14092",
+      "scikit-learn__scikit-learn-14894",
+      "scikit-learn__scikit-learn-14983",
+      "scikit-learn__scikit-learn-15512",
+      "scikit-learn__scikit-learn-15535",
+      "scikit-learn__scikit-learn-25570",
+      "scikit-learn__scikit-learn-25747"
+    ]
+  },
+  "hit_1_instances": {
+    "astropy__astropy": [
+      "astropy__astropy-12907",
+      "astropy__astropy-14182",
+      "astropy__astropy-14365",
+      "astropy__astropy-14995",
+      "astropy__astropy-6938",
+      "astropy__astropy-7746"
+    ],
+    "matplotlib__matplotlib": [
+      "matplotlib__matplotlib-18869",
+      "matplotlib__matplotlib-22711",
+      "matplotlib__matplotlib-22835",
+      "matplotlib__matplotlib-23299",
+      "matplotlib__matplotlib-23314",
+      "matplotlib__matplotlib-23476",
+      "matplotlib__matplotlib-23562",
+      "matplotlib__matplotlib-23563",
+      "matplotlib__matplotlib-23913",
+      "matplotlib__matplotlib-23964",
+      "matplotlib__matplotlib-23987",
+      "matplotlib__matplotlib-24149",
+      "matplotlib__matplotlib-24334",
+      "matplotlib__matplotlib-24970",
+      "matplotlib__matplotlib-25311",
+      "matplotlib__matplotlib-25332",
+      "matplotlib__matplotlib-25442",
+      "matplotlib__matplotlib-25498",
+      "matplotlib__matplotlib-26011",
+      "matplotlib__matplotlib-26020"
+    ],
+    "scikit-learn__scikit-learn": [
+      "scikit-learn__scikit-learn-10297",
+      "scikit-learn__scikit-learn-10508",
+      "scikit-learn__scikit-learn-10949",
+      "scikit-learn__scikit-learn-11281",
+      "scikit-learn__scikit-learn-12471",
+      "scikit-learn__scikit-learn-13142",
+      "scikit-learn__scikit-learn-13241",
+      "scikit-learn__scikit-learn-13439",
+      "scikit-learn__scikit-learn-13496",
+      "scikit-learn__scikit-learn-13497",
+      "scikit-learn__scikit-learn-13584",
+      "scikit-learn__scikit-learn-13779",
+      "scikit-learn__scikit-learn-14087",
+      "scikit-learn__scikit-learn-14092",
+      "scikit-learn__scikit-learn-14894",
+      "scikit-learn__scikit-learn-14983",
+      "scikit-learn__scikit-learn-15512",
+      "scikit-learn__scikit-learn-15535",
+      "scikit-learn__scikit-learn-25500",
+      "scikit-learn__scikit-learn-25570",
+      "scikit-learn__scikit-learn-25638",
+      "scikit-learn__scikit-learn-25747"
+    ]
+  }
+}

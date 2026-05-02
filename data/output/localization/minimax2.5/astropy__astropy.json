@@ -1,0 +1,126 @@
+{
+  "per_repo": {
+    "astropy__astropy": {
+      "class_hit": {
+        "avg": 100.0,
+        "count": 1,
+        "total": 1
+      },
+      "class_precision": {
+        "avg": 0.0,
+        "count": 0,
+        "total": 1
+      },
+      "class_counts": {
+        "total_gt": 2,
+        "total_pred": 4,
+        "avg_gt": 1.0,
+        "avg_pred": 2.0
+      },
+      "method_hit": {
+        "avg": 100.0,
+        "count": 2,
+        "total": 2
+      },
+      "method_precision": {
+        "avg": 0.0,
+        "count": 0,
+        "total": 2
+      },
+      "method_counts": {
+        "total_gt": 5,
+        "total_pred": 14,
+        "avg_gt": 2.5,
+        "avg_pred": 7.0
+      }
+    }
+  },
+  "per_instance": [
+    {
+      "instance_id": "astropy__astropy-14182",
+      "results": {
+        "class_hit": 1,
+        "class_precision": 0,
+        "method_hit": 1,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 2,
+        "class_pred": 4,
+        "method_gt": 3,
+        "method_pred": 2
+      },
+      "ground_truth": {
+        "classes": [
+          "SimpleRSTData",
+          "RST"
+        ],
+        "methods": [
+          "__init__",
+          "write",
+          "read"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "astropy.io.ascii.rst.RST",
+          "FixedWidth",
+          "FixedWidthData",
+          "Basic"
+        ],
+        "methods": [
+          "astropy.io.ascii.rst.RST.__init__",
+          "astropy.io.ascii.rst.RST.write"
+        ]
+      }
+    },
+    {
+      "instance_id": "astropy__astropy-7746",
+      "results": {
+        "class_hit": null,
+        "class_precision": null,
+        "method_hit": 1,
+        "method_precision": 0
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 0,
+        "method_gt": 2,
+        "method_pred": 12
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_return_list_of_arrays",
+          "_return_single_array"
+        ]
+      },
+      "predicted": {
+        "classes": [],
+        "methods": [
+          "astropy.wcs.wcs._array_converter",
+          "astropy.wcs.wcs._return_list_of_arrays",
+          "astropy.wcs.wcs._denormalize_sky",
+          "astropy.wcs.wcs._normalize_sky",
+          "astropy.wcs.wcs.all_pix2world",
+          "astropy.wcs.wcs.wcs_pix2world",
+          "astropy.wcs.wcs.all_world2pix",
+          "astropy.wcs.wcs.wcs_world2pix",
+          "astropy.wcs.wcs.pix2foc",
+          "astropy.wcs.wcs.p4_pix2foc",
+          "astropy.wcs.wcs.det2im",
+          "sip.foc2pix"
+        ]
+      }
+    }
+  ],
+  "precision_1_instances": {
+    "astropy__astropy": []
+  },
+  "hit_1_instances": {
+    "astropy__astropy": [
+      "astropy__astropy-14182",
+      "astropy__astropy-7746"
+    ]
+  }
+}
