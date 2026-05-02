@@ -63,7 +63,4 @@ The JSON must have EXACTLY these three top-level keys:
   "evidence": [ <list of code references supporting your decisions> ]
 }}
 ```
-CRITICAL: The `changes` and `evidence` keys must be OUTSIDE the `revised_report`, NOT inside it. The `revised_report` dict must contain ONLY the bug report fields listed above. Do NOT nest changes or evidence inside the revised_report.
-
-CRITICAL — ROOTCAUSE AND DESCRIPTION MUST BE SPECIFIC AND COMPLETE:
-The RootCause and Description fields are the most important fields for downstream repair. They MUST be specific and actionable: name the exact methods and code locations involved, describe exactly what the bug is and why it occurs, and cover ALL affected locations (not just the primary one). Vague descriptions are insufficient.
+The `changes` and `evidence` keys must be OUTSIDE the `revised_report`, NOT inside it. The `revised_report` dict must contain ONLY the bug report fields listed above.
