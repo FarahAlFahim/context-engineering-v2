@@ -33,6 +33,7 @@ def _generate_for_instance(
     compressed_analysis: str,
     llm,
     prompts_dir: str,
+    max_context_tokens: int = 250000,
 ) -> dict:
     """Generate problem_location and fix_steps for a single instance.
 
@@ -61,8 +62,8 @@ def _generate_for_instance(
     token_count = count_tokens(full_prompt)
     logger.info(f"Fix steps prompt: {token_count} tokens")
 
-    if token_count > 250000:
-        logger.warning(f"Prompt too large ({token_count} tokens), truncating analysis")
+    if token_count > max_context_tokens:
+        logger.warning(f"Prompt too large ({token_count} tokens > {max_context_tokens}), truncating analysis")
         lines = compressed_analysis.split("\n")
         mid = len(lines) // 2
         keep = mid // 2
@@ -148,7 +149,8 @@ def run_fix_steps(cfg):
 
         try:
             result = _generate_for_instance(
-                bug_report, compressed_analysis, llm, cfg.prompts_dir
+                bug_report, compressed_analysis, llm, cfg.prompts_dir,
+                max_context_tokens=cfg.max_context_tokens,
             )
             problem_location = result["problem_location"]
             fix_steps = result["fix_steps"]

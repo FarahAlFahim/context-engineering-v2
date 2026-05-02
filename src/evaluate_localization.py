@@ -26,8 +26,8 @@ Usage (single repo, custom output path):
 Usage (all repos in a directory):
     python src/evaluate_localization.py \
         --ground_truth_dir data/by_repo \
-        --predictions_dir data/output/gpt-5-mini_fix/multiagent_enhanced \
-        --output data/output/localization/gpt-5-mini_fix/multiagent_enhanced/overall.json
+        --predictions_dir data/output/problem_location/minimax2.5 \
+        --output data/output/localization/problem_location/minimax2.5/overall.json
 
 Output:
     JSON results are always written to a file. If --output is not specified,
