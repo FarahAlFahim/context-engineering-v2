@@ -147,8 +147,9 @@ def compress_chat_history(chat_history: List[str], bug_report: str) -> str:
     logger.info(f"Chat history compression prompt: {token_count} tokens "
                 f"({len(chat_history)} history lines)")
 
-    if token_count > 250000:
-        logger.warning(f"Compression prompt too large ({token_count} tokens), "
+    max_ctx = state.config.max_context_tokens
+    if token_count > max_ctx:
+        logger.warning(f"Compression prompt too large ({token_count} tokens > {max_ctx}), "
                        f"truncating chat history")
         # Keep first and last portions of chat history
         mid = len(chat_history) // 2
@@ -192,9 +193,10 @@ def generate_final_bug_report(bug_report: str, chat_history: str,
     token_count = count_tokens(full_prompt)
     logger.info(f"Final report prompt: {token_count} tokens")
 
-    if token_count > 250000:
-        logger.warning(f"Token count ({token_count}) exceeds limit, splitting into chunks")
-        chunks = split_into_chunks(full_prompt, max_tokens=250000)
+    max_ctx = state.config.max_context_tokens
+    if token_count > max_ctx:
+        logger.warning(f"Token count ({token_count}) exceeds {max_ctx} limit, splitting into chunks")
+        chunks = split_into_chunks(full_prompt, max_tokens=max_ctx)
         responses = []
         for chunk in chunks:
             response = state.llm.invoke(chunk)

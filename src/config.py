@@ -65,6 +65,7 @@ class Config:
     subgraph_hops: int = 2
     subgraph_max_nodes: int = 40
     token_est_per_line: int = 3
+    max_context_tokens: int = 250000  # truncation threshold; lower for smaller context windows (e.g. 150000 for MiniMax 196k)
 
     # --- Filtering ---
     instance_id_filter: List[str] = field(default_factory=list)
@@ -241,6 +242,9 @@ Examples:
     p.add_argument("--embed-top-k", dest="embed_top_k", type=int, default=5)
     p.add_argument("--agent-max-iter", dest="agent_max_iterations", type=int, default=20)
     p.add_argument("--subgraph-hops", dest="subgraph_hops", type=int, default=2)
+    p.add_argument("--max-context-tokens", dest="max_context_tokens", type=int,
+                   default=_defaults.max_context_tokens,
+                   help="Token truncation threshold (default: 250000, use 150000 for MiniMax)")
 
     # --- Filtering ---
     p.add_argument("--instance-ids", dest="instance_id_filter", nargs="*", default=[],
@@ -251,6 +255,8 @@ Examples:
     p.add_argument("--trajectory-folder", dest="trajectory_folder", default="")
     p.add_argument("--minisweagent-root", dest="minisweagent_root", default="")
     p.add_argument("--minisweagent-run-name", dest="minisweagent_run_name", default="")
+    p.add_argument("--minisweagent-results-root", dest="minisweagent_results_root", default="",
+                   help="Root directory for mini-sweagent results (default: <minisweagent-root>/results)")
     p.add_argument("--max-refinement-rounds", dest="max_iterative_refinement_rounds",
                    type=int, default=8)
     p.add_argument("--dry-run", dest="dry_run", action="store_true")
@@ -362,12 +368,15 @@ def load_config(argv=None) -> Config:
             setattr(cfg, k, v)
 
     # Auto-derive paths if not set
-    if cfg.minisweagent_root and not cfg.minisweagent_wrapper_script:
-        cfg.minisweagent_wrapper_script = os.path.join(
-            cfg.minisweagent_root, "run_minisweagent_variant_pipeline.py")
-        cfg.minisweagent_python = os.path.join(
-            cfg.minisweagent_root, "mini_sweagent-env", "bin", "python")
-        cfg.minisweagent_results_root = os.path.join(
-            cfg.minisweagent_root, "results")
+    if cfg.minisweagent_root:
+        if not cfg.minisweagent_wrapper_script:
+            cfg.minisweagent_wrapper_script = os.path.join(
+                cfg.minisweagent_root, "run_minisweagent_variant_pipeline.py")
+        if not cfg.minisweagent_python:
+            cfg.minisweagent_python = os.path.join(
+                cfg.minisweagent_root, "mini_sweagent-env", "bin", "python")
+        if not cfg.minisweagent_results_root:
+            cfg.minisweagent_results_root = os.path.join(
+                cfg.minisweagent_root, "results")
 
     return cfg
