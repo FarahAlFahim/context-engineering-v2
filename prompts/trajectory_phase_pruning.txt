@@ -1,0 +1,71 @@
+Split an automated repair system trajectory into localization and repair phases, keeping only steps relevant to the reported bug.
+
+You are a software debugging assistant. You will receive two inputs:
+1) An **original bug report** — the developer-written report describing the issue.
+2) A full extracted **trajectory** of an automated repair agent run, containing prompts, model outputs, actions, and results produced while the system attempted to diagnose and fix the bug.
+
+Your task is to:
+1. Use the original bug report as a reference to determine which trajectory steps are **relevant** to the reported bug.
+2. **Prune** steps that explore files, functions, or code paths unrelated to the bug described in the original bug report — these are dead-end explorations that do not contribute to understanding or fixing the reported issue.
+3. Divide the remaining relevant steps into **exactly two phases** (localization and repair), and for each phase produce a structured summary.
+
+### **Relevancy Criteria**
+A step is relevant if it investigates, inspects, or modifies code that is related to the behavior, components, or locations described in the original bug report. Specifically:
+- **Include**: Steps that examine files, classes, or methods mentioned in or clearly implied by the original bug report. Steps that search for patterns related to the bug. Steps that narrow down the root cause. Steps that apply or test a fix for the described issue.
+- **Prune**: Steps where the agent explores files or code paths that have no connection to the bug described in the original bug report (e.g., unrelated modules, utility files explored out of speculation). Steps that attempt to install unrelated dependencies or fix environment issues unrelated to the bug.
+- **When in doubt, include**: If a step touches code that could plausibly be related to the reported bug, keep it. Only prune steps that are clearly irrelevant.
+
+### **Phase Definitions**
+
+1) **localization**
+Relevant steps where the agent is understanding the problem and diagnosing the bug:
+- analyzing error messages or logs
+- searching the repository
+- inspecting files or functions
+- navigating code
+- narrowing down candidate locations
+- identifying the root cause
+
+2) **repair**
+Relevant steps where the agent begins making or preparing changes to fix the bug:
+- editing or generating patches
+- modifying code
+- validating fixes
+- running or reasoning about tests
+- preparing a final change
+- submission-related actions
+
+The repair phase must include any **verification**, **testing**, or **submission-related** content if such information appears in the trajectory.
+
+Do not hallucinate or invent information. Only summarize information that appears in the trajectory.
+
+# Steps
+1. Read the original bug report carefully to understand the reported bug.
+2. Read the entire trajectory from beginning to end.
+3. For each step in the trajectory, determine whether it is relevant to the reported bug using the relevancy criteria above. Discard irrelevant steps.
+4. Among the relevant steps, identify the boundary where the workflow transitions from diagnosing the problem to applying or preparing a fix.
+5. Assign relevant steps before this boundary to the **localization phase**.
+6. Assign relevant steps after this boundary to the **repair phase**.
+7. For each phase, enumerate the key steps the agent took. Each step should capture one distinct action and its finding/result.
+8. After listing the steps for each phase, write a short synthesis paragraph that captures the overall conclusion of that phase.
+
+# Output Format
+The output must be **valid JSON only** and must not contain any additional commentary or formatting. Return a single valid JSON object with the following structure:
+{{{{
+  "localization": "Key steps:\\n1. [action]: [what was found/observed]\\n2. [action]: [what was found/observed]\\n...\\n\\nSynthesis: [concise 2-4 sentence paragraph summarizing root cause identified and how]",
+  "repair": "Key steps:\\n1. [action]: [what was changed/done]\\n2. [action]: [result/outcome]\\n...\\n\\nSynthesis: [concise 2-4 sentence paragraph summarizing what was fixed, how it was validated, and final status]"
+}}}}
+
+# Notes
+- Preserve important technical details such as file paths, method names, variable names, specific code patterns, or error types in each step.
+- Do not include the full patch contents; only summarize what the patch changes and why.
+- Each step should capture one distinct action and its outcome -- do not merge multiple actions into one step.
+- The step list makes individual findings explicit and matchable; the synthesis ties them together into a coherent narrative.
+- Each step line should follow the format "[action]: [finding/result]" and be 1-2 sentences. The synthesis should be 2-4 sentences tying together the key findings.
+
+
+# You are given the **original bug report** below:
+{problem_statement}
+
+# You are given the full extracted **trajectory** below:
+{trajectory}
