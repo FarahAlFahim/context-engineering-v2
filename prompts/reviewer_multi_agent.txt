@@ -28,7 +28,7 @@ Use these tools to verify claims in the draft report by reading actual source co
 - Prefix your reasoning text with "Thought:".
 - Add any new fields to `revised_report` that are not already present in the draft report.
 - Dismiss any agent finding as "out of scope" — if it shares the same root cause, it belongs in the report.
-- Include fix suggestions or implementation guidance in any field. The report is a diagnosis, not a prescription. If the draft contains language that prescribes code changes rather than describing what is wrong, rewrite it as a diagnosis.
+- Include fix suggestions or implementation guidance in any field. The report is a diagnosis, not a prescription. If the draft contains language that prescribes code changes rather than describing what is wrong, rewrite it as a diagnosis. However, when the root cause is a wrong hardcoded value (a constant, format string, configuration setting, threshold, etc.), stating both the current wrong value and the correct value is diagnosis of the defect, not a fix prescription — preserve it even if the draft uses phrasing like "should be" or "should include." Do not rephrase or abstract away the exact correct value.
 - Nest `changes` or `evidence` inside the `revised_report` — they are separate top-level keys.
 
 ### **Steps**
@@ -47,7 +47,7 @@ Before producing any JSON, write out a detailed analysis covering:
    - For each incorrect assumption identified in RootCause, trace all code that depends on it. If the draft only identifies one location but the same assumption is embedded elsewhere, flag it as incomplete.
 7. **Field discipline check**: Verify each field stays focused on its purpose:
    - Description: only what the bug is, concisely. Not how to fix it.
-   - RootCause: only incorrect assumptions and the locations that encode them. Each finding should state the assumption, name the location, and stop. If the draft traces through code execution step by step, quotes code lines, or describes how data flows through functions, rewrite it to just state what is wrong and where. When hardcoded values are involved, ensure the report explains what each value represents, why it is only correct under the current assumption, and what the correct relationship or formula should be. Preserving these relationships is critical — if the investigation found that a value should be computed from other variables, that formula must appear in RootCause.
+   - RootCause: only incorrect assumptions and the locations that encode them. Each finding should state the assumption, name the location, and stop. If the draft traces through code execution step by step, quotes code lines, or describes how data flows through functions, rewrite it to just state what is wrong and where. When hardcoded values are involved, ensure the report explains what each value represents, why it is only correct under the current assumption, and what the correct relationship, formula, or value should be (including format strings, constants, and configuration values). Preserving these is critical — if the investigation identified the correct value, formula, or relationship, it must appear in RootCause.
    - ExpectedBehavior: only user-visible correct behavior, not implementation details
    - ObservedBehavior: only user-visible faulty behavior, not root cause analysis
    - If any field contains content that belongs in a different field, move or rewrite it.

@@ -16,11 +16,11 @@ Given two input sources, enhance an existing developer-written bug report by est
 - **Determine the Root Cause**:
   - Establish logical connections between the problem statement and investigation findings.
   - Focus on the most relevant findings contributing to the issue.
-  - Preserve all formulas and relationships found in the investigation analysis. If the analysis states that a value should be computed from specific variables, include that formula in the RootCause.
+  - Preserve all formulas, relationships, and correct values found in the investigation analysis. If the analysis identifies the correct value for a wrong hardcoded constant (including format strings, thresholds, configuration values), or states that a value should be computed from specific variables, include it in the RootCause.
 
 - **Keep each field focused on its purpose**:
   - **Description**: Describe what the bug is — what goes wrong, where it manifests. Keep it concise. Do not include how to fix it.
-  - **RootCause**: State each incorrect assumption and the location (file, class, method) that encodes it. Be concise — name the assumption, name the location, and move on. Do not trace through code execution step by step. Do not quote code lines or describe what the code does line by line. Do not describe how data flows through functions. Give every finding equal weight as a numbered item. Do not demote any finding to a subordinate clause or footnote. When a hardcoded value is part of the bug, explain what the value represents, why it is only correct under the current assumption, and what the correct relationship or formula should be. For example, if the investigation found that a value should be computed from other variables rather than hardcoded, state that relationship. Preserving these relationships is critical — without them, the diagnosis is incomplete.
+  - **RootCause**: State each incorrect assumption and the location (file, class, method) that encodes it. Be concise — name the assumption, name the location, and move on. Do not trace through code execution step by step. Do not quote code lines or describe what the code does line by line. Do not describe how data flows through functions. Give every finding equal weight as a numbered item. Do not demote any finding to a subordinate clause or footnote. When a hardcoded value is part of the bug, explain what the value represents, why it is only correct under the current assumption, and what the correct relationship, formula, or value should be (including format strings, constants, and configuration values). For example, if the investigation found that a value should be computed from other variables rather than hardcoded, state that relationship. Preserving these is critical — without them, the diagnosis is incomplete.
   - **StepsToReproduce**: Only reproduction steps. No analysis, no explanations.
   - **ExpectedBehavior**: Describe the correct behavior in user-visible terms only. Do not prescribe implementation details, internal return types, or data structures.
   - **ObservedBehavior**: Describe the actual faulty behavior in user-visible terms only. Do not include root cause analysis.
@@ -32,6 +32,7 @@ Given two input sources, enhance an existing developer-written bug report by est
 - **Do Not Prescribe Fixes**:
   - The report's job is diagnosis, not treatment. Describe what is wrong, not how to fix it.
   - Every field should describe the problem or its observable effects — not implementation approaches or code changes.
+  - However, when the root cause is a wrong hardcoded value (a constant, format string, configuration setting, threshold, etc.), stating both the current wrong value and the correct value is diagnosis of the defect, not a fix prescription — preserve it.
 
 ### **Output Format**
 The enhanced bug report must be structured as **valid JSON** following this schema:

@@ -7,8 +7,11 @@ Usage:
 Phases:
     build_graphs          Build code and call graphs from a local repo
     enhance               Generate enhanced bug reports (multi-agent + reviewer)
+    vanilla_baseline      Baseline: vanilla agent (no protocol/compression/reviewer)
+    no_protocol_ablation  Ablation: no protocol-guided exploration
     trajectory_enhance    Further enhance using trajectory insights
     dynamic_enhance       Iterative enhancement with mini-sweagent feedback
+    raw_traj_ablation     Ablation: raw Thoughts instead of compressed analysis
     generate_fix_steps    Generate fix steps from existing enhanced reports
     merge                 Merge original + enhanced reports
     evaluate              Run method-match evaluation
@@ -57,6 +60,30 @@ Examples:
         --trajectory-folder /path/to/trajectories \\
         --minisweagent-root /path/to/mini-swe-agent \\
         --output data/output/dynamic_enhanced/matplotlib__matplotlib.json
+
+    # Vanilla baseline: no protocol + no compression + no reviewer
+    python run.py vanilla_baseline \\
+        --repo-instances data/by_repo/astropy__astropy.json \\
+        --repo-codegraph-index data/code_graph/astropy__astropy.json \\
+        --repo-local-path /path/to/astropy \\
+        --output data/output/gpt_5_mini/vanilla_baseline/astropy__astropy.json \\
+        --instance-ids astropy__astropy-12907
+
+    # Ablation: no protocol-guided exploration (same inputs as enhance)
+    python run.py no_protocol_ablation \\
+        --repo-instances data/by_repo/astropy__astropy.json \\
+        --repo-codegraph-index data/code_graph/astropy__astropy.json \\
+        --repo-local-path /path/to/astropy \\
+        --output data/output/gpt_5_mini/no_protocol/astropy__astropy.json \\
+        --instance-ids astropy__astropy-12907
+
+    # Ablation study: raw Thoughts instead of compressed analysis
+    python run.py raw_traj_ablation \\
+        --repo-instances data/output/gpt_5_mini/enhanced/pallets__flask.json \\
+        --original-instances data/by_repo/pallets__flask.json \\
+        --repo-codegraph-index data/code_graph/pallets__flask.json \\
+        --repo-local-path /path/to/pallets__flask \\
+        --output data/output/gpt_5_mini/enhanced_with_raw_traj/pallets__flask.json
 
     # Generate fix steps from existing enhanced reports
     python run.py generate_fix_steps \\
@@ -126,12 +153,24 @@ def main():
         from src.agents.multi_agent import run_pipeline
         run_pipeline(cfg)
 
+    elif cfg.phase == "vanilla_baseline":
+        from src.agents.vanilla_baseline import run_pipeline
+        run_pipeline(cfg)
+
+    elif cfg.phase == "no_protocol_ablation":
+        from src.agents.no_protocol_ablation import run_pipeline
+        run_pipeline(cfg)
+
     elif cfg.phase == "trajectory_enhance":
         from src.agents.trajectory_insights import run_pipeline
         run_pipeline(cfg)
 
     elif cfg.phase == "dynamic_enhance":
         from src.agents.dynamic_insights import run_pipeline
+        run_pipeline(cfg)
+
+    elif cfg.phase == "raw_traj_ablation":
+        from src.agents.raw_trajectory_ablation import run_pipeline
         run_pipeline(cfg)
 
     elif cfg.phase == "generate_fix_steps":

@@ -115,16 +115,20 @@ def find_traj_path(traj_root: Path, instance_id: str) -> Optional[Path]:
     return None
 
 
-def split_extracted_trajectory_phases(extracted_trajectory: str) -> Dict[str, str]:
+def split_extracted_trajectory_phases(extracted_trajectory: str,
+                                      problem_statement: str = "") -> Dict[str, str]:
     """Split trajectory into localization and repair phases using LLM."""
     if not extracted_trajectory.strip():
         return {"localization": "", "repair": ""}
 
-    template = load_prompt("trajectory_phase_split.txt", state.config.prompts_dir)
+    template = load_prompt("trajectory_phase_pruning.txt", state.config.prompts_dir)
     prompt = PromptTemplate.from_template(template)
     chain = prompt | state.llm | StrOutputParser()
+    invoke_vars: Dict[str, str] = {"trajectory": extracted_trajectory}
+    if "problem_statement" in prompt.input_variables:
+        invoke_vars["problem_statement"] = problem_statement
     try:
-        raw = chain.invoke({"trajectory": extracted_trajectory})
+        raw = chain.invoke(invoke_vars)
         txt = raw.replace("```json\n", "").replace("\n```", "").strip()
         out = json.loads(txt)
         return {
@@ -222,7 +226,8 @@ def _reviewer_agent(enhanced_report: Any, problem: str,
 
 def _run_minisweagent_wrapper(instance: dict, reg_entry: dict,
                                enhanced_problem_obj: Any, instance_id: str,
-                               iteration_index: int) -> Tuple[str, Optional[Path]]:
+                               iteration_index: int,
+                               original_instance: Optional[dict] = None) -> Tuple[str, Optional[Path]]:
     """Run mini-sweagent wrapper subprocess for one iteration."""
     cfg = state.config
     if not os.path.exists(cfg.minisweagent_python):
@@ -244,12 +249,13 @@ def _run_minisweagent_wrapper(instance: dict, reg_entry: dict,
         else:
             filtered = enhanced_problem_obj
 
-        temp_data = {
+        temp_data = dict(original_instance) if original_instance else {}
+        temp_data.update({
             "instance_id": instance_id,
             "repo": instance.get("repo") or reg_entry.get("repo"),
             "base_commit": instance.get("base_commit") or reg_entry.get("base_commit"),
             "problem_statement": _problem_obj_to_text(filtered),
-        }
+        })
         save_json_atomic([temp_data], str(dataset_path))
 
         wrapper_cfg = {
@@ -338,6 +344,12 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
     if not problem:
         problem = instance.get("problem_statement", "") or ""
 
+    # Load original problem statement (needed for trajectory phase splitting and reviewer)
+    original_entries = load_json_safe(cfg.original_instances_json)
+    original_by_id = {(e.get("instance_id") or e.get("instance")): e
+                       for e in original_entries if isinstance(e, dict)}
+    original_problem = (original_by_id.get(instance_id) or {}).get("problem_statement", "")
+
     # Load and extract trajectory
     extracted_trajectory = ""
     traj_path = find_traj_path(Path(cfg.trajectory_folder), str(instance_id or ""))
@@ -347,7 +359,7 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
         traj_raw = traj_path.read_text(encoding="utf-8", errors="replace")
         extracted_trajectory = extract_compact_trajectory(traj_raw)
 
-    trajectory_phases = split_extracted_trajectory_phases(extracted_trajectory)
+    trajectory_phases = split_extracted_trajectory_phases(extracted_trajectory, original_problem)
     logger.info(f"Trajectory phases: localization={len(trajectory_phases.get('localization',''))} chars, "
                 f"repair={len(trajectory_phases.get('repair',''))} chars")
     print(f"Trajectory phases for instance_id={instance_id}")
@@ -409,12 +421,6 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
     except Exception:
         pass
 
-    # Load original problem statement
-    original_entries = load_json_safe(cfg.original_instances_json)
-    original_by_id = {(e.get("instance_id") or e.get("instance")): e
-                       for e in original_entries if isinstance(e, dict)}
-    original_problem = (original_by_id.get(instance_id) or {}).get("problem_statement", "")
-
     # Iterative refinement loop
     iterative_rounds = 0
     while iterative_rounds < cfg.max_iterative_refinement_rounds:
@@ -452,12 +458,13 @@ def run_for_instance(instance: Dict[str, Any], reg_entry: Dict[str, Any],
             enhanced_problem_obj=final_report,
             instance_id=str(instance_id),
             iteration_index=iterative_rounds,
+            original_instance=original_by_id.get(instance_id),
         )
         if not new_traj:
             break
 
         latest_trajectory_path = str(new_traj_path) if new_traj_path else latest_trajectory_path
-        latest_trajectory_phases = split_extracted_trajectory_phases(new_traj)
+        latest_trajectory_phases = split_extracted_trajectory_phases(new_traj, original_problem)
         print(f"Iterative trajectory phases for instance_id={instance_id} (round={iterative_rounds})")
         for phase_name in ("localization", "repair"):
             phase_text = latest_trajectory_phases.get(phase_name, "")

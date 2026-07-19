@@ -13,7 +13,7 @@ from typing import List, Optional
 @dataclass
 class Config:
     # --- Phase selection ---
-    phase: str = "enhance"  # build_graphs | enhance | trajectory_enhance | dynamic_enhance | merge | evaluate | generate_patches | eval_patches
+    phase: str = "enhance"  # build_graphs | enhance | vanilla_baseline | no_protocol_ablation | trajectory_enhance | dynamic_enhance | raw_traj_ablation | merge | evaluate | generate_patches | eval_patches
 
     # --- Paths ---
     repo_instances_json: str = ""
@@ -168,8 +168,11 @@ def build_parser() -> argparse.ArgumentParser:
 Phases:
   build_graphs          Build code and call graphs from local repo
   enhance               Generate enhanced reports (multi-agent with reviewer)
+  vanilla_baseline      Baseline: vanilla agent (no protocol/compression/reviewer)
+  no_protocol_ablation  Ablation: no protocol-guided exploration
   trajectory_enhance    Further enhance using trajectory insights
   dynamic_enhance       Iterative enhancement with mini-sweagent feedback
+  raw_traj_ablation     Ablation: raw Thoughts instead of compressed analysis
   merge                 Merge original + enhanced reports
   evaluate              Run method-match evaluation
   generate_patches      Run mini-swe-agent to generate patches from reports
@@ -191,8 +194,11 @@ Examples:
     )
 
     p.add_argument("phase", nargs="?", default="enhance",
-                   choices=["build_graphs", "enhance", "trajectory_enhance",
-                            "dynamic_enhance", "generate_fix_steps",
+                   choices=["build_graphs", "enhance",
+                            "vanilla_baseline", "no_protocol_ablation",
+                            "trajectory_enhance",
+                            "dynamic_enhance", "raw_traj_ablation",
+                            "generate_fix_steps",
                             "generate_problem_location",
                             "merge", "evaluate",
                             "generate_patches", "eval_patches"],

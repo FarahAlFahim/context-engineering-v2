@@ -55,14 +55,16 @@
         "test_patch": "diff --git a/tests/_core/test_scales.py b/tests/_core/test_scales.py\n--- a/tests/_core/test_scales.py\n+++ b/tests/_core/test_scales.py\n@@ -90,6 +90,12 @@ def test_interval_with_range_norm_and_transform(self, x):\n         s = Continuous((2, 3), (10, 100), \"log\")._setup(x, IntervalProperty())\n         assert_array_equal(s(x), [1, 2, 3])\n \n+    def test_interval_with_bools(self):\n+\n+        x = pd.Series([True, False, False])\n+        s = Continuous()._setup(x, IntervalProperty())\n+        assert_array_equal(s(x), [1, 0, 0])\n+\n     def test_color_defaults(self, x):\n \n         cmap = color_palette(\"ch:\", as_cmap=True)\n",
         "problem_statement": {
             "Title": "Color mapping fails with boolean data",
-            "Description": "When using boolean values as the color semantic variable in seaborn Plot, a TypeError is raised because the scale selection incorrectly treats boolean data as numeric, leading to arithmetic operations on boolean values that numpy does not support.",
-            "RootCause": "1. Property.default_scale (seaborn/_core/properties.py:67) uses variable_type(data, boolean_type=\"numeric\"), which classifies boolean values as \"numeric\" and returns a Continuous scale. This assumption is incorrect for semantic properties like color, where boolean values represent categorical distinctions. 2. The Coordinate class (seaborn/_core/properties.py:148-152) inherits default_scale from Property without override, and relies on boolean values being treated as numeric for x/y coordinate axes. 3. IntervalProperty (seaborn/_core/properties.py:159) and its subclasses (PointSize, LineWidth, EdgeWidth, Stroke, Alpha, Offset, FontSize) inherit default_scale from Property, and with normed=True they use ContinuousBase which performs arithmetic on normalized values. When boolean data triggers Continuous scale, forward(vmax) - forward(vmin) executes boolean subtraction which numpy rejects.",
-            "StepsToReproduce": [
-                "Run: import seaborn.objects as so",
-                "Execute: so.Plot([\"a\", \"b\"], [1, 2], color=[True, False]).add(so.Bar())"
+            "Description": "When boolean values (True/False) are passed as the color parameter in seaborn Plot, a TypeError occurs during scale normalization. The error manifests in ContinuousBase._setup where arithmetic subtraction is performed on boolean values that were not converted to float.",
+            "RootCause": [
+                "1. Wrong assumption in PseudoAxis.convert_units (scales.py:877-883): non-numeric data without a converter should be returned unchanged. This fails for boolean data because np.bool_ is not recognized as numeric despite variable_type() treating it as numeric. The method only checks np.issubdtype(x.dtype, np.number) which returns False for boolean dtype.",
+                "2. Wrong assumption in ContinuousBase._setup (scales.py:349-351): axis.convert_units() will convert any numeric-compatible data to a form suitable for arithmetic. The identity transform (lines 903-904) returns booleans as-is, and when convert_units fails to convert them, line 351 executes forward(vmax) - forward(vmin) which attempts boolean subtraction and raises TypeError."
             ],
-            "ExpectedBehavior": "Boolean color data should be mapped using a categorical (Nominal) scale, displaying distinct colors for True and False values.",
-            "ObservedBehavior": "TypeError is raised: numpy boolean subtract, the `-` operator, is not supported, use the bitwise_xor, the `^` operator, or the logical_xor function instead."
+            "StepsToReproduce": [
+                "Run: so.Plot(['a', 'b'], [1, 2], color=[True, False]).add(so.Bar())"
+            ],
+            "ExpectedBehavior": "Boolean values should be mapped to colors, with True treated as numeric data (1.0) and False as (0.0), producing distinct colors for True and False values.",
+            "ObservedBehavior": "TypeError is raised: 'numpy boolean subtract, the `-` operator, is not supported, use the bitwise_xor, the `^` operator, or the logical_xor function instead.'"
         },
         "hints_text": "Would this simply mean refactoring the code to use `^` or `xor` functions instead?",
         "created_at": "2022-12-18T17:13:51Z",

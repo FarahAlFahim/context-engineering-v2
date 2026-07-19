@@ -7,12 +7,12 @@ problem_location field added.
 
 Usage:
     python run.py generate_problem_location \
-        --problem-location-input data/output/multiagent_enhanced/astropy__astropy.json \
-        --problem-location-output data/output/problem_location/astropy__astropy.json
+        --problem-location-input data/output/gpt_5_mini/multiagent_enhanced/astropy__astropy.json \
+        --problem-location-output data/output/problem_location/gpt_5_mini/astropy__astropy.json
 
     python run.py generate_problem_location \
-        --problem-location-input data/output/multiagent_enhanced/astropy__astropy.json \
-        --problem-location-output data/output/problem_location/astropy__astropy.json \
+        --problem-location-input data/output/gpt_5_mini/multiagent_enhanced/mwaskom__seaborn.json \
+        --problem-location-output data/output/problem_location/gpt_5_mini/mwaskom__seaborn.json \
         --instance-ids astropy__astropy-14182
 """
 

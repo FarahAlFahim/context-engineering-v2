@@ -9,8 +9,11 @@ Granularities: class-level, method-level.
 
 Metrics:
   - Hit       : 1 if ANY predicted item matches any GT item, else 0.
-  - Precision : 1 if ALL ground-truth items are found in predictions, else 0
+  - Coverage  : 1 if ALL ground-truth items are found in predictions, else 0
                 (all-or-nothing).  Extra predictions beyond GT count are fine.
+  - Precision : TP / |Pred|  — fraction of predictions that are correct.
+  - Recall    : TP / |GT|    — fraction of ground-truth items found.
+  - F1        : harmonic mean of Precision and Recall.
 
 Usage (single repo):
     python src/evaluate_localization.py \
@@ -28,6 +31,11 @@ Usage (all repos in a directory):
         --ground_truth_dir data/by_repo \
         --predictions_dir data/output/problem_location/minimax2.5 \
         --output data/output/localization/problem_location/minimax2.5/overall.json
+    
+    python src/evaluate_localization.py \
+        --ground_truth_dir data/by_repo \
+        --predictions_dir data/output/problem_location/gpt_5_mini \
+        --output data/output/localization/gpt_5_mini/overall.json
 
 Output:
     JSON results are always written to a file. If --output is not specified,
@@ -40,7 +48,6 @@ import argparse
 import json
 import re
 import sys
-from collections import defaultdict
 from pathlib import Path
 
 
@@ -204,7 +211,7 @@ def compute_hit(pred_list: list, gt_list: list) -> int:
     return 0
 
 
-def compute_precision(pred_list: list, gt_list: list) -> int:
+def compute_coverage(pred_list: list, gt_list: list) -> int:
     """1 if ALL GT items are found in predictions. None if GT is empty."""
     if not gt_list:
         return None
@@ -212,6 +219,41 @@ def compute_precision(pred_list: list, gt_list: list) -> int:
         if not any(names_match(p, gt) for p in pred_list):
             return 0
     return 1
+
+
+def _count_tp(pred_list: list, gt_list: list) -> int:
+    """Count true positives (GT items matched by at least one prediction)."""
+    return sum(1 for gt in gt_list
+               if any(names_match(p, gt) for p in pred_list))
+
+
+def compute_set_precision(pred_list: list, gt_list: list) -> float | None:
+    """TP / |Pred|. None if GT is empty."""
+    if not gt_list:
+        return None
+    if not pred_list:
+        return 0.0
+    tp = _count_tp(pred_list, gt_list)
+    return tp / len(pred_list)
+
+
+def compute_recall(pred_list: list, gt_list: list) -> float | None:
+    """TP / |GT|. None if GT is empty."""
+    if not gt_list:
+        return None
+    tp = _count_tp(pred_list, gt_list)
+    return tp / len(gt_list)
+
+
+def compute_f1(pred_list: list, gt_list: list) -> float | None:
+    """Harmonic mean of precision and recall. None if GT is empty."""
+    p = compute_set_precision(pred_list, gt_list)
+    r = compute_recall(pred_list, gt_list)
+    if p is None:
+        return None
+    if p + r == 0:
+        return 0.0
+    return 2 * p * r / (p + r)
 
 
 # ---------------------------------------------------------------------------
@@ -230,9 +272,15 @@ def evaluate_instance(gt_item: dict, pred_item: dict) -> dict:
 
     results = {
         'class_hit': compute_hit(pred['classes'], gt_classes),
-        'class_precision': compute_precision(pred['classes'], gt_classes),
+        'class_coverage': compute_coverage(pred['classes'], gt_classes),
+        'class_precision': compute_set_precision(pred['classes'], gt_classes),
+        'class_recall': compute_recall(pred['classes'], gt_classes),
+        'class_f1': compute_f1(pred['classes'], gt_classes),
         'method_hit': compute_hit(pred['methods'], gt_methods),
-        'method_precision': compute_precision(pred['methods'], gt_methods),
+        'method_coverage': compute_coverage(pred['methods'], gt_methods),
+        'method_precision': compute_set_precision(pred['methods'], gt_methods),
+        'method_recall': compute_recall(pred['methods'], gt_methods),
+        'method_f1': compute_f1(pred['methods'], gt_methods),
     }
 
     counts = {
@@ -281,15 +329,25 @@ def evaluate_file_pair(gt_path: str, pred_path: str, verbose: bool = False) -> l
             print(f"  Pred methods: {res['pred']['methods']}")
             for level in LEVELS:
                 h = r[f'{level}_hit']
-                p = r[f'{level}_precision']
-                h_str = "Y" if h == 1 else ("-" if h == 0 else "skip")
-                p_str = "Y" if p == 1 else ("-" if p == 0 else "skip")
+                cov = r[f'{level}_coverage']
+                prec = r[f'{level}_precision']
+                rec = r[f'{level}_recall']
+                f1 = r[f'{level}_f1']
                 gt_n = c[f'{level}_gt']
                 pr_n = c[f'{level}_pred']
-                print(f"    {level:<8}  hit={h_str}  precision={p_str}"
-                      f"  (GT={gt_n}, Pred={pr_n})")
+                if h is None:
+                    print(f"    {level:<8}  (no GT)")
+                else:
+                    h_str = "Y" if h == 1 else "-"
+                    cov_str = "Y" if cov == 1 else "-"
+                    print(f"    {level:<8}  hit={h_str}  cov={cov_str}"
+                          f"  P={prec:.2f}  R={rec:.2f}  F1={f1:.2f}"
+                          f"  (GT={gt_n}, Pred={pr_n})")
 
     return results
+
+
+METRIC_NAMES = ['hit', 'coverage', 'precision', 'recall', 'f1']
 
 
 def aggregate_results(all_results: list) -> dict:
@@ -298,7 +356,8 @@ def aggregate_results(all_results: list) -> dict:
 
     summary = {}
     for level in LEVELS:
-        for metric_key in [f'{level}_hit', f'{level}_precision']:
+        for metric in METRIC_NAMES:
+            metric_key = f'{level}_{metric}'
             values = [r['results'][metric_key] for r in all_results
                       if r['results'][metric_key] is not None]
             n = len(values)
@@ -321,7 +380,7 @@ def aggregate_results(all_results: list) -> dict:
 
 
 def print_instance_details(all_results: list):
-    """Print per-instance GT vs Pred comparison for each level."""
+    """Print per-instance GT vs Pred comparison (method-level focus, class fallback)."""
     for res in all_results:
         iid = res['instance_id']
         r = res['results']
@@ -335,19 +394,17 @@ def print_instance_details(all_results: list):
             pred_items = pred.get(key, pred.get(level + 'es', pred.get(level + 's', [])))
 
             h = r[f'{level}_hit']
-            p = r[f'{level}_precision']
+            f1 = r[f'{level}_f1']
+            cov = r[f'{level}_coverage']
 
             if h is None:
                 status = "skip (no GT)"
-            elif h == 1 and p == 1:
-                status = "PASS"
+            elif cov == 1:
+                status = f"PASS (F1={f1:.2f})"
             else:
-                parts = []
-                if h == 0:
-                    parts.append("hit=MISS")
-                if p == 0:
-                    parts.append("precision=MISS")
-                status = ", ".join(parts) if parts else "partial"
+                prec = r[f'{level}_precision']
+                rec = r[f'{level}_recall']
+                status = f"P={prec:.2f} R={rec:.2f} F1={f1:.2f}"
 
             gt_str = ", ".join(gt_items) if gt_items else "(none)"
             pred_str = ", ".join(pred_items) if pred_items else "(none)"
@@ -355,29 +412,53 @@ def print_instance_details(all_results: list):
             print(f"      GT:   {gt_str}")
             print(f"      Pred: {pred_str}")
 
-            # Show which GT items were missed
-            if p == 0 and gt_items:
+            if f1 is not None and f1 < 1.0 and gt_items:
                 missed = [g for g in gt_items
                           if not any(names_match(pp, g) for pp in pred_items)]
                 if missed:
                     print(f"      Missing: {', '.join(missed)}")
 
 
-def print_summary(summary: dict, all_results: list = None, label: str = ""):
+def _collect_empty_instances(all_results: list) -> dict:
+    """Find instances with empty GT methods or empty predicted methods."""
+    empty_gt = []
+    empty_pred = []
+    for res in all_results:
+        iid = res['instance_id']
+        if not res['gt']['methods']:
+            empty_gt.append(iid)
+        if not res['pred']['methods']:
+            empty_pred.append(iid)
+    return {'empty_gt_methods': empty_gt, 'empty_pred_methods': empty_pred}
+
+
+def print_summary(summary: dict, all_results: list = None, label: str = "",
+                  show_empty: bool = True):
     if label:
         print(f"\n{'='*70}")
         print(f"  {label}")
         print(f"{'='*70}")
 
     print()
-    print(f"  {'Level':<10} {'Hit':>12} {'Precision':>12}")
-    print(f"  {'-'*36}")
+    header = (f"  {'Level':<10} {'Hit':>12} {'Coverage':>12}"
+              f" {'Precision':>12} {'Recall':>12} {'F1':>12}")
+    print(header)
+    print(f"  {'-'*72}")
     for level in LEVELS:
         h = summary.get(f'{level}_hit', {})
-        p = summary.get(f'{level}_precision', {})
-        h_pct, h_s, h_n = h.get('avg', 0.0), int(h.get('sum', 0)), h.get('total', 0)
-        p_pct, p_s, p_n = p.get('avg', 0.0), int(p.get('sum', 0)), p.get('total', 0)
-        print(f"  {level:<10} {h_pct:>5.1f}% ({h_s}/{h_n}) {p_pct:>5.1f}% ({p_s}/{p_n})")
+        cov = summary.get(f'{level}_coverage', {})
+        prec = summary.get(f'{level}_precision', {})
+        rec = summary.get(f'{level}_recall', {})
+        f1 = summary.get(f'{level}_f1', {})
+        def _fmt(m):
+            pct = m.get('avg', 0.0)
+            s = int(m.get('sum', 0)) if isinstance(m.get('sum', 0), int) else m.get('sum', 0)
+            n = m.get('total', 0)
+            if isinstance(s, float):
+                return f"{pct:>5.1f}% ({n})"
+            return f"{pct:>5.1f}% ({s}/{n})"
+        print(f"  {level:<10} {_fmt(h)} {_fmt(cov)}"
+              f" {_fmt(prec)} {_fmt(rec)} {_fmt(f1)}")
 
     print()
     print(f"  {'Level':<10} {'Avg GT':>8} {'Avg Pred':>10} {'Total GT':>10} {'Total Pred':>12}")
@@ -387,10 +468,20 @@ def print_summary(summary: dict, all_results: list = None, label: str = ""):
         print(f"  {level:<10} {c.get('avg_gt',0):>8.1f} {c.get('avg_pred',0):>10.1f}"
               f" {c.get('total_gt',0):>10} {c.get('total_pred',0):>12}")
 
-    # Print per-instance details
     if all_results:
         print(f"\n  --- Per-instance details ---")
         print_instance_details(all_results)
+
+        if show_empty:
+            empty = _collect_empty_instances(all_results)
+            if empty['empty_gt_methods']:
+                print(f"\n  --- Instances with NO ground-truth methods ({len(empty['empty_gt_methods'])}) ---")
+                for iid in empty['empty_gt_methods']:
+                    print(f"    {iid}")
+            if empty['empty_pred_methods']:
+                print(f"\n  --- Instances with NO predicted methods ({len(empty['empty_pred_methods'])}) ---")
+                for iid in empty['empty_pred_methods']:
+                    print(f"    {iid}")
     print()
 
 
@@ -422,16 +513,22 @@ def _build_output_data(per_repo_summaries: dict, all_results: list,
         'per_repo': {},
         'per_instance': [],
     }
-    for repo, summary in per_repo_summaries.items():
-        repo_out = {}
+    def _summarise(summary):
+        out = {}
         for k, v in summary.items():
             if k.endswith('_counts'):
-                repo_out[k] = v
+                out[k] = v
             else:
-                repo_out[k] = {'avg': round(v['avg'], 2),
-                               'count': int(v['sum']),
-                               'total': v['total']}
-        output_data['per_repo'][repo] = repo_out
+                s = v['sum']
+                out[k] = {
+                    'avg': round(v['avg'], 2),
+                    'sum': int(s) if isinstance(s, int) else round(s, 4),
+                    'total': v['total'],
+                }
+        return out
+
+    for repo, summary in per_repo_summaries.items():
+        output_data['per_repo'][repo] = _summarise(summary)
     for res in all_results:
         output_data['per_instance'].append({
             'instance_id': res['instance_id'],
@@ -442,39 +539,35 @@ def _build_output_data(per_repo_summaries: dict, all_results: list,
         })
     if len(per_repo_summaries) > 1:
         overall = aggregate_results(all_results)
-        overall_out = {}
-        for k, v in overall.items():
-            if k.endswith('_counts'):
-                overall_out[k] = v
-            else:
-                overall_out[k] = {'avg': round(v['avg'], 2),
-                                  'count': int(v['sum']),
-                                  'total': v['total']}
-        output_data['overall'] = overall_out
+        output_data['overall'] = _summarise(overall)
 
-    # Build per-repo lists of instances with precision=1 and hit=1
-    precision_1 = {}
+    # Build per-repo lists of instances with coverage=1 and hit=1
+    coverage_1 = {}
     hit_1 = {}
     for repo, results in repo_results_map.items():
-        p1 = []
+        c1 = []
         h1 = []
         for res in results:
             iid = res['instance_id']
             r = res['results']
-            # Consider an instance precision=1 if ALL non-skipped levels got precision 1
-            level_precisions = [r[f'{lv}_precision'] for lv in LEVELS
-                                if r[f'{lv}_precision'] is not None]
+            level_coverages = [r[f'{lv}_coverage'] for lv in LEVELS
+                               if r[f'{lv}_coverage'] is not None]
             level_hits = [r[f'{lv}_hit'] for lv in LEVELS
                           if r[f'{lv}_hit'] is not None]
-            if level_precisions and all(p == 1 for p in level_precisions):
-                p1.append(iid)
+            if level_coverages and all(c == 1 for c in level_coverages):
+                c1.append(iid)
             if level_hits and all(h == 1 for h in level_hits):
                 h1.append(iid)
-        precision_1[repo] = p1
+        coverage_1[repo] = c1
         hit_1[repo] = h1
 
-    output_data['precision_1_instances'] = precision_1
+    output_data['coverage_1_instances'] = coverage_1
     output_data['hit_1_instances'] = hit_1
+
+    # Empty GT / empty prediction instance lists
+    empty = _collect_empty_instances(all_results)
+    output_data['empty_gt_methods'] = empty['empty_gt_methods']
+    output_data['empty_pred_methods'] = empty['empty_pred_methods']
 
     return output_data
 

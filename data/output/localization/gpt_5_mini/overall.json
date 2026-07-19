@@ -3,12 +3,27 @@
     "astropy__astropy": {
       "class_hit": {
         "avg": 100.0,
-        "count": 1,
+        "sum": 1,
+        "total": 1
+      },
+      "class_coverage": {
+        "avg": 100.0,
+        "sum": 1,
         "total": 1
       },
       "class_precision": {
         "avg": 100.0,
-        "count": 1,
+        "sum": 1.0,
+        "total": 1
+      },
+      "class_recall": {
+        "avg": 100.0,
+        "sum": 1.0,
+        "total": 1
+      },
+      "class_f1": {
+        "avg": 100.0,
+        "sum": 1.0,
         "total": 1
       },
       "class_counts": {
@@ -19,12 +34,27 @@
       },
       "method_hit": {
         "avg": 100.0,
-        "count": 6,
+        "sum": 6,
+        "total": 6
+      },
+      "method_coverage": {
+        "avg": 83.33,
+        "sum": 5,
         "total": 6
       },
       "method_precision": {
-        "avg": 83.33,
-        "count": 5,
+        "avg": 41.41,
+        "sum": 2.4843,
+        "total": 6
+      },
+      "method_recall": {
+        "avg": 94.44,
+        "sum": 5.6667,
+        "total": 6
+      },
+      "method_f1": {
+        "avg": 53.51,
+        "sum": 3.2105,
         "total": 6
       },
       "method_counts": {
@@ -37,12 +67,27 @@
     "matplotlib__matplotlib": {
       "class_hit": {
         "avg": 0.0,
-        "count": 0,
+        "sum": 0,
+        "total": 1
+      },
+      "class_coverage": {
+        "avg": 0.0,
+        "sum": 0,
         "total": 1
       },
       "class_precision": {
         "avg": 0.0,
-        "count": 0,
+        "sum": 0.0,
+        "total": 1
+      },
+      "class_recall": {
+        "avg": 0.0,
+        "sum": 0.0,
+        "total": 1
+      },
+      "class_f1": {
+        "avg": 0.0,
+        "sum": 0.0,
         "total": 1
       },
       "class_counts": {
@@ -53,12 +98,27 @@
       },
       "method_hit": {
         "avg": 91.3,
-        "count": 21,
+        "sum": 21,
+        "total": 23
+      },
+      "method_coverage": {
+        "avg": 65.22,
+        "sum": 15,
         "total": 23
       },
       "method_precision": {
-        "avg": 65.22,
-        "count": 15,
+        "avg": 22.21,
+        "sum": 5.1075,
+        "total": 23
+      },
+      "method_recall": {
+        "avg": 76.81,
+        "sum": 17.6667,
+        "total": 23
+      },
+      "method_f1": {
+        "avg": 32.74,
+        "sum": 7.5298,
         "total": 23
       },
       "method_counts": {
@@ -68,15 +128,94 @@
         "avg_pred": 6.0
       }
     },
+    "mwaskom__seaborn": {
+      "class_hit": {
+        "avg": 0.0,
+        "sum": 0,
+        "total": 0
+      },
+      "class_coverage": {
+        "avg": 0.0,
+        "sum": 0,
+        "total": 0
+      },
+      "class_precision": {
+        "avg": 0.0,
+        "sum": 0,
+        "total": 0
+      },
+      "class_recall": {
+        "avg": 0.0,
+        "sum": 0,
+        "total": 0
+      },
+      "class_f1": {
+        "avg": 0.0,
+        "sum": 0,
+        "total": 0
+      },
+      "class_counts": {
+        "total_gt": 0,
+        "total_pred": 16,
+        "avg_gt": 0.0,
+        "avg_pred": 4.0
+      },
+      "method_hit": {
+        "avg": 75.0,
+        "sum": 3,
+        "total": 4
+      },
+      "method_coverage": {
+        "avg": 75.0,
+        "sum": 3,
+        "total": 4
+      },
+      "method_precision": {
+        "avg": 13.19,
+        "sum": 0.5278,
+        "total": 4
+      },
+      "method_recall": {
+        "avg": 75.0,
+        "sum": 3.0,
+        "total": 4
+      },
+      "method_f1": {
+        "avg": 22.14,
+        "sum": 0.8857,
+        "total": 4
+      },
+      "method_counts": {
+        "total_gt": 4,
+        "total_pred": 22,
+        "avg_gt": 1.0,
+        "avg_pred": 5.5
+      }
+    },
     "scikit-learn__scikit-learn": {
       "class_hit": {
         "avg": 66.67,
-        "count": 2,
+        "sum": 2,
+        "total": 3
+      },
+      "class_coverage": {
+        "avg": 66.67,
+        "sum": 2,
         "total": 3
       },
       "class_precision": {
+        "avg": 27.78,
+        "sum": 0.8333,
+        "total": 3
+      },
+      "class_recall": {
         "avg": 66.67,
-        "count": 2,
+        "sum": 2.0,
+        "total": 3
+      },
+      "class_f1": {
+        "avg": 38.89,
+        "sum": 1.1667,
         "total": 3
       },
       "class_counts": {
@@ -87,12 +226,27 @@
       },
       "method_hit": {
         "avg": 95.65,
-        "count": 22,
+        "sum": 22,
+        "total": 23
+      },
+      "method_coverage": {
+        "avg": 82.61,
+        "sum": 19,
         "total": 23
       },
       "method_precision": {
-        "avg": 82.61,
-        "count": 19,
+        "avg": 29.46,
+        "sum": 6.7762,
+        "total": 23
+      },
+      "method_recall": {
+        "avg": 89.86,
+        "sum": 20.6667,
+        "total": 23
+      },
+      "method_f1": {
+        "avg": 42.09,
+        "sum": 9.681,
         "total": 23
       },
       "method_counts": {
@@ -101,6 +255,70 @@
         "avg_gt": 1.3043478260869565,
         "avg_pred": 4.608695652173913
       }
+    },
+    "sphinx-doc__sphinx": {
+      "class_hit": {
+        "avg": 0.0,
+        "sum": 0,
+        "total": 1
+      },
+      "class_coverage": {
+        "avg": 0.0,
+        "sum": 0,
+        "total": 1
+      },
+      "class_precision": {
+        "avg": 0.0,
+        "sum": 0.0,
+        "total": 1
+      },
+      "class_recall": {
+        "avg": 0.0,
+        "sum": 0.0,
+        "total": 1
+      },
+      "class_f1": {
+        "avg": 0.0,
+        "sum": 0.0,
+        "total": 1
+      },
+      "class_counts": {
+        "total_gt": 1,
+        "total_pred": 35,
+        "avg_gt": 0.0625,
+        "avg_pred": 2.1875
+      },
+      "method_hit": {
+        "avg": 87.5,
+        "sum": 14,
+        "total": 16
+      },
+      "method_coverage": {
+        "avg": 81.25,
+        "sum": 13,
+        "total": 16
+      },
+      "method_precision": {
+        "avg": 31.31,
+        "sum": 5.0095,
+        "total": 16
+      },
+      "method_recall": {
+        "avg": 84.38,
+        "sum": 13.5,
+        "total": 16
+      },
+      "method_f1": {
+        "avg": 42.37,
+        "sum": 6.7786,
+        "total": 16
+      },
+      "method_counts": {
+        "total_gt": 25,
+        "total_pred": 68,
+        "avg_gt": 1.5625,
+        "avg_pred": 4.25
+      }
     }
   },
   "per_instance": [
@@ -108,9 +326,15 @@
       "instance_id": "astropy__astropy-12907",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.2,
+        "method_recall": 1.0,
+        "method_f1": 0.33333333333333337
       },
       "counts": {
         "class_gt": 0,
@@ -142,9 +366,15 @@
       "instance_id": "astropy__astropy-14182",
       "results": {
         "class_hit": 1,
-        "class_precision": 1,
+        "class_coverage": 1,
+        "class_precision": 1.0,
+        "class_recall": 1.0,
+        "class_f1": 1.0,
         "method_hit": 1,
-        "method_precision": 0
+        "method_coverage": 0,
+        "method_precision": 0.6666666666666666,
+        "method_recall": 0.6666666666666666,
+        "method_f1": 0.6666666666666666
       },
       "counts": {
         "class_gt": 2,
@@ -179,9 +409,15 @@
       "instance_id": "astropy__astropy-14365",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.5,
+        "method_recall": 1.0,
+        "method_f1": 0.6666666666666666
       },
       "counts": {
         "class_gt": 0,
@@ -212,9 +448,15 @@
       "instance_id": "astropy__astropy-14995",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.5,
+        "method_recall": 1.0,
+        "method_f1": 0.6666666666666666
       },
       "counts": {
         "class_gt": 0,
@@ -242,9 +484,15 @@
       "instance_id": "astropy__astropy-6938",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.5,
+        "method_recall": 1.0,
+        "method_f1": 0.6666666666666666
       },
       "counts": {
         "class_gt": 0,
@@ -272,9 +520,15 @@
       "instance_id": "astropy__astropy-7746",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.11764705882352941,
+        "method_recall": 1.0,
+        "method_f1": 0.21052631578947367
       },
       "counts": {
         "class_gt": 0,
@@ -318,9 +572,15 @@
       "instance_id": "matplotlib__matplotlib-18869",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 0
+        "method_coverage": 0,
+        "method_precision": 0.25,
+        "method_recall": 0.3333333333333333,
+        "method_f1": 0.28571428571428575
       },
       "counts": {
         "class_gt": 0,
@@ -352,9 +612,15 @@
       "instance_id": "matplotlib__matplotlib-22711",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 0
+        "method_coverage": 0,
+        "method_precision": 0.25,
+        "method_recall": 0.3333333333333333,
+        "method_f1": 0.28571428571428575
       },
       "counts": {
         "class_gt": 0,
@@ -387,9 +653,15 @@
       "instance_id": "matplotlib__matplotlib-22835",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.2,
+        "method_recall": 1.0,
+        "method_f1": 0.33333333333333337
       },
       "counts": {
         "class_gt": 0,
@@ -422,9 +694,15 @@
       "instance_id": "matplotlib__matplotlib-23299",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.25,
+        "method_recall": 1.0,
+        "method_f1": 0.4
       },
       "counts": {
         "class_gt": 0,
@@ -455,9 +733,15 @@
       "instance_id": "matplotlib__matplotlib-23314",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.5,
+        "method_recall": 1.0,
+        "method_f1": 0.6666666666666666
       },
       "counts": {
         "class_gt": 0,
@@ -487,9 +771,15 @@
       "instance_id": "matplotlib__matplotlib-23476",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.2,
+        "method_recall": 1.0,
+        "method_f1": 0.33333333333333337
       },
       "counts": {
         "class_gt": 0,
@@ -523,9 +813,15 @@
       "instance_id": "matplotlib__matplotlib-23562",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.2857142857142857,
+        "method_recall": 1.0,
+        "method_f1": 0.4444444444444445
       },
       "counts": {
         "class_gt": 0,
@@ -561,9 +857,15 @@
       "instance_id": "matplotlib__matplotlib-23563",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.06666666666666667,
+        "method_recall": 1.0,
+        "method_f1": 0.125
       },
       "counts": {
         "class_gt": 0,
@@ -611,9 +913,15 @@
       "instance_id": "matplotlib__matplotlib-23913",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 0
+        "method_coverage": 0,
+        "method_precision": 0.16666666666666666,
+        "method_recall": 0.3333333333333333,
+        "method_f1": 0.2222222222222222
       },
       "counts": {
         "class_gt": 0,
@@ -651,9 +959,15 @@
       "instance_id": "matplotlib__matplotlib-23964",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.25,
+        "method_recall": 1.0,
+        "method_f1": 0.4
       },
       "counts": {
         "class_gt": 0,
@@ -686,9 +1000,15 @@
       "instance_id": "matplotlib__matplotlib-23987",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.14285714285714285,
+        "method_recall": 1.0,
+        "method_f1": 0.25
       },
       "counts": {
         "class_gt": 0,
@@ -724,9 +1044,15 @@
       "instance_id": "matplotlib__matplotlib-24149",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.1111111111111111,
+        "method_recall": 1.0,
+        "method_f1": 0.19999999999999998
       },
       "counts": {
         "class_gt": 0,
@@ -762,9 +1088,15 @@
       "instance_id": "matplotlib__matplotlib-24265",
       "results": {
         "class_hit": 0,
-        "class_precision": 0,
+        "class_coverage": 0,
+        "class_precision": 0.0,
+        "class_recall": 0.0,
+        "class_f1": 0.0,
         "method_hit": 1,
-        "method_precision": 0
+        "method_coverage": 0,
+        "method_precision": 0.3333333333333333,
+        "method_recall": 0.6666666666666666,
+        "method_f1": 0.4444444444444444
       },
       "counts": {
         "class_gt": 2,
@@ -799,9 +1131,15 @@
       "instance_id": "matplotlib__matplotlib-24334",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.14285714285714285,
+        "method_recall": 1.0,
+        "method_f1": 0.25
       },
       "counts": {
         "class_gt": 0,
@@ -839,9 +1177,15 @@
       "instance_id": "matplotlib__matplotlib-24970",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.3333333333333333,
+        "method_recall": 1.0,
+        "method_f1": 0.5
       },
       "counts": {
         "class_gt": 0,
@@ -870,9 +1214,15 @@
       "instance_id": "matplotlib__matplotlib-25079",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 0,
-        "method_precision": 0
+        "method_coverage": 0,
+        "method_precision": 0.0,
+        "method_recall": 0.0,
+        "method_f1": 0.0
       },
       "counts": {
         "class_gt": 0,
@@ -912,9 +1262,15 @@
       "instance_id": "matplotlib__matplotlib-25311",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.3333333333333333,
+        "method_recall": 1.0,
+        "method_f1": 0.5
       },
       "counts": {
         "class_gt": 0,
@@ -947,9 +1303,15 @@
       "instance_id": "matplotlib__matplotlib-25332",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 0
+        "method_coverage": 0,
+        "method_precision": 0.16666666666666666,
+        "method_recall": 0.5,
+        "method_f1": 0.25
       },
       "counts": {
         "class_gt": 0,
@@ -986,9 +1348,15 @@
       "instance_id": "matplotlib__matplotlib-25433",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 0,
-        "method_precision": 0
+        "method_coverage": 0,
+        "method_precision": 0.0,
+        "method_recall": 0.0,
+        "method_f1": 0.0
       },
       "counts": {
         "class_gt": 0,
@@ -1025,9 +1393,15 @@
       "instance_id": "matplotlib__matplotlib-25442",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.5,
+        "method_recall": 1.0,
+        "method_f1": 0.6666666666666666
       },
       "counts": {
         "class_gt": 0,
@@ -1067,9 +1441,15 @@
       "instance_id": "matplotlib__matplotlib-25498",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 0
+        "method_coverage": 0,
+        "method_precision": 0.16666666666666666,
+        "method_recall": 0.5,
+        "method_f1": 0.25
       },
       "counts": {
         "class_gt": 0,
@@ -1104,9 +1484,15 @@
       "instance_id": "matplotlib__matplotlib-26011",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.125,
+        "method_recall": 1.0,
+        "method_f1": 0.2222222222222222
       },
       "counts": {
         "class_gt": 0,
@@ -1142,9 +1528,15 @@
       "instance_id": "matplotlib__matplotlib-26020",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.3333333333333333,
+        "method_recall": 1.0,
+        "method_f1": 0.5
       },
       "counts": {
         "class_gt": 0,
@@ -1172,12 +1564,188 @@
       }
     },
     {
+      "instance_id": "mwaskom__seaborn-2848",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.25,
+        "method_recall": 1.0,
+        "method_f1": 0.4
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 2,
+        "method_gt": 1,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_lookup_single"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "seaborn._oldcore.HueMapping",
+          "seaborn.axisgrid.PairGrid"
+        ],
+        "methods": [
+          "seaborn._oldcore.HueMapping._lookup_single",
+          "seaborn._oldcore.HueMapping.__init__",
+          "seaborn._oldcore.categorical_mapping",
+          "seaborn._oldcore.categorical_order"
+        ]
+      }
+    },
+    {
+      "instance_id": "mwaskom__seaborn-3010",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 0,
+        "method_coverage": 0,
+        "method_precision": 0.0,
+        "method_recall": 0.0,
+        "method_f1": 0.0
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 1,
+        "method_pred": 3
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "__call__"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "seaborn._stats.regression.PolyFit",
+          "seaborn._core.groupby.GroupBy",
+          "seaborn._stats.histogram.Hist"
+        ],
+        "methods": [
+          "seaborn._stats.regression.PolyFit._fit_predict",
+          "seaborn._core.groupby.GroupBy.apply",
+          "seaborn._stats.histogram.Hist._define_bin_edges"
+        ]
+      }
+    },
+    {
+      "instance_id": "mwaskom__seaborn-3190",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.16666666666666666,
+        "method_recall": 1.0,
+        "method_f1": 0.2857142857142857
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 6,
+        "method_gt": 1,
+        "method_pred": 6
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_setup"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "seaborn._core.properties.Property",
+          "seaborn._core.properties.Color",
+          "seaborn._core.plot.Plotter",
+          "seaborn._core.scales.ContinuousBase",
+          "seaborn._core.properties.Fill",
+          "seaborn._core.properties.ObjectProperty"
+        ],
+        "methods": [
+          "seaborn._core.properties.Property.default_scale",
+          "variable_type",
+          "seaborn._core.properties.Color.infer_scale",
+          "seaborn._core.plot.Plotter._get_scale",
+          "seaborn._core.plot.Plotter._setup_scales",
+          "seaborn._core.scales.ContinuousBase._setup"
+        ]
+      }
+    },
+    {
+      "instance_id": "mwaskom__seaborn-3407",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.1111111111111111,
+        "method_recall": 1.0,
+        "method_f1": 0.19999999999999998
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 5,
+        "method_gt": 1,
+        "method_pred": 9
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "map_diag"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "seaborn.axisgrid.PairGrid",
+          "seaborn.axisgrid.FacetGrid",
+          "seaborn.axisgrid.Grid",
+          "seaborn._oldcore.VectorPlotter",
+          "pandas.DataFrame"
+        ],
+        "methods": [
+          "seaborn.axisgrid.PairGrid.map_diag",
+          "seaborn.axisgrid.PairGrid._find_numeric_cols",
+          "seaborn.axisgrid.PairGrid._plot_bivariate",
+          "seaborn.axisgrid.PairGrid._plot_bivariate_iter_hue",
+          "seaborn.axisgrid.FacetGrid.facet_data",
+          "seaborn.axisgrid.Grid._get_palette",
+          "seaborn._oldcore.VectorPlotter._assign_variables_longform",
+          "pandas.DataFrame.__getitem__",
+          "pandas.core.indexes.multi._get_indexer_strict"
+        ]
+      }
+    },
+    {
       "instance_id": "scikit-learn__scikit-learn-10297",
       "results": {
         "class_hit": 1,
-        "class_precision": 1,
+        "class_coverage": 1,
+        "class_precision": 0.5,
+        "class_recall": 1.0,
+        "class_f1": 0.6666666666666666,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.5,
+        "method_recall": 1.0,
+        "method_f1": 0.6666666666666666
       },
       "counts": {
         "class_gt": 2,
@@ -1211,9 +1779,15 @@
       "instance_id": "scikit-learn__scikit-learn-10508",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 0
+        "method_coverage": 0,
+        "method_precision": 0.2,
+        "method_recall": 0.5,
+        "method_f1": 0.28571428571428575
       },
       "counts": {
         "class_gt": 0,
@@ -1245,9 +1819,15 @@
       "instance_id": "scikit-learn__scikit-learn-10949",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.5,
+        "method_recall": 1.0,
+        "method_f1": 0.6666666666666666
       },
       "counts": {
         "class_gt": 0,
@@ -1276,9 +1856,15 @@
       "instance_id": "scikit-learn__scikit-learn-11040",
       "results": {
         "class_hit": 0,
-        "class_precision": 0,
+        "class_coverage": 0,
+        "class_precision": 0.0,
+        "class_recall": 0.0,
+        "class_f1": 0.0,
         "method_hit": 0,
-        "method_precision": 0
+        "method_coverage": 0,
+        "method_precision": 0.0,
+        "method_recall": 0.0,
+        "method_f1": 0.0
       },
       "counts": {
         "class_gt": 1,
@@ -1311,9 +1897,15 @@
       "instance_id": "scikit-learn__scikit-learn-11281",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.3333333333333333,
+        "method_recall": 1.0,
+        "method_f1": 0.5
       },
       "counts": {
         "class_gt": 0,
@@ -1352,9 +1944,15 @@
       "instance_id": "scikit-learn__scikit-learn-12471",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.16666666666666666,
+        "method_recall": 1.0,
+        "method_f1": 0.2857142857142857
       },
       "counts": {
         "class_gt": 0,
@@ -1388,9 +1986,15 @@
       "instance_id": "scikit-learn__scikit-learn-13142",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.125,
+        "method_recall": 1.0,
+        "method_f1": 0.2222222222222222
       },
       "counts": {
         "class_gt": 0,
@@ -1426,9 +2030,15 @@
       "instance_id": "scikit-learn__scikit-learn-13241",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.16666666666666666,
+        "method_recall": 1.0,
+        "method_f1": 0.2857142857142857
       },
       "counts": {
         "class_gt": 0,
@@ -1460,9 +2070,15 @@
       "instance_id": "scikit-learn__scikit-learn-13439",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.16666666666666666,
+        "method_recall": 1.0,
+        "method_f1": 0.2857142857142857
       },
       "counts": {
         "class_gt": 0,
@@ -1498,9 +2114,15 @@
       "instance_id": "scikit-learn__scikit-learn-13496",
       "results": {
         "class_hit": 1,
-        "class_precision": 1,
+        "class_coverage": 1,
+        "class_precision": 0.3333333333333333,
+        "class_recall": 1.0,
+        "class_f1": 0.5,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.5,
+        "method_recall": 1.0,
+        "method_f1": 0.6666666666666666
       },
       "counts": {
         "class_gt": 1,
@@ -1532,9 +2154,15 @@
       "instance_id": "scikit-learn__scikit-learn-13497",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.3333333333333333,
+        "method_recall": 1.0,
+        "method_f1": 0.5
       },
       "counts": {
         "class_gt": 0,
@@ -1561,9 +2189,15 @@
       "instance_id": "scikit-learn__scikit-learn-13584",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.25,
+        "method_recall": 1.0,
+        "method_f1": 0.4
       },
       "counts": {
         "class_gt": 0,
@@ -1595,9 +2229,15 @@
       "instance_id": "scikit-learn__scikit-learn-13779",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.25,
+        "method_recall": 1.0,
+        "method_f1": 0.4
       },
       "counts": {
         "class_gt": 0,
@@ -1629,9 +2269,15 @@
       "instance_id": "scikit-learn__scikit-learn-14087",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.25,
+        "method_recall": 1.0,
+        "method_f1": 0.4
       },
       "counts": {
         "class_gt": 0,
@@ -1661,9 +2307,15 @@
       "instance_id": "scikit-learn__scikit-learn-14092",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.2,
+        "method_recall": 1.0,
+        "method_f1": 0.33333333333333337
       },
       "counts": {
         "class_gt": 0,
@@ -1696,9 +2348,15 @@
       "instance_id": "scikit-learn__scikit-learn-14894",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.5,
+        "method_recall": 1.0,
+        "method_f1": 0.6666666666666666
       },
       "counts": {
         "class_gt": 0,
@@ -1726,9 +2384,15 @@
       "instance_id": "scikit-learn__scikit-learn-14983",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.6666666666666666,
+        "method_recall": 1.0,
+        "method_f1": 0.8
       },
       "counts": {
         "class_gt": 0,
@@ -1763,9 +2427,15 @@
       "instance_id": "scikit-learn__scikit-learn-15512",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.6666666666666666,
+        "method_recall": 1.0,
+        "method_f1": 0.8
       },
       "counts": {
         "class_gt": 0,
@@ -1795,9 +2465,15 @@
       "instance_id": "scikit-learn__scikit-learn-15535",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.16666666666666666,
+        "method_recall": 1.0,
+        "method_f1": 0.2857142857142857
       },
       "counts": {
         "class_gt": 0,
@@ -1827,9 +2503,15 @@
       "instance_id": "scikit-learn__scikit-learn-25500",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 0
+        "method_coverage": 0,
+        "method_precision": 0.4,
+        "method_recall": 0.6666666666666666,
+        "method_f1": 0.5
       },
       "counts": {
         "class_gt": 0,
@@ -1866,9 +2548,15 @@
       "instance_id": "scikit-learn__scikit-learn-25570",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.16666666666666666,
+        "method_recall": 1.0,
+        "method_f1": 0.2857142857142857
       },
       "counts": {
         "class_gt": 0,
@@ -1900,9 +2588,15 @@
       "instance_id": "scikit-learn__scikit-learn-25638",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 0
+        "method_coverage": 0,
+        "method_precision": 0.14285714285714285,
+        "method_recall": 0.5,
+        "method_f1": 0.22222222222222224
       },
       "counts": {
         "class_gt": 0,
@@ -1934,9 +2628,15 @@
       "instance_id": "scikit-learn__scikit-learn-25747",
       "results": {
         "class_hit": null,
+        "class_coverage": null,
         "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
         "method_hit": 1,
-        "method_precision": 1
+        "method_coverage": 1,
+        "method_precision": 0.125,
+        "method_recall": 1.0,
+        "method_f1": 0.2222222222222222
       },
       "counts": {
         "class_gt": 0,
@@ -1967,43 +2667,714 @@
           "sklearn.pipeline.FeatureUnion._hstack"
         ]
       }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-10325",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.4,
+        "method_recall": 1.0,
+        "method_f1": 0.5714285714285715
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 2,
+        "method_pred": 5
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "inherited_members_option",
+          "is_filtered_inherited_member"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sphinx.ext.autodoc.Documenter",
+          "sphinx.ext.autodoc.ClassDocumenter",
+          "sphinx.ext.autodoc.importer.ObjectMember"
+        ],
+        "methods": [
+          "sphinx.ext.autodoc.inherited_members_option",
+          "sphinx.ext.autodoc.Documenter.filter_members",
+          "sphinx.ext.autodoc.Documenter.is_filtered_inherited_member",
+          "sphinx.ext.autodoc.importer.get_class_members",
+          "sphinx.ext.autodoc.Documenter.get_object_members"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-10451",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.5,
+        "method_recall": 1.0,
+        "method_f1": 0.6666666666666666
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 0,
+        "method_gt": 2,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "modify_field_list",
+          "augment_descriptions_with_types"
+        ]
+      },
+      "predicted": {
+        "classes": [],
+        "methods": [
+          "sphinx.ext.autodoc.typehints.record_typehints",
+          "sphinx.ext.autodoc.typehints.modify_field_list",
+          "sphinx.ext.autodoc.typehints.augment_descriptions_with_types",
+          "sphinx.ext.autodoc.typehints.merge_typehints"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-11445",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.5,
+        "method_recall": 1.0,
+        "method_f1": 0.6666666666666666
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 1,
+        "method_gt": 1,
+        "method_pred": 2
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "prepend_prolog"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sphinx.parsers.RSTParser"
+        ],
+        "methods": [
+          "sphinx.util.rst.prepend_prolog",
+          "sphinx.parsers.RSTParser.decorate"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-7686",
+      "results": {
+        "class_hit": 0,
+        "class_coverage": 0,
+        "class_precision": 0.0,
+        "class_recall": 0.0,
+        "class_f1": 0.0,
+        "method_hit": 0,
+        "method_coverage": 0,
+        "method_precision": 0.0,
+        "method_recall": 0.0,
+        "method_f1": 0.0
+      },
+      "counts": {
+        "class_gt": 1,
+        "class_pred": 1,
+        "method_gt": 5,
+        "method_pred": 6
+      },
+      "ground_truth": {
+        "classes": [
+          "ModuleScanner"
+        ],
+        "methods": [
+          "__init__",
+          "get_object_type",
+          "is_skipped",
+          "scan",
+          "get_modules"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "ModuleAnalyzer"
+        ],
+        "methods": [
+          "generate_autosummary_content",
+          "process_generate_options",
+          "generate_autosummary_docs",
+          "get_members",
+          "get_module_attrs",
+          "ModuleAnalyzer.find_attr_docs"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-7738",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.25,
+        "method_recall": 1.0,
+        "method_f1": 0.4
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 2,
+        "method_gt": 1,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_escape_args_and_kwargs"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sphinx.ext.napoleon.docstring.GoogleDocstring",
+          "sphinx.ext.napoleon.docstring.NumpyDocstring"
+        ],
+        "methods": [
+          "sphinx.ext.napoleon.docstring.GoogleDocstring._escape_args_and_kwargs",
+          "sphinx.ext.napoleon.docstring.GoogleDocstring._consume_field",
+          "sphinx.ext.napoleon.docstring.GoogleDocstring._parse_attributes_section",
+          "sphinx.ext.napoleon.docstring.GoogleDocstring._parse_methods_section"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-7975",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 0,
+        "method_coverage": 0,
+        "method_precision": 0.0,
+        "method_recall": 0.0,
+        "method_f1": 0.0
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 2,
+        "method_gt": 2,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "keyfunc0",
+          "keyfunc"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sphinx.environment.adapters.indexentries.IndexEntries",
+          "StandaloneHTMLBuilder"
+        ],
+        "methods": [
+          "sphinx.environment.adapters.indexentries.IndexEntries.create_index",
+          "StandaloneHTMLBuilder.write_genindex",
+          "keyfunc2",
+          "keyfunc3"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-8273",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 0,
+        "method_precision": 0.5,
+        "method_recall": 0.5,
+        "method_f1": 0.5
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 3,
+        "method_gt": 2,
+        "method_pred": 2
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "write",
+          "setup"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sphinx.builders.manpage.ManualPageBuilder",
+          "sphinx.writers.manpage.ManualPageWriter",
+          "sphinx.writers.manpage.ManualPageTranslator"
+        ],
+        "methods": [
+          "sphinx.builders.manpage.ManualPageBuilder.write",
+          "sphinx.util.osutil.ensuredir"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-8282",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.25,
+        "method_recall": 1.0,
+        "method_f1": 0.4
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 4,
+        "method_gt": 1,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "format_signature"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sphinx.ext.autodoc.FunctionDocumenter",
+          "sphinx.ext.autodoc.MethodDocumenter",
+          "sphinx.ext.autodoc.ClassDocumenter",
+          "sphinx.ext.autodoc.ModuleAnalyzer"
+        ],
+        "methods": [
+          "sphinx.ext.autodoc.FunctionDocumenter.format_signature",
+          "sphinx.ext.autodoc.FunctionDocumenter.format_args",
+          "sphinx.util.inspect.stringify_signature",
+          "sphinx.ext.autodoc.typehints.record_typehints"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-8435",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 1.0,
+        "method_recall": 1.0,
+        "method_f1": 1.0
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 2,
+        "method_gt": 1,
+        "method_pred": 1
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "add_directive_header"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sphinx.ext.autodoc.DataDocumenter",
+          "sphinx.ext.autodoc.AttributeDocumenter"
+        ],
+        "methods": [
+          "sphinx.ext.autodoc.DataDocumenter.add_directive_header"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-8474",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.16666666666666666,
+        "method_recall": 1.0,
+        "method_f1": 0.2857142857142857
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 4,
+        "method_gt": 1,
+        "method_pred": 6
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_resolve_numref_xref"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sphinx.domains.std.StandardDomain",
+          "sphinx.builders.singlehtml.SingleFileHTMLBuilder",
+          "sphinx.domains.math.MathDomain",
+          "sphinx.environment.collectors.toctree.TocTreeCollector"
+        ],
+        "methods": [
+          "sphinx.domains.std.StandardDomain.get_fignumber",
+          "sphinx.domains.std._resolve_numref_xref",
+          "sphinx.builders.singlehtml.SingleFileHTMLBuilder.assemble_toc_fignumbers",
+          "sphinx.domains.math.MathDomain.resolve_xref",
+          "sphinx.environment.collectors.toctree.TocTreeCollector.assign_figure_numbers",
+          "sphinx.builders.singlehtml.SingleFileHTMLBuilder.assemble_toc_secnumbers"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-8506",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.2,
+        "method_recall": 1.0,
+        "method_f1": 0.33333333333333337
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 2,
+        "method_gt": 1,
+        "method_pred": 5
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "handle_signature"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sphinx.domains.std.Cmdoption",
+          "sphinx.domains.std.StandardDomain"
+        ],
+        "methods": [
+          "sphinx.domains.std.Cmdoption.handle_signature",
+          "sphinx.domains.std.Cmdoption.add_target_and_index",
+          "sphinx.domains.std.StandardDomain.add_program_option",
+          "sphinx.domains.std.StandardDomain._resolve_option_xref",
+          "sphinx.domains.std.get_objects"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-8595",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.25,
+        "method_recall": 1.0,
+        "method_f1": 0.4
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 2,
+        "method_gt": 1,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "get_object_members"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sphinx.ext.autodoc.ModuleDocumenter",
+          "sphinx.ext.autodoc.mock._MockModule"
+        ],
+        "methods": [
+          "sphinx.util.inspect.getall",
+          "sphinx.ext.autodoc.ModuleDocumenter.import_object",
+          "sphinx.ext.autodoc.ModuleDocumenter.get_object_members",
+          "sphinx.ext.autodoc.ModuleDocumenter.sort_members"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-8627",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.4,
+        "method_recall": 1.0,
+        "method_f1": 0.5714285714285715
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 1,
+        "method_gt": 2,
+        "method_pred": 5
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "restify",
+          "stringify"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sphinx.ext.inheritance_diagram.InheritanceGraph"
+        ],
+        "methods": [
+          "sphinx.util.typing.stringify",
+          "sphinx.util.typing.restify",
+          "sphinx.ext.inheritance_diagram.InheritanceGraph.class_name",
+          "sphinx.domains.python.type_to_xref",
+          "sphinx.domains.python._parse_annotation"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-8713",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.14285714285714285,
+        "method_recall": 1.0,
+        "method_f1": 0.25
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 2,
+        "method_gt": 1,
+        "method_pred": 7
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "_parse_other_parameters_section"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sphinx.ext.napoleon.docstring.GoogleDocstring",
+          "sphinx.ext.napoleon.docstring.NumpyDocstring"
+        ],
+        "methods": [
+          "sphinx.ext.napoleon.docstring.GoogleDocstring._parse_other_parameters_section",
+          "sphinx.ext.napoleon.docstring.GoogleDocstring._format_fields",
+          "sphinx.ext.napoleon.docstring.GoogleDocstring._consume_fields",
+          "sphinx.ext.napoleon.docstring.GoogleDocstring._parse_parameters_section",
+          "sphinx.ext.napoleon.docstring.GoogleDocstring._format_docutils_params",
+          "sphinx.ext.napoleon.docstring.NumpyDocstring._consume_field",
+          "sphinx.ext.napoleon.docstring.NumpyDocstring._escape_args_and_kwargs"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-8721",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.2,
+        "method_recall": 1.0,
+        "method_f1": 0.33333333333333337
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 2,
+        "method_gt": 1,
+        "method_pred": 5
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "collect_pages"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sphinx.builders._epub_base.EpubBuilder",
+          "sphinx.builders.html.StandaloneHTMLBuilder"
+        ],
+        "methods": [
+          "sphinx.ext.viewcode.collect_pages",
+          "sphinx.ext.viewcode.doctree_read",
+          "sphinx.ext.viewcode.should_generate_module_page",
+          "sphinx.ext.viewcode.env_merge_info",
+          "sphinx.builders.html.gen_pages_from_extensions"
+        ]
+      }
+    },
+    {
+      "instance_id": "sphinx-doc__sphinx-8801",
+      "results": {
+        "class_hit": null,
+        "class_coverage": null,
+        "class_precision": null,
+        "class_recall": null,
+        "class_f1": null,
+        "method_hit": 1,
+        "method_coverage": 1,
+        "method_precision": 0.25,
+        "method_recall": 1.0,
+        "method_f1": 0.4
+      },
+      "counts": {
+        "class_gt": 0,
+        "class_pred": 4,
+        "method_gt": 1,
+        "method_pred": 4
+      },
+      "ground_truth": {
+        "classes": [],
+        "methods": [
+          "get_class_members"
+        ]
+      },
+      "predicted": {
+        "classes": [
+          "sphinx.ext.autodoc.Documenter",
+          "sphinx.ext.autodoc.ModuleDocumenter",
+          "sphinx.ext.autodoc.ObjectMember",
+          "sphinx.pycode.ModuleAnalyzer"
+        ],
+        "methods": [
+          "sphinx.ext.autodoc.importer.get_class_members",
+          "sphinx.ext.autodoc.importer.get_object_members",
+          "sphinx.ext.autodoc.Documenter.filter_members",
+          "sphinx.ext.autodoc.ModuleDocumenter.get_module_members"
+        ]
+      }
     }
   ],
   "overall": {
     "class_hit": {
-      "avg": 60.0,
-      "count": 3,
-      "total": 5
+      "avg": 50.0,
+      "sum": 3,
+      "total": 6
+    },
+    "class_coverage": {
+      "avg": 50.0,
+      "sum": 3,
+      "total": 6
     },
     "class_precision": {
-      "avg": 60.0,
-      "count": 3,
-      "total": 5
+      "avg": 30.56,
+      "sum": 1.8333,
+      "total": 6
+    },
+    "class_recall": {
+      "avg": 50.0,
+      "sum": 3.0,
+      "total": 6
+    },
+    "class_f1": {
+      "avg": 36.11,
+      "sum": 2.1667,
+      "total": 6
     },
     "class_counts": {
-      "total_gt": 8,
-      "total_pred": 149,
-      "avg_gt": 0.15384615384615385,
-      "avg_pred": 2.8653846153846154
+      "total_gt": 9,
+      "total_pred": 200,
+      "avg_gt": 0.125,
+      "avg_pred": 2.7777777777777777
     },
     "method_hit": {
-      "avg": 94.23,
-      "count": 49,
-      "total": 52
+      "avg": 91.67,
+      "sum": 66,
+      "total": 72
+    },
+    "method_coverage": {
+      "avg": 76.39,
+      "sum": 55,
+      "total": 72
     },
     "method_precision": {
-      "avg": 75.0,
-      "count": 39,
-      "total": 52
+      "avg": 27.65,
+      "sum": 19.9053,
+      "total": 72
+    },
+    "method_recall": {
+      "avg": 84.03,
+      "sum": 60.5,
+      "total": 72
+    },
+    "method_f1": {
+      "avg": 39.01,
+      "sum": 28.0855,
+      "total": 72
     },
     "method_counts": {
-      "total_gt": 77,
-      "total_pred": 277,
-      "avg_gt": 1.4807692307692308,
-      "avg_pred": 5.326923076923077
+      "total_gt": 106,
+      "total_pred": 367,
+      "avg_gt": 1.4722222222222223,
+      "avg_pred": 5.097222222222222
     }
   },
-  "precision_1_instances": {
+  "coverage_1_instances": {
     "astropy__astropy": [
       "astropy__astropy-12907",
       "astropy__astropy-14365",
@@ -2028,6 +3399,11 @@
       "matplotlib__matplotlib-26011",
       "matplotlib__matplotlib-26020"
     ],
+    "mwaskom__seaborn": [
+      "mwaskom__seaborn-2848",
+      "mwaskom__seaborn-3190",
+      "mwaskom__seaborn-3407"
+    ],
     "scikit-learn__scikit-learn": [
       "scikit-learn__scikit-learn-10297",
       "scikit-learn__scikit-learn-10949",
@@ -2048,6 +3424,21 @@
       "scikit-learn__scikit-learn-15535",
       "scikit-learn__scikit-learn-25570",
       "scikit-learn__scikit-learn-25747"
+    ],
+    "sphinx-doc__sphinx": [
+      "sphinx-doc__sphinx-10325",
+      "sphinx-doc__sphinx-10451",
+      "sphinx-doc__sphinx-11445",
+      "sphinx-doc__sphinx-7738",
+      "sphinx-doc__sphinx-8282",
+      "sphinx-doc__sphinx-8435",
+      "sphinx-doc__sphinx-8474",
+      "sphinx-doc__sphinx-8506",
+      "sphinx-doc__sphinx-8595",
+      "sphinx-doc__sphinx-8627",
+      "sphinx-doc__sphinx-8713",
+      "sphinx-doc__sphinx-8721",
+      "sphinx-doc__sphinx-8801"
     ]
   },
   "hit_1_instances": {
@@ -2081,6 +3472,11 @@
       "matplotlib__matplotlib-26011",
       "matplotlib__matplotlib-26020"
     ],
+    "mwaskom__seaborn": [
+      "mwaskom__seaborn-2848",
+      "mwaskom__seaborn-3190",
+      "mwaskom__seaborn-3407"
+    ],
     "scikit-learn__scikit-learn": [
       "scikit-learn__scikit-learn-10297",
       "scikit-learn__scikit-learn-10508",
@@ -2104,6 +3500,24 @@
       "scikit-learn__scikit-learn-25570",
       "scikit-learn__scikit-learn-25638",
       "scikit-learn__scikit-learn-25747"
+    ],
+    "sphinx-doc__sphinx": [
+      "sphinx-doc__sphinx-10325",
+      "sphinx-doc__sphinx-10451",
+      "sphinx-doc__sphinx-11445",
+      "sphinx-doc__sphinx-7738",
+      "sphinx-doc__sphinx-8273",
+      "sphinx-doc__sphinx-8282",
+      "sphinx-doc__sphinx-8435",
+      "sphinx-doc__sphinx-8474",
+      "sphinx-doc__sphinx-8506",
+      "sphinx-doc__sphinx-8595",
+      "sphinx-doc__sphinx-8627",
+      "sphinx-doc__sphinx-8713",
+      "sphinx-doc__sphinx-8721",
+      "sphinx-doc__sphinx-8801"
     ]
-  }
+  },
+  "empty_gt_methods": [],
+  "empty_pred_methods": []
 }

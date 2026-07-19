@@ -39,7 +39,6 @@ embeddings_cache/
 credentials.json
 
 # Large data outputs (regenerable)
-data/by_repo
 data/code_graph
 data/patches
 data/test_patches
@@ -56,3 +55,10 @@ terminal_cheatsheet.local.txt
 
 # Jupyter
 .ipynb_checkpoints/
+
+# Drafts
+paper
+
+# Local AI-tool settings
+.claude/
+.codex/
